@@ -1,14 +1,15 @@
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+
+import { PrimeReactProvider } from "primereact/api";
 import { RouterProvider } from "react-router";
-import { router } from "./route.ts"
+import { router } from "./routes";
 
-function App() {
-
+export default function App() {
   return (
-    <>
-     <RouterProvider router={router} />
-    </>
-  )
-
+    <PrimeReactProvider>
+      <RouterProvider router={router} />
+    </PrimeReactProvider>
+  );
 }
-
-export default App;
