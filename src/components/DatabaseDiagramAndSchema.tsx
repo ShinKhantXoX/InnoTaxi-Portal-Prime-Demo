@@ -1,0 +1,1 @@
+export { DatabaseDiagramAndSchema } from "./DatabaseDiagram";

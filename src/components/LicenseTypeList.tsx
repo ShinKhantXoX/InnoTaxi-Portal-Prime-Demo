@@ -245,10 +245,10 @@ const statusOptions = [
   { label: "Inactive", value: "INACTIVE" },
 ];
 
-const primeReactChartCode = `import { Chart } from 'primereact/chart';
+export const primeReactChartCode = `import { Chart } from 'primereact/chart';
 import { useEffect, useState } from 'react';
 
-export default function DriversByLicenseType() {
+export default function DriversByDriverLicenseType() {
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
 
@@ -309,7 +309,7 @@ export default function DriversByLicenseType() {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5">
       <h3 className="text-[15px] font-semibold text-slate-900">
-        Drivers by License Type
+        Drivers by Driver License Type
       </h3>
       <p className="text-xs text-slate-400 mt-0.5 mb-5">
         Active & inactive driver count per license category
@@ -320,10 +320,10 @@ export default function DriversByLicenseType() {
   );
 }`;
 
-const primeVueChartCode = `<template>
+export const primeVueChartCode = `<template>
   <div class="bg-white rounded-xl border border-slate-200 p-5">
     <h3 class="text-[15px] font-semibold text-slate-900">
-      Drivers by License Type
+      Drivers by Driver License Type
     </h3>
     <p class="text-xs text-slate-400 mt-0.5 mb-5">
       Active &amp; inactive driver count per license category
@@ -392,17 +392,17 @@ onMounted(() => {
 });
 </script>`;
 
-const primeAngularChartCode = `import { Component, OnInit } from '@angular/core';
+export const primeAngularChartCode = `import { Component, OnInit } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 
 @Component({
-  selector: 'app-drivers-by-license-type',
+  selector: 'app-drivers-by-driver-license-type',
   standalone: true,
   imports: [ChartModule],
   template: \`
     <div class="bg-white rounded-xl border border-slate-200 p-5">
       <h3 class="text-[15px] font-semibold text-slate-900">
-        Drivers by License Type
+        Drivers by Driver License Type
       </h3>
       <p class="text-xs text-slate-400 mt-0.5 mb-5">
         Active &amp; inactive driver count per license category
@@ -412,7 +412,7 @@ import { ChartModule } from 'primeng/chart';
     </div>
   \`
 })
-export class DriversByLicenseTypeComponent implements OnInit {
+export class DriversByDriverLicenseTypeComponent implements OnInit {
   chartData: any;
   chartOptions: any;
 
@@ -468,15 +468,13 @@ export class DriversByLicenseTypeComponent implements OnInit {
   }
 }`;
 
-const pieReactCode = "import { Chart } from 'primereact/chart';\nimport { useEffect, useState } from 'react';\n\nexport default function DriverDistribution() {\n  const [chartData, setChartData] = useState({});\n  const [chartOptions, setChartOptions] = useState({});\n\n  useEffect(() => {\n    const licenseTypes = [\n      { code: 'THA', label: '\u101E (Learner)', drivers: 33, color: '#6366f1' },\n      { code: 'KA', label: '\u1000 (Motorcycle)', drivers: 79, color: '#8b5cf6' },\n      { code: 'KHA', label: '\u1001 (Private)', drivers: 97, color: '#3b82f6' },\n      { code: 'GA', label: '\u1002 (Machinery)', drivers: 18, color: '#06b6d4' },\n      { code: 'GHA', label: '\u1003 (Taxi)', drivers: 82, color: '#10b981' },\n      { code: 'NGA', label: '\u1004 (All Vehicles)', drivers: 40, color: '#f59e0b' },\n      { code: 'ZA', label: '\u1008 (Trailer)', drivers: 22, color: '#ef4444' },\n      { code: 'HA', label: '\u101F (Motorcycle/3W)', drivers: 49, color: '#ec4899' },\n      { code: 'SA', label: '\u1005 (Assistant)', drivers: 13, color: '#14b8a6' },\n      { code: 'INT', label: 'International', drivers: 9, color: '#f97316' },\n      { code: 'TMP', label: 'Temporary', drivers: 10, color: '#64748b' },\n    ];\n\n    const data = {\n      labels: licenseTypes.map(lt => `${lt.code} \u2014 ${lt.label}`),\n      datasets: [{\n        data: licenseTypes.map(lt => lt.drivers),\n        backgroundColor: licenseTypes.map(lt => lt.color),\n        borderColor: '#ffffff',\n        borderWidth: 2,\n        hoverOffset: 8,\n      }]\n    };\n\n    const options = {\n      responsive: true,\n      maintainAspectRatio: false,\n      cutout: '58%',\n      plugins: {\n        legend: { display: false },\n        tooltip: {\n          backgroundColor: '#0f172a',\n          titleFont: { size: 13, weight: '600' },\n          bodyFont: { size: 12 },\n          cornerRadius: 10,\n          padding: { x: 14, y: 10 },\n          callbacks: {\n            label: (ctx) => {\n              const total = ctx.dataset.data.reduce(\n                (a, b) => a + b, 0\n              );\n              const pct = ((ctx.parsed / total) * 100).toFixed(1);\n              return `${ctx.parsed} drivers (${pct}%)`;\n            }\n          }\n        }\n      }\n    };\n\n    setChartData(data);\n    setChartOptions(options);\n  }, []);\n\n  const total = 452;\n\n  return (\n    <div className=\"bg-white rounded-xl border border-slate-200 p-5\">\n      <h3 className=\"text-[15px] font-semibold text-slate-900\">\n        Driver Distribution\n      </h3>\n      <p className=\"text-xs text-slate-400 mt-0.5 mb-5\">\n        Total drivers per license type\n      </p>\n      <div className=\"relative\" style={{ height: '200px' }}>\n        <Chart type=\"doughnut\" data={chartData} options={chartOptions}\n          style={{ height: '200px' }} />\n        <div className=\"absolute inset-0 flex items-center justify-center\n          pointer-events-none\">\n          <div className=\"text-center\">\n            <div className=\"text-xl font-bold text-slate-900\">{total}</div>\n            <div className=\"text-[10px] text-slate-400 uppercase tracking-wider\">\n              Drivers\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  );\n}";
+export const pieReactCode = "import { Chart } from 'primereact/chart';\nimport { useEffect, useState } from 'react';\n\nexport default function DriverDistribution() {\n  const [chartData, setChartData] = useState({});\n  const [chartOptions, setChartOptions] = useState({});\n\n  useEffect(() => {\n    const licenseTypes = [\n      { code: 'THA', label: '\u101E (Learner)', drivers: 33, color: '#6366f1' },\n      { code: 'KA', label: '\u1000 (Motorcycle)', drivers: 79, color: '#8b5cf6' },\n      { code: 'KHA', label: '\u1001 (Private)', drivers: 97, color: '#3b82f6' },\n      { code: 'GA', label: '\u1002 (Machinery)', drivers: 18, color: '#06b6d4' },\n      { code: 'GHA', label: '\u1003 (Taxi)', drivers: 82, color: '#10b981' },\n      { code: 'NGA', label: '\u1004 (All Vehicles)', drivers: 40, color: '#f59e0b' },\n      { code: 'ZA', label: '\u1008 (Trailer)', drivers: 22, color: '#ef4444' },\n      { code: 'HA', label: '\u101F (Motorcycle/3W)', drivers: 49, color: '#ec4899' },\n      { code: 'SA', label: '\u1005 (Assistant)', drivers: 13, color: '#14b8a6' },\n      { code: 'INT', label: 'International', drivers: 9, color: '#f97316' },\n      { code: 'TMP', label: 'Temporary', drivers: 10, color: '#64748b' },\n    ];\n\n    const data = {\n      labels: licenseTypes.map(lt => `${lt.code} \u2014 ${lt.label}`),\n      datasets: [{\n        data: licenseTypes.map(lt => lt.drivers),\n        backgroundColor: licenseTypes.map(lt => lt.color),\n        borderColor: '#ffffff',\n        borderWidth: 2,\n        hoverOffset: 8,\n      }]\n    };\n\n    const options = {\n      responsive: true,\n      maintainAspectRatio: false,\n      cutout: '58%',\n      plugins: {\n        legend: { display: false },\n        tooltip: {\n          backgroundColor: '#0f172a',\n          titleFont: { size: 13, weight: '600' },\n          bodyFont: { size: 12 },\n          cornerRadius: 10,\n          padding: { x: 14, y: 10 },\n          callbacks: {\n            label: (ctx) => {\n              const total = ctx.dataset.data.reduce(\n                (a, b) => a + b, 0\n              );\n              const pct = ((ctx.parsed / total) * 100).toFixed(1);\n              return `${ctx.parsed} drivers (${pct}%)`;\n            }\n          }\n        }\n      }\n    };\n\n    setChartData(data);\n    setChartOptions(options);\n  }, []);\n\n  const total = 452;\n\n  return (\n    <div className=\"bg-white rounded-xl border border-slate-200 p-5\">\n      <h3 className=\"text-[15px] font-semibold text-slate-900\">\n        Driver Distribution\n      </h3>\n      <p className=\"text-xs text-slate-400 mt-0.5 mb-5\">\n        Total drivers per license type\n      </p>\n      <div className=\"relative\" style={{ height: '200px' }}>\n        <Chart type=\"doughnut\" data={chartData} options={chartOptions}\n          style={{ height: '200px' }} />\n        <div className=\"absolute inset-0 flex items-center justify-center\n          pointer-events-none\">\n          <div className=\"text-center\">\n            <div className=\"text-xl font-bold text-slate-900\">{total}</div>\n            <div className=\"text-[10px] text-slate-400 uppercase tracking-wider\">\n              Drivers\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  );\n}";
 
-const pieVueCode = "<template>\n  <div class=\"bg-white rounded-xl border border-slate-200 p-5\">\n    <h3 class=\"text-[15px] font-semibold text-slate-900\">\n      Driver Distribution\n    </h3>\n    <p class=\"text-xs text-slate-400 mt-0.5 mb-5\">\n      Total drivers per license type\n    </p>\n    <div class=\"relative\" style=\"height: 200px\">\n      <Chart type=\"doughnut\" :data=\"chartData\" :options=\"chartOptions\"\n        style=\"height: 200px\" />\n      <div class=\"absolute inset-0 flex items-center justify-center\n        pointer-events-none\">\n        <div class=\"text-center\">\n          <div class=\"text-xl font-bold text-slate-900\">{{ total }}</div>\n          <div class=\"text-[10px] text-slate-400 uppercase tracking-wider\">\n            Drivers\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n\n<script setup lang=\"ts\">\nimport { ref, onMounted, computed } from 'vue';\nimport Chart from 'primevue/chart';\n\nconst chartData = ref({});\nconst chartOptions = ref({});\n\nconst licenseTypes = [\n  { code: 'THA', label: '\u101E (Learner)', drivers: 33, color: '#6366f1' },\n  { code: 'KA', label: '\u1000 (Motorcycle)', drivers: 79, color: '#8b5cf6' },\n  { code: 'KHA', label: '\u1001 (Private)', drivers: 97, color: '#3b82f6' },\n  { code: 'GA', label: '\u1002 (Machinery)', drivers: 18, color: '#06b6d4' },\n  { code: 'GHA', label: '\u1003 (Taxi)', drivers: 82, color: '#10b981' },\n  { code: 'NGA', label: '\u1004 (All Vehicles)', drivers: 40, color: '#f59e0b' },\n  { code: 'ZA', label: '\u1008 (Trailer)', drivers: 22, color: '#ef4444' },\n  { code: 'HA', label: '\u101F (Motorcycle/3W)', drivers: 49, color: '#ec4899' },\n  { code: 'SA', label: '\u1005 (Assistant)', drivers: 13, color: '#14b8a6' },\n  { code: 'INT', label: 'International', drivers: 9, color: '#f97316' },\n  { code: 'TMP', label: 'Temporary', drivers: 10, color: '#64748b' },\n];\n\nconst total = computed(() =>\n  licenseTypes.reduce((s, lt) => s + lt.drivers, 0)\n);\n\nonMounted(() => {\n  chartData.value = {\n    labels: licenseTypes.map(lt => `${lt.code} \u2014 ${lt.label}`),\n    datasets: [{\n      data: licenseTypes.map(lt => lt.drivers),\n      backgroundColor: licenseTypes.map(lt => lt.color),\n      borderColor: '#ffffff',\n      borderWidth: 2,\n      hoverOffset: 8,\n    }]\n  };\n\n  chartOptions.value = {\n    responsive: true,\n    maintainAspectRatio: false,\n    cutout: '58%',\n    plugins: {\n      legend: { display: false },\n      tooltip: {\n        backgroundColor: '#0f172a',\n        titleFont: { size: 13, weight: '600' },\n        bodyFont: { size: 12 },\n        cornerRadius: 10,\n        padding: { x: 14, y: 10 },\n        callbacks: {\n          label: (ctx) => {\n            const sum = ctx.dataset.data.reduce(\n              (a, b) => a + b, 0\n            );\n            const pct = ((ctx.parsed / sum) * 100).toFixed(1);\n            return `${ctx.parsed} drivers (${pct}%)`;\n          }\n        }\n      }\n    }\n  };\n});\n</script>";
+export const pieVueCode = "<template>\n  <div class=\"bg-white rounded-xl border border-slate-200 p-5\">\n    <h3 class=\"text-[15px] font-semibold text-slate-900\">\n      Driver Distribution\n    </h3>\n    <p class=\"text-xs text-slate-400 mt-0.5 mb-5\">\n      Total drivers per license type\n    </p>\n    <div class=\"relative\" style=\"height: 200px\">\n      <Chart type=\"doughnut\" :data=\"chartData\" :options=\"chartOptions\"\n        style=\"height: 200px\" />\n      <div class=\"absolute inset-0 flex items-center justify-center\n        pointer-events-none\">\n        <div class=\"text-center\">\n          <div class=\"text-xl font-bold text-slate-900\">{{ total }}</div>\n          <div class=\"text-[10px] text-slate-400 uppercase tracking-wider\">\n            Drivers\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n\n<script setup lang=\"ts\">\nimport { ref, onMounted, computed } from 'vue';\nimport Chart from 'primevue/chart';\n\nconst chartData = ref({});\nconst chartOptions = ref({});\n\nconst licenseTypes = [\n  { code: 'THA', label: '\u101E (Learner)', drivers: 33, color: '#6366f1' },\n  { code: 'KA', label: '\u1000 (Motorcycle)', drivers: 79, color: '#8b5cf6' },\n  { code: 'KHA', label: '\u1001 (Private)', drivers: 97, color: '#3b82f6' },\n  { code: 'GA', label: '\u1002 (Machinery)', drivers: 18, color: '#06b6d4' },\n  { code: 'GHA', label: '\u1003 (Taxi)', drivers: 82, color: '#10b981' },\n  { code: 'NGA', label: '\u1004 (All Vehicles)', drivers: 40, color: '#f59e0b' },\n  { code: 'ZA', label: '\u1008 (Trailer)', drivers: 22, color: '#ef4444' },\n  { code: 'HA', label: '\u101F (Motorcycle/3W)', drivers: 49, color: '#ec4899' },\n  { code: 'SA', label: '\u1005 (Assistant)', drivers: 13, color: '#14b8a6' },\n  { code: 'INT', label: 'International', drivers: 9, color: '#f97316' },\n  { code: 'TMP', label: 'Temporary', drivers: 10, color: '#64748b' },\n];\n\nconst total = computed(() =>\n  licenseTypes.reduce((s, lt) => s + lt.drivers, 0)\n);\n\nonMounted(() => {\n  chartData.value = {\n    labels: licenseTypes.map(lt => `${lt.code} \u2014 ${lt.label}`),\n    datasets: [{\n      data: licenseTypes.map(lt => lt.drivers),\n      backgroundColor: licenseTypes.map(lt => lt.color),\n      borderColor: '#ffffff',\n      borderWidth: 2,\n      hoverOffset: 8,\n    }]\n  };\n\n  chartOptions.value = {\n    responsive: true,\n    maintainAspectRatio: false,\n    cutout: '58%',\n    plugins: {\n      legend: { display: false },\n      tooltip: {\n        backgroundColor: '#0f172a',\n        titleFont: { size: 13, weight: '600' },\n        bodyFont: { size: 12 },\n        cornerRadius: 10,\n        padding: { x: 14, y: 10 },\n        callbacks: {\n          label: (ctx) => {\n            const sum = ctx.dataset.data.reduce(\n              (a, b) => a + b, 0\n            );\n            const pct = ((ctx.parsed / sum) * 100).toFixed(1);\n            return `${ctx.parsed} drivers (${pct}%)`;\n          }\n        }\n      }\n    }\n  };\n});\n</script>";
 
-const pieAngularCode = "import { Component, OnInit } from '@angular/core';\nimport { ChartModule } from 'primeng/chart';\n\n@Component({\n  selector: 'app-driver-distribution',\n  standalone: true,\n  imports: [ChartModule],\n  template: `\n    <div class=\"bg-white rounded-xl border border-slate-200 p-5\">\n      <h3 class=\"text-[15px] font-semibold text-slate-900\">\n        Driver Distribution\n      </h3>\n      <p class=\"text-xs text-slate-400 mt-0.5 mb-5\">\n        Total drivers per license type\n      </p>\n      <div class=\"relative\" style=\"height: 200px\">\n        <p-chart type=\"doughnut\" [data]=\"chartData\" [options]=\"chartOptions\"\n          [style]=\"{ height: '200px' }\" />\n        <div class=\"absolute inset-0 flex items-center justify-center\n          pointer-events-none\">\n          <div class=\"text-center\">\n            <div class=\"text-xl font-bold text-slate-900\">{{ total }}</div>\n            <div class=\"text-[10px] text-slate-400 uppercase tracking-wider\">\n              Drivers\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  `\n})\nexport class DriverDistributionComponent implements OnInit {\n  chartData: any;\n  chartOptions: any;\n  total = 452;\n\n  licenseTypes = [\n    { code: 'THA', label: '\u101E (Learner)', drivers: 33, color: '#6366f1' },\n    { code: 'KA', label: '\u1000 (Motorcycle)', drivers: 79, color: '#8b5cf6' },\n    { code: 'KHA', label: '\u1001 (Private)', drivers: 97, color: '#3b82f6' },\n    { code: 'GA', label: '\u1002 (Machinery)', drivers: 18, color: '#06b6d4' },\n    { code: 'GHA', label: '\u1003 (Taxi)', drivers: 82, color: '#10b981' },\n    { code: 'NGA', label: '\u1004 (All Vehicles)', drivers: 40, color: '#f59e0b' },\n    { code: 'ZA', label: '\u1008 (Trailer)', drivers: 22, color: '#ef4444' },\n    { code: 'HA', label: '\u101F (Motorcycle/3W)', drivers: 49, color: '#ec4899' },\n    { code: 'SA', label: '\u1005 (Assistant)', drivers: 13, color: '#14b8a6' },\n    { code: 'INT', label: 'International', drivers: 9, color: '#f97316' },\n    { code: 'TMP', label: 'Temporary', drivers: 10, color: '#64748b' },\n  ];\n\n  ngOnInit() {\n    this.chartData = {\n      labels: this.licenseTypes.map(\n        lt => `${lt.code} \u2014 ${lt.label}`\n      ),\n      datasets: [{\n        data: this.licenseTypes.map(lt => lt.drivers),\n        backgroundColor: this.licenseTypes.map(lt => lt.color),\n        borderColor: '#ffffff',\n        borderWidth: 2,\n        hoverOffset: 8,\n      }]\n    };\n\n    this.chartOptions = {\n      responsive: true,\n      maintainAspectRatio: false,\n      cutout: '58%',\n      plugins: {\n        legend: { display: false },\n        tooltip: {\n          backgroundColor: '#0f172a',\n          titleFont: { size: 13, weight: '600' },\n          bodyFont: { size: 12 },\n          cornerRadius: 10,\n          padding: { x: 14, y: 10 },\n          callbacks: {\n            label: (ctx) => {\n              const sum = ctx.dataset.data.reduce(\n                (a, b) => a + b, 0\n              );\n              const pct = ((ctx.parsed / sum) * 100).toFixed(1);\n              return `${ctx.parsed} drivers (${pct}%)`;\n            }\n          }\n        }\n      }\n    };\n  }\n}";
+export const pieAngularCode = "import { Component, OnInit } from '@angular/core';\nimport { ChartModule } from 'primeng/chart';\n\n@Component({\n  selector: 'app-driver-distribution',\n  standalone: true,\n  imports: [ChartModule],\n  template: `\n    <div class=\"bg-white rounded-xl border border-slate-200 p-5\">\n      <h3 class=\"text-[15px] font-semibold text-slate-900\">\n        Driver Distribution\n      </h3>\n      <p class=\"text-xs text-slate-400 mt-0.5 mb-5\">\n        Total drivers per license type\n      </p>\n      <div class=\"relative\" style=\"height: 200px\">\n        <p-chart type=\"doughnut\" [data]=\"chartData\" [options]=\"chartOptions\"\n          [style]=\"{ height: '200px' }\" />\n        <div class=\"absolute inset-0 flex items-center justify-center\n          pointer-events-none\">\n          <div class=\"text-center\">\n            <div class=\"text-xl font-bold text-slate-900\">{{ total }}</div>\n            <div class=\"text-[10px] text-slate-400 uppercase tracking-wider\">\n              Drivers\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  `\n})\nexport class DriverDistributionComponent implements OnInit {\n  chartData: any;\n  chartOptions: any;\n  total = 452;\n\n  licenseTypes = [\n    { code: 'THA', label: '\u101E (Learner)', drivers: 33, color: '#6366f1' },\n    { code: 'KA', label: '\u1000 (Motorcycle)', drivers: 79, color: '#8b5cf6' },\n    { code: 'KHA', label: '\u1001 (Private)', drivers: 97, color: '#3b82f6' },\n    { code: 'GA', label: '\u1002 (Machinery)', drivers: 18, color: '#06b6d4' },\n    { code: 'GHA', label: '\u1003 (Taxi)', drivers: 82, color: '#10b981' },\n    { code: 'NGA', label: '\u1004 (All Vehicles)', drivers: 40, color: '#f59e0b' },\n    { code: 'ZA', label: '\u1008 (Trailer)', drivers: 22, color: '#ef4444' },\n    { code: 'HA', label: '\u101F (Motorcycle/3W)', drivers: 49, color: '#ec4899' },\n    { code: 'SA', label: '\u1005 (Assistant)', drivers: 13, color: '#14b8a6' },\n    { code: 'INT', label: 'International', drivers: 9, color: '#f97316' },\n    { code: 'TMP', label: 'Temporary', drivers: 10, color: '#64748b' },\n  ];\n\n  ngOnInit() {\n    this.chartData = {\n      labels: this.licenseTypes.map(\n        lt => `${lt.code} \u2014 ${lt.label}`\n      ),\n      datasets: [{\n        data: this.licenseTypes.map(lt => lt.drivers),\n        backgroundColor: this.licenseTypes.map(lt => lt.color),\n        borderColor: '#ffffff',\n        borderWidth: 2,\n        hoverOffset: 8,\n      }]\n    };\n\n    this.chartOptions = {\n      responsive: true,\n      maintainAspectRatio: false,\n      cutout: '58%',\n      plugins: {\n        legend: { display: false },\n        tooltip: {\n          backgroundColor: '#0f172a',\n          titleFont: { size: 13, weight: '600' },\n          bodyFont: { size: 12 },\n          cornerRadius: 10,\n          padding: { x: 14, y: 10 },\n          callbacks: {\n            label: (ctx) => {\n              const sum = ctx.dataset.data.reduce(\n                (a, b) => a + b, 0\n              );\n              const pct = ((ctx.parsed / sum) * 100).toFixed(1);\n              return `${ctx.parsed} drivers (${pct}%)`;\n            }\n          }\n        }\n      }\n    };\n  }\n}";
 
-// ── Bar Chart: Backend code string ──
-
-const chartBackendCode = `// license-type-stats.controller.ts
+export const chartBackendCode = `// license-type-stats.controller.ts
 import { Controller, Get, Query } from '@nestjs/common';
 import { LicenseTypeStatsService } from './license-type-stats.service';
 
@@ -609,7 +607,7 @@ export class LicenseTypeStatsService {
 
 // ── Pie/Donut Chart: Backend code string ──
 
-const pieBackendCode = `// driver-distribution.controller.ts
+export const pieBackendCode = `// driver-distribution.controller.ts
 import { Controller, Get } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -701,7 +699,7 @@ export class DriverDistributionController {
 
 // ── DataTable: Backend code string (NestJS — passed to getTableBackendCode) ──
 
-const tableBackendCode = [
+export const tableBackendCode = [
   "// license-type.controller.ts",
   "import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';",
   "import { LicenseTypeService } from './license-type.service';",
@@ -836,7 +834,7 @@ const tableBackendCode = [
   "}",
 ].join("\n");
 
-const primeReactTableCode = `import { useState, useRef, useMemo } from 'react';
+export const primeReactTableCode = `import { useState, useRef, useMemo } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
@@ -1023,7 +1021,7 @@ export default function LicenseTypeTable() {
   );
 }`;
 
-const primeVueTableCode = `<template>
+export const primeVueTableCode = `<template>
   <Toast ref="toast" />
   <Toolbar>
     <template #start>
@@ -1172,7 +1170,7 @@ const exportPDF = () => {
 };
 </script>`;
 
-const primeAngularTableCode = `import { Component, OnInit, ViewChild } from '@angular/core';
+export const primeAngularTableCode = `import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule, Table } from 'primeng/table';
@@ -1697,7 +1695,7 @@ export function LicenseTypeList() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "license_types.csv";
+    a.download = "driver_license_types.csv";
     a.click();
     URL.revokeObjectURL(url);
     setExportDialogVisible(false);
@@ -1720,8 +1718,8 @@ export function LicenseTypeList() {
     const worksheetData = [headers, ...dataToExport.map((lt) => cols.map((c) => String(lt[c.field])))];
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "License Types");
-    XLSX.writeFile(workbook, "license_types.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Driver License Types");
+    XLSX.writeFile(workbook, "driver_license_types.xlsx");
     setExportDialogVisible(false);
     toast.current?.show({
       severity: "info",
@@ -1753,7 +1751,7 @@ export function LicenseTypeList() {
         return acc;
       }, {} as { [key: string]: { cellWidth: "wrap" } }),
     });
-    doc.save("license_types.pdf");
+    doc.save("driver_license_types.pdf");
     setExportDialogVisible(false);
     toast.current?.show({
       severity: "info",
@@ -2072,7 +2070,7 @@ export function LicenseTypeList() {
         ))}
       </div>
 
-      {/* Drivers by License Type — Two Column Charts */}
+      {/* Drivers by Driver License Type — Two Column Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 mb-5">
         {/* Bar Chart Column */}
         <motion.div
@@ -2088,7 +2086,7 @@ export function LicenseTypeList() {
                 <TrendingUp className="w-4 h-4 text-[#e53935]" />
               </div>
               <div className="flex-1">
-                <h3 className="text-[15px] text-[#0f172a] font-semibold">Drivers by License Type</h3>
+                <h3 className="text-[15px] text-[#0f172a] font-semibold">Drivers by Driver License Type</h3>
                 <p className="text-[12px] text-[#94a3b8] mt-0.5">Active &amp; inactive driver count per license category</p>
               </div>
               <div className="relative" ref={chartDownloadRef}>
@@ -2157,6 +2155,7 @@ export function LicenseTypeList() {
           >
             <ResponsiveContainer width="100%" height={300} minWidth={200}>
               <BarChart
+                id="license-type-bar-chart"
                 data={driverBarData}
                 margin={{ top: 8, right: 8, left: -12, bottom: 4 }}
                 barGap={3}
@@ -2223,7 +2222,7 @@ export function LicenseTypeList() {
           </motion.div>
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#f1f5f9]">
             <span className="text-[11px] text-[#94a3b8]">
-              Total: 342 active drivers across 11 license types
+              Total: 342 active drivers across 11 driver license types
             </span>
             <span className="text-[11px] text-[#e53935] font-medium">
               Top: KHA — ခ (89 active drivers)
@@ -2254,7 +2253,7 @@ export function LicenseTypeList() {
                   </div>
                   <div>
                     <h3 className="text-[13px] text-[#0f172a] font-semibold">Chart Code Preview</h3>
-                    <p className="text-[10px] text-[#94a3b8]">Drivers by License Type — Bar Chart</p>
+                    <p className="text-[10px] text-[#94a3b8]">Drivers by Driver License Type — Bar Chart</p>
                   </div>
                 </div>
                 <button
@@ -2404,7 +2403,7 @@ export function LicenseTypeList() {
                   </div>
                   <span className="text-[10px] text-[#64748b] ml-2">
                     {chartCodeCategory === "frontend"
-                      ? (chartCodeFramework === "react" ? "DriversByLicenseType.tsx" : chartCodeFramework === "vue" ? "DriversByLicenseType.vue" : "drivers-by-license-type.component.ts")
+                      ? (chartCodeFramework === "react" ? "DriversByDriverLicenseType.tsx" : chartCodeFramework === "vue" ? "DriversByDriverLicenseType.vue" : "drivers-by-driver-license-type.component.ts")
                       : backendLangConfig[chartBackendLang].file}
                   </span>
                 </div>
@@ -2505,8 +2504,7 @@ export function LicenseTypeList() {
               transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
               className="w-[200px] h-[200px] flex-shrink-0 relative"
             >
-              <ResponsiveContainer width={200} height={200}>
-                <PieChart>
+              <PieChart width={200} height={200}>
                   <Pie
                     data={driverBarData.map((d) => ({
                       name: d.code,
@@ -2543,8 +2541,7 @@ export function LicenseTypeList() {
                       return [`${value} drivers (${pct}%)`, item ? `${name} — ${item.label}` : name];
                     }}
                   />
-                </PieChart>
-              </ResponsiveContainer>
+              </PieChart>
               {/* Center label */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="text-center">
