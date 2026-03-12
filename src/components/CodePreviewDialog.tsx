@@ -3,7 +3,7 @@ import { Dialog } from "primereact/dialog";
 import { Copy, Check, FileCode2 } from "lucide-react";
 
 // ─── PrimeVue Code ───
-const vueTemplate = `<template>
+export const vueTemplate = `<template>
   <div class="flex min-h-screen font-inter">
     <!-- Left Panel -->
     <div class="hidden lg:flex lg:w-[48%] relative min-h-screen
@@ -132,7 +132,7 @@ const vueTemplate = `<template>
   </div>
 </template>`;
 
-const vueScript = `<script setup>
+export const vueScript = `<script setup>
 import { ref, computed } from 'vue'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
@@ -181,7 +181,7 @@ const handleSignIn = () => {
 }
 </script>`;
 
-const vueSetup = `// main.js
+export const vueSetup = `// main.js
 import { createApp } from 'vue'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
@@ -200,7 +200,7 @@ app.mount('#app')
 // npm install primevue @primevue/themes primeicons`;
 
 // ─── PrimeReact Code ───
-const reactComponent = `import { useState } from 'react';
+export const reactComponent = `import { useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Checkbox } from 'primereact/checkbox';
@@ -350,7 +350,7 @@ export function LoginForm() {
   );
 }`;
 
-const reactSetup = `// App.tsx
+export const reactSetup = `// App.tsx
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -377,7 +377,7 @@ export default function App() {
 // npm install primereact primeicons lucide-react`;
 
 // ─── PrimeNG (Angular) Code ───
-const angularTemplate = `<!-- login-page.component.html -->
+export const angularTemplate = `<!-- login-page.component.html -->
 <div class="flex min-h-screen font-inter">
   <!-- Left Panel -->
   <div class="hidden lg:flex lg:w-[48%] relative min-h-screen
@@ -509,7 +509,7 @@ const angularTemplate = `<!-- login-page.component.html -->
   </div>
 </div>`;
 
-const angularComponent = `// login-page.component.ts
+export const angularComponent = `// login-page.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -567,7 +567,7 @@ export class LoginPageComponent {
   }
 }`;
 
-const angularSetup = `// app.config.ts
+export const angularSetup = `// app.config.ts
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';

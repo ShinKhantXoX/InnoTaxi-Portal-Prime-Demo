@@ -19,8 +19,17 @@ import {
   IdCard,
   FileText,
   ScrollText,
+  Code,
+  Server,
+  Database,
+  GitBranch,
+  TableProperties,
+  ArrowRightLeft,
 } from "lucide-react";
 import { LicenseTypeList } from "./LicenseTypeList";
+import { FrontendDev } from "./FrontendDev";
+import { BackendDev } from "./BackendDev";
+import { DatabaseDiagramAndSchema } from "./DatabaseDiagramAndSchema";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface UserProfile {
@@ -55,8 +64,11 @@ export function DashboardLayout() {
   });
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
     const stored = sessionStorage.getItem("innotaxi_active_item");
-    if (stored === "License Type" || stored === "License Policy") {
+    if (stored === "Driver License Type" || stored === "License Policy") {
       return { driverLicense: true };
+    }
+    if (stored === "Diagram and Schema" || stored === "Schema" || stored === "Migration") {
+      return { database: true };
     }
     return {};
   });
@@ -79,7 +91,7 @@ export function DashboardLayout() {
   // Sync sidebar active item when navigating to detail route
   useEffect(() => {
     if (location.pathname.startsWith("/dashboard/license-types/")) {
-      setActiveItem("License Type");
+      setActiveItem("Driver License Type");
       setExpandedMenus((prev) => ({ ...prev, driverLicense: true }));
     }
   }, [location.pathname]);
@@ -217,7 +229,7 @@ export function DashboardLayout() {
                 flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
                 ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
                 ${
-                  activeItem === "License Type" || activeItem === "License Policy"
+                  activeItem === "Driver License Type" || activeItem === "License Policy"
                     ? "bg-[#fef2f2] text-[#e53935]"
                     : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
                 }
@@ -225,12 +237,12 @@ export function DashboardLayout() {
               title={!sidebarOpen ? "Driver License" : undefined}
             >
               <IdCard className={`w-[18px] h-[18px] shrink-0 ${
-                activeItem === "License Type" || activeItem === "License Policy" ? "text-[#e53935]" : ""
+                activeItem === "Driver License Type" || activeItem === "License Policy" ? "text-[#e53935]" : ""
               }`} />
               {sidebarOpen && (
                 <>
                   <span className={`text-[13px] flex-1 text-left ${
-                    activeItem === "License Type" || activeItem === "License Policy" ? "font-semibold" : "font-medium"
+                    activeItem === "Driver License Type" || activeItem === "License Policy" ? "font-semibold" : "font-medium"
                   }`}>
                     Driver License
                   </span>
@@ -247,7 +259,7 @@ export function DashboardLayout() {
             {sidebarOpen && expandedMenus.driverLicense && (
               <div className="flex flex-col gap-0.5 ml-4 pl-3 border-l-[2px] border-[#e2e8f0]">
                 {[
-                  { icon: FileText, label: "License Type", key: "License Type" },
+                  { icon: FileText, label: "Driver License Type", key: "Driver License Type" },
                   { icon: ScrollText, label: "License Policy", key: "License Policy" },
                 ].map((sub) => {
                   const isSubActive = activeItem === sub.key;
@@ -281,10 +293,134 @@ export function DashboardLayout() {
               </div>
             )}
           </div>
-        </nav>
 
-        {/* Sidebar Footer - User Info */}
-        
+          {/* Section Header: Development */}
+          {sidebarOpen && (
+            <div className="px-3 pt-5 pb-1.5">
+              <p className="text-[10px] tracking-[1px] uppercase text-[#94a3b8] font-semibold">
+                Development
+              </p>
+            </div>
+          )}
+          {!sidebarOpen && <div className="my-3 mx-2 border-t border-[#e2e8f0]" />}
+
+          <div className="flex flex-col gap-0.5">
+            {/* Database (expandable with sub-items) */}
+            <button
+              onClick={() => {
+                if (sidebarOpen) {
+                  setExpandedMenus((prev) => ({ ...prev, database: !prev.database }));
+                } else {
+                  setActiveItem("Diagram and Schema");
+                  setMobileSidebarOpen(false);
+                }
+              }}
+              className={`
+                flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                ${
+                  activeItem === "Diagram and Schema" || activeItem === "Schema" || activeItem === "Migration"
+                    ? "bg-[#fef2f2] text-[#e53935]"
+                    : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                }
+              `}
+              title={!sidebarOpen ? "Database" : undefined}
+            >
+              <Database className={`w-[18px] h-[18px] shrink-0 ${
+                activeItem === "Diagram and Schema" || activeItem === "Schema" || activeItem === "Migration" ? "text-[#e53935]" : ""
+              }`} />
+              {sidebarOpen && (
+                <>
+                  <span className={`text-[13px] flex-1 text-left ${
+                    activeItem === "Diagram and Schema" || activeItem === "Schema" || activeItem === "Migration" ? "font-semibold" : "font-medium"
+                  }`}>
+                    Database
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      expandedMenus.database ? "rotate-180" : ""
+                    }`}
+                  />
+                </>
+              )}
+            </button>
+
+            {/* Database sub-menu items */}
+            {sidebarOpen && expandedMenus.database && (
+              <div className="flex flex-col gap-0.5 ml-4 pl-3 border-l-[2px] border-[#e2e8f0]">
+                {[
+                  { icon: GitBranch, label: "Diagram and Schema", key: "Diagram and Schema" },
+                ].map((sub) => {
+                  const isSubActive = activeItem === sub.key;
+                  return (
+                    <button
+                      key={sub.key}
+                      onClick={() => {
+                        setActiveItem(sub.key);
+                        setMobileSidebarOpen(false);
+                        if (location.pathname !== "/dashboard") navigate("/dashboard");
+                      }}
+                      className={`
+                        flex items-center gap-2.5 rounded-[8px] px-2.5 py-2 transition-all cursor-pointer
+                        ${
+                          isSubActive
+                            ? "bg-[#fef2f2] text-[#e53935]"
+                            : "text-[#94a3b8] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                        }
+                      `}
+                    >
+                      <sub.icon className={`w-[15px] h-[15px] shrink-0 ${isSubActive ? "text-[#e53935]" : ""}`} />
+                      <span className={`text-[12px] ${isSubActive ? "font-semibold" : "font-medium"}`}>
+                        {sub.label}
+                      </span>
+                      {isSubActive && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Frontend & Backend (simple items) */}
+            {[
+              { icon: Code, label: "Frontend" },
+              { icon: Server, label: "Backend" },
+            ].map((item) => {
+              const isActive = activeItem === item.label;
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => {
+                    setActiveItem(item.label);
+                    setMobileSidebarOpen(false);
+                    if (location.pathname !== "/dashboard") navigate("/dashboard");
+                  }}
+                  className={`
+                    flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                    ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                    ${
+                      isActive
+                        ? "bg-[#fef2f2] text-[#e53935]"
+                        : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    }
+                  `}
+                  title={!sidebarOpen ? item.label : undefined}
+                >
+                  <item.icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
+                  {sidebarOpen && (
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
+                      {item.label}
+                    </span>
+                  )}
+                  {isActive && sidebarOpen && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
       </aside>
 
       {/* Main Content Area */}
@@ -386,8 +522,14 @@ export function DashboardLayout() {
           <div className="p-4 lg:p-6">
             {outlet ? (
               <Outlet />
-            ) : activeItem === "License Type" ? (
+            ) : activeItem === "Driver License Type" ? (
               <LicenseTypeList />
+            ) : activeItem === "Frontend" ? (
+              <FrontendDev />
+            ) : activeItem === "Backend" ? (
+              <BackendDev />
+            ) : activeItem === "Diagram and Schema" ? (
+              <DatabaseDiagramAndSchema />
             ) : (
               <>
                 {/* Welcome Section */}
@@ -433,11 +575,11 @@ export function DashboardLayout() {
                   ))}
                 </div>
 
-                {/* Drivers by License Type Bar Chart */}
+                {/* Drivers by Driver License Type Bar Chart */}
                 <div className="bg-white rounded-[12px] border border-[#e2e8f0] p-5 mb-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="text-[15px] text-[#0f172a] font-semibold">Drivers by License Type</h3>
+                      <h3 className="text-[15px] text-[#0f172a] font-semibold">Drivers by Driver License Type</h3>
                       <p className="text-[12px] text-[#94a3b8] mt-0.5">Active driver distribution across license categories</p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -454,6 +596,7 @@ export function DashboardLayout() {
                   <div className="h-[320px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
+                        id="dashboard-bar-chart"
                         data={[
                           { code: "THA", name: "သ (Learner)", active: 28, inactive: 5 },
                           { code: "KA", name: "က (Motorcycle)", active: 67, inactive: 12 },
@@ -504,7 +647,7 @@ export function DashboardLayout() {
                     </ResponsiveContainer>
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#f1f5f9]">
-                    <span className="text-[11px] text-[#94a3b8]">Total: 342 active drivers across 11 license types</span>
+                    <span className="text-[11px] text-[#94a3b8]">Total: 342 active drivers across 11 driver license types</span>
                     <span className="text-[11px] text-[#e53935] font-medium">Top: KHA (89 drivers)</span>
                   </div>
                 </div>
