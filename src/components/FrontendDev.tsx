@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from "react";
-import { Copy, Check, ChevronDown, ChevronRight, Code, Code2, FileCode2, BarChart3, PieChart, Table, Pencil, Eye, LineChart, LogIn } from "lucide-react";
+import { useState, useEffect, type ReactNode } from "react";
+import { Copy, Check, ChevronDown, ChevronRight, Code, Code2, FileCode2, BarChart3, PieChart, Table, Pencil, Eye, LineChart, LogIn, Plus, Droplets } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 
 // Login page codes
@@ -15,6 +15,28 @@ import {
   pieReactCode, pieVueCode, pieAngularCode,
   primeReactTableCode, primeVueTableCode, primeAngularTableCode,
 } from "./LicenseTypeList";
+
+// License Policy List codes
+import {
+  policyReactTableCode, policyVueTableCode, policyAngularTableCode,
+} from "./LicensePolicyList";
+
+// License Policy Add codes
+import {
+  createPolicyReactCode, createPolicyVueCode, createPolicyAngularCode,
+} from "./licensePolicyBackendCodes";
+
+// License Policy Detail codes
+import {
+  detailReactCode as policyDetailReactCode,
+  detailVueCode as policyDetailVueCode,
+  detailAngularCode as policyDetailAngularCode,
+} from "./LicensePolicyDetail";
+
+// Blood Type List codes
+import {
+  bloodTypeReactTableCode, bloodTypeVueTableCode, bloodTypeAngularTableCode,
+} from "./BloodTypeList";
 
 // Driver License Type Detail codes
 import { detailReactCode, detailVueCode, detailAngularCode } from "./detailBackendCodes";
@@ -151,6 +173,66 @@ const pages: PageSection[] = [
           vue: [{ key: "component", label: "Component", fileName: "DriverLicenseTypeTable.vue", code: primeVueTableCode, language: "markup" }],
           react: [{ key: "component", label: "Component", fileName: "DriverLicenseTypeTable.tsx", code: primeReactTableCode, language: "tsx" }],
           angular: [{ key: "component", label: "Component", fileName: "driver-license-type-table.component.ts", code: primeAngularTableCode, language: "typescript" }],
+        },
+      },
+    ],
+  },
+  {
+    id: "policy-list",
+    label: "License Policy List",
+    description: "Data table with charts for license policy management",
+    route: "/dashboard (License Policy)",
+    snippets: [
+      {
+        id: "data-table",
+        label: "Data Table",
+        description: "Search, Filter, Export, Columns, Pagination",
+        icon: Table,
+        frameworks: {
+          vue: [{ key: "component", label: "Component", fileName: "LicensePolicyTable.vue", code: policyVueTableCode, language: "markup" }],
+          react: [{ key: "component", label: "Component", fileName: "LicensePolicyTable.tsx", code: policyReactTableCode, language: "tsx" }],
+          angular: [{ key: "component", label: "Component", fileName: "license-policy-table.component.ts", code: policyAngularTableCode, language: "typescript" }],
+        },
+      },
+      {
+        id: "add-policy",
+        label: "Add Policy",
+        description: "POST /api/v1/license-policies",
+        icon: Plus,
+        frameworks: {
+          vue: [{ key: "component", label: "Component", fileName: "LicensePolicyAdd.vue", code: createPolicyVueCode, language: "markup" }],
+          react: [{ key: "component", label: "Component", fileName: "LicensePolicyAdd.tsx", code: createPolicyReactCode, language: "tsx" }],
+          angular: [{ key: "component", label: "Component", fileName: "license-policy-add.component.ts", code: createPolicyAngularCode, language: "typescript" }],
+        },
+      },
+      {
+        id: "detail-policy",
+        label: "Detail Policy",
+        description: "GET /api/v1/license-policies/:id",
+        icon: Eye,
+        frameworks: {
+          vue: [{ key: "component", label: "Component", fileName: "LicensePolicyDetail.vue", code: policyDetailVueCode, language: "markup" }],
+          react: [{ key: "component", label: "Component", fileName: "LicensePolicyDetail.tsx", code: policyDetailReactCode, language: "tsx" }],
+          angular: [{ key: "component", label: "Component", fileName: "license-policy-detail.component.ts", code: policyDetailAngularCode, language: "typescript" }],
+        },
+      },
+    ],
+  },
+  {
+    id: "blood-type-list",
+    label: "Blood Type List",
+    description: "Data table with charts for blood type management",
+    route: "/dashboard (Blood Type)",
+    snippets: [
+      {
+        id: "data-table",
+        label: "Data Table",
+        description: "Search, Filter, Export, Columns, Pagination",
+        icon: Table,
+        frameworks: {
+          vue: [{ key: "component", label: "Component", fileName: "BloodTypeTable.vue", code: bloodTypeVueTableCode, language: "markup" }],
+          react: [{ key: "component", label: "Component", fileName: "BloodTypeTable.tsx", code: bloodTypeReactTableCode, language: "tsx" }],
+          angular: [{ key: "component", label: "Component", fileName: "blood-type-table.component.ts", code: bloodTypeAngularTableCode, language: "typescript" }],
         },
       },
     ],
@@ -365,9 +447,34 @@ function CodeBlock({ snippet }: { snippet: CodeSnippet }) {
 
 // ─── Main Page ───
 export function FrontendDev() {
-  const [expandedPages, setExpandedPages] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(pages.map((p) => [p.id, true]))
-  );
+  const [expandedPages, setExpandedPages] = useState<Record<string, boolean>>(() => {
+    const target = sessionStorage.getItem("innotaxi_dev_search_target");
+    if (target) {
+      sessionStorage.removeItem("innotaxi_dev_search_target");
+      return Object.fromEntries(pages.map((p) => [p.id, p.id === target]));
+    }
+    return Object.fromEntries(pages.map((p) => [p.id, false]));
+  });
+
+  // Listen for search navigation
+  useEffect(() => {
+    const handler = () => {
+      const target = sessionStorage.getItem("innotaxi_dev_search_target");
+      if (target) {
+        sessionStorage.removeItem("innotaxi_dev_search_target");
+        setExpandedPages(Object.fromEntries(pages.map((p) => [p.id, p.id === target])));
+        // Scroll to the target page section
+        setTimeout(() => {
+          const el = document.getElementById(`frontend-page-${target}`);
+          el?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+      }
+    };
+    window.addEventListener("storage", handler);
+    // Also check on mount
+    handler();
+    return () => window.removeEventListener("storage", handler);
+  }, []);
 
   const togglePage = (pageId: string) => {
     setExpandedPages((prev) => ({ ...prev, [pageId]: !prev[pageId] }));
@@ -425,10 +532,11 @@ export function FrontendDev() {
       {/* Pages */}
       <div className="flex flex-col gap-4">
         {pages.map((page) => {
-          const isExpanded = expandedPages[page.id] ?? true;
+          const isExpanded = expandedPages[page.id] ?? false;
           return (
             <div
               key={page.id}
+              id={`frontend-page-${page.id}`}
               className="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden"
             >
               {/* Page header */}

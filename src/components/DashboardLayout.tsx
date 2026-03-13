@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, Outlet, useOutlet, useLocation } from "react-router";
+import { motion, AnimatePresence } from "motion/react";
 import imgImage from "/Logo.svg";
 import {
   LayoutDashboard,
@@ -23,13 +24,17 @@ import {
   Server,
   Database,
   GitBranch,
-  TableProperties,
   ArrowRightLeft,
+  Droplets,
+  RefreshCw,
+  CheckCircle2,
 } from "lucide-react";
 import { LicenseTypeList } from "./LicenseTypeList";
 import { FrontendDev } from "./FrontendDev";
 import { BackendDev } from "./BackendDev";
 import { DatabaseDiagramAndSchema } from "./DatabaseDiagramAndSchema";
+import { BloodTypeList } from "./BloodTypeList";
+import { LicensePolicyList } from "./LicensePolicyList";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface UserProfile {
@@ -64,9 +69,6 @@ export function DashboardLayout() {
   });
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
     const stored = sessionStorage.getItem("innotaxi_active_item");
-    if (stored === "Driver License Type" || stored === "License Policy") {
-      return { driverLicense: true };
-    }
     if (stored === "Diagram and Schema" || stored === "Schema" || stored === "Migration") {
       return { database: true };
     }
@@ -74,6 +76,104 @@ export function DashboardLayout() {
   });
   const [user, setUser] = useState<UserProfile | null>(null);
   const [notifications] = useState(3);
+  const [headerSearch, setHeaderSearch] = useState("");
+  const [headerSearchFocused, setHeaderSearchFocused] = useState(false);
+  const headerSearchRef = useRef<HTMLDivElement>(null);
+  const headerSearchInputRef = useRef<HTMLInputElement>(null);
+  const [devUpdateToasts, setDevUpdateToasts] = useState<number[]>([]);
+
+  // Searchable pages & components
+  const searchableItems = useMemo(() => [
+    // ─── Frontend Pages ───
+    { label: "Login Page", section: "Frontend", icon: Code, target: "Frontend", pageId: "login", description: "Authentication page with PrimeUI form components", route: "/" },
+    { label: "Driver License Type List", section: "Frontend", icon: Code, target: "Frontend", pageId: "license-list", description: "Data table with charts for driver license type management", route: "/dashboard (Driver License Type)" },
+    { label: "License Policy List", section: "Frontend", icon: Code, target: "Frontend", pageId: "policy-list", description: "Data table with charts for license policy management", route: "/dashboard (License Policy)" },
+    { label: "Blood Type List", section: "Frontend", icon: Code, target: "Frontend", pageId: "blood-type-list", description: "Data table with charts for blood type management", route: "/dashboard (Blood Type)" },
+    { label: "Driver License Type Detail", section: "Frontend", icon: Code, target: "Frontend", pageId: "license-detail", description: "Detail view with update form and monthly statistics chart", route: "/dashboard/license-types/:id" },
+    { label: "License Policy Detail", section: "Frontend", icon: Code, target: "Frontend", pageId: "policy-list", description: "Detail view with update form for license policy", route: "/dashboard/license-policy/:id" },
+    // ─── Frontend Components ───
+    { label: "Login Form", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "login", description: "Complete login form with email/password validation, auto-fill, and demo credentials" },
+    { label: "Bar Chart", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-list", description: "Drivers by Driver License Type — Grouped Bar Chart" },
+    { label: "Doughnut Chart", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-list", description: "Driver Distribution — Doughnut/Pie Chart" },
+    { label: "Data Table (License Type)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-list", description: "Search, Filter, Export, Columns, Pagination" },
+    { label: "Data Table (License Policy)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "Search, Filter, Export, Columns, Pagination" },
+    { label: "Add Policy Form", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "POST /api/v1/license-policies" },
+    { label: "Detail Policy View", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "GET /api/v1/license-policies/:id" },
+    { label: "Data Table (Blood Type)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "blood-type-list", description: "Search, Filter, Export, Columns, Pagination" },
+    { label: "Detail View", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-detail", description: "GET /api/v1/license-types/:id" },
+    { label: "Update Form", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-detail", description: "PUT /api/v1/license-types/:id" },
+    { label: "Monthly Driver Chart", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-detail", description: "Monthly driver count line/area chart with year filter" },
+    // ─── Backend Pages ───
+    { label: "Driver License Type List", section: "Backend", icon: Server, target: "Backend", pageId: "license-list", description: "Statistics endpoints and CRUD API for driver license type management", route: "/api/v1/license-types" },
+    { label: "Driver License Type Detail", section: "Backend", icon: Server, target: "Backend", pageId: "license-detail", description: "Single resource endpoints with update and monthly analytics", route: "/api/v1/license-types/:id" },
+    { label: "Driver License Policy", section: "Backend", icon: Server, target: "Backend", pageId: "license-policy", description: "Endpoints for managing driver license policies", route: "/api/v1/license-policies" },
+    { label: "Driver License Policy Detail", section: "Backend", icon: Server, target: "Backend", pageId: "license-policy-detail", description: "Single resource endpoints with update for license policies", route: "/api/v1/license-policies/:id" },
+    { label: "Blood Type", section: "Backend", icon: Server, target: "Backend", pageId: "blood-type", description: "Endpoints for managing blood type master data", route: "/api/v1/blood-types" },
+    // ─── Backend Components ───
+    { label: "Bar Chart Statistics", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-list", description: "Driver count by driver license type with status breakdown" },
+    { label: "Distribution Statistics", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-list", description: "Driver distribution across all license categories" },
+    { label: "CRUD Operations", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-list", description: "Full REST API with pagination, search, filter, sort, and soft delete" },
+    { label: "Detail Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-detail", description: "Retrieve single driver license type with relations and metadata" },
+    { label: "Update Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-detail", description: "Update driver license type fields with validation and audit logging" },
+    { label: "Monthly Analytics", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-detail", description: "Monthly driver registration count with year filter" },
+    { label: "License Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy", description: "Retrieve and manage driver license policies" },
+    { label: "Create Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy", description: "Create new driver license policy" },
+    { label: "Detail & Update Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy-detail", description: "Retrieve and update single license policy with validation" },
+    { label: "Blood Type CRUD", section: "Backend Component", icon: Server, target: "Backend", pageId: "blood-type", description: "Full REST API for blood type management with soft delete" },
+  ], []);
+
+  const filteredSearchItems = useMemo(() => {
+    if (!headerSearch.trim()) return [];
+    const lower = headerSearch.toLowerCase();
+    return searchableItems.filter(
+      (item) =>
+        item.label.toLowerCase().includes(lower) ||
+        item.description.toLowerCase().includes(lower) ||
+        item.section.toLowerCase().includes(lower)
+    );
+  }, [headerSearch, searchableItems]);
+
+  // Close search on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (headerSearchRef.current && !headerSearchRef.current.contains(e.target as Node)) {
+        setHeaderSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Keyboard shortcut: Ctrl+K / Cmd+K
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setHeaderSearchFocused(true);
+        setTimeout(() => headerSearchInputRef.current?.focus(), 50);
+      }
+      if (e.key === "Escape") {
+        setHeaderSearchFocused(false);
+        setHeaderSearch("");
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
+  const handleSearchSelect = (target: string, pageId?: string) => {
+    setActiveItem(target);
+    setHeaderSearch("");
+    setHeaderSearchFocused(false);
+    if (target === "Diagram and Schema") {
+      setExpandedMenus((prev) => ({ ...prev, database: true }));
+    }
+    // Store the target page ID so FrontendDev/BackendDev can auto-expand it
+    if (pageId) {
+      sessionStorage.setItem("innotaxi_dev_search_target", pageId);
+    }
+    if (location.pathname !== "/dashboard") navigate("/dashboard");
+  };
 
   useEffect(() => {
     sessionStorage.setItem("innotaxi_active_item", activeItem);
@@ -92,9 +192,15 @@ export function DashboardLayout() {
   useEffect(() => {
     if (location.pathname.startsWith("/dashboard/license-types/")) {
       setActiveItem("Driver License Type");
-      setExpandedMenus((prev) => ({ ...prev, driverLicense: true }));
     }
-  }, [location.pathname]);
+    if (location.pathname.startsWith("/dashboard/license-policy/")) {
+      setActiveItem("License Policy");
+    }
+    // Handle navigation state (e.g. returning from add page)
+    if (location.state?.activeItem) {
+      setActiveItem(location.state.activeItem);
+    }
+  }, [location.pathname, location.state]);
 
   const handleLogout = () => {
     localStorage.removeItem("innotaxi_user");
@@ -207,99 +313,140 @@ export function DashboardLayout() {
           {/* Section Header: Master Data and Setup */}
           {sidebarOpen && (
             <div className="px-3 pt-5 pb-1.5">
-              <p className="text-[10px] tracking-[1px] uppercase text-[#94a3b8] font-semibold">
-                Master Data and Setup
-              </p>
+              <p className="text-[10px] tracking-[1px] uppercase text-[#94a3b8] font-semibold">Master Data Setup</p>
             </div>
           )}
           {!sidebarOpen && <div className="my-3 mx-2 border-t border-[#e2e8f0]" />}
 
           <div className="flex flex-col gap-0.5">
-            {/* Driver License (expandable) */}
-            <button
-              onClick={() => {
-                if (sidebarOpen) {
-                  setExpandedMenus((prev) => ({ ...prev, driverLicense: !prev.driverLicense }));
-                } else {
-                  setActiveItem("Driver License");
-                  setMobileSidebarOpen(false);
-                }
-              }}
-              className={`
-                flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
-                ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
-                ${
-                  activeItem === "Driver License Type" || activeItem === "License Policy"
-                    ? "bg-[#fef2f2] text-[#e53935]"
-                    : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
-                }
-              `}
-              title={!sidebarOpen ? "Driver License" : undefined}
-            >
-              <IdCard className={`w-[18px] h-[18px] shrink-0 ${
-                activeItem === "Driver License Type" || activeItem === "License Policy" ? "text-[#e53935]" : ""
-              }`} />
-              {sidebarOpen && (
-                <>
-                  <span className={`text-[13px] flex-1 text-left ${
-                    activeItem === "Driver License Type" || activeItem === "License Policy" ? "font-semibold" : "font-medium"
-                  }`}>
-                    Driver License
-                  </span>
-                  <ChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      expandedMenus.driverLicense ? "rotate-180" : ""
-                    }`}
-                  />
-                </>
-              )}
-            </button>
+            {/* Driver License Type (simple item) */}
+            {(() => {
+              const isActive = activeItem === "Driver License Type";
+              return (
+                <button
+                  onClick={() => {
+                    setActiveItem("Driver License Type");
+                    setMobileSidebarOpen(false);
+                    if (location.pathname !== "/dashboard") navigate("/dashboard");
+                  }}
+                  className={`
+                    flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                    ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                    ${
+                      isActive
+                        ? "bg-[#fef2f2] text-[#e53935]"
+                        : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    }
+                  `}
+                  title={!sidebarOpen ? "Driver License Type" : undefined}
+                >
+                  <FileText className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
+                  {sidebarOpen && (
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
+                      Driver License Type
+                    </span>
+                  )}
+                  {isActive && sidebarOpen && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
+                  )}
+                </button>
+              );
+            })()}
 
-            {/* Sub-menu items */}
-            {sidebarOpen && expandedMenus.driverLicense && (
-              <div className="flex flex-col gap-0.5 ml-4 pl-3 border-l-[2px] border-[#e2e8f0]">
-                {[
-                  { icon: FileText, label: "Driver License Type", key: "Driver License Type" },
-                  { icon: ScrollText, label: "License Policy", key: "License Policy" },
-                ].map((sub) => {
-                  const isSubActive = activeItem === sub.key;
-                  return (
-                    <button
-                      key={sub.key}
-                      onClick={() => {
-                        setActiveItem(sub.key);
-                        setMobileSidebarOpen(false);
-                        if (location.pathname !== "/dashboard") navigate("/dashboard");
-                      }}
-                      className={`
-                        flex items-center gap-2.5 rounded-[8px] px-2.5 py-2 transition-all cursor-pointer
-                        ${
-                          isSubActive
-                            ? "bg-[#fef2f2] text-[#e53935]"
-                            : "text-[#94a3b8] hover:bg-[#f8fafc] hover:text-[#0f172a]"
-                        }
-                      `}
-                    >
-                      <sub.icon className={`w-[15px] h-[15px] shrink-0 ${isSubActive ? "text-[#e53935]" : ""}`} />
-                      <span className={`text-[12px] ${isSubActive ? "font-semibold" : "font-medium"}`}>
-                        {sub.label}
-                      </span>
-                      {isSubActive && (
-                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            {/* License Policy (simple item) */}
+            {(() => {
+              const isActive = activeItem === "License Policy";
+              return (
+                <button
+                  onClick={() => {
+                    setActiveItem("License Policy");
+                    setMobileSidebarOpen(false);
+                    if (location.pathname !== "/dashboard") navigate("/dashboard");
+                  }}
+                  className={`
+                    flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                    ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                    ${
+                      isActive
+                        ? "bg-[#fef2f2] text-[#e53935]"
+                        : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    }
+                  `}
+                  title={!sidebarOpen ? "License Policy" : undefined}
+                >
+                  <ScrollText className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
+                  {sidebarOpen && (
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
+                      License Policy
+                    </span>
+                  )}
+                  {isActive && sidebarOpen && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
+                  )}
+                </button>
+              );
+            })()}
+
+            {/* Blood Type (simple item, no sub-menu) */}
+            {(() => {
+              const isActive = activeItem === "Blood Type";
+              return (
+                <button
+                  onClick={() => {
+                    setActiveItem("Blood Type");
+                    setMobileSidebarOpen(false);
+                    if (location.pathname !== "/dashboard") navigate("/dashboard");
+                  }}
+                  className={`
+                    flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                    ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                    ${
+                      isActive
+                        ? "bg-[#fef2f2] text-[#e53935]"
+                        : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    }
+                  `}
+                  title={!sidebarOpen ? "Blood Type" : undefined}
+                >
+                  <Droplets className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
+                  {sidebarOpen && (
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
+                      Blood Type
+                    </span>
+                  )}
+                  {isActive && sidebarOpen && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
+                  )}
+                </button>
+              );
+            })()}
           </div>
 
           {/* Section Header: Development */}
           {sidebarOpen && (
-            <div className="px-3 pt-5 pb-1.5">
+            <div className="px-3 pt-5 pb-1.5 flex items-center justify-between">
               <p className="text-[10px] tracking-[1px] uppercase text-[#94a3b8] font-semibold">
                 Development
               </p>
+              <button
+                onClick={() => {
+                  // Navigate to Diagram and Schema + expand Database menu
+                  setActiveItem("Diagram and Schema");
+                  setExpandedMenus((prev) => ({ ...prev, database: true }));
+                  setMobileSidebarOpen(false);
+                  if (location.pathname !== "/dashboard") navigate("/dashboard");
+                  // Set sync flag so DatabaseDiagramAndSchema can pick it up
+                  sessionStorage.setItem("innotaxi_dev_sync_trigger", Date.now().toString());
+                  // Trigger update notification
+                  const id = Date.now();
+                  setDevUpdateToasts((prev) => [...prev, id]);
+                  setTimeout(() => setDevUpdateToasts((prev) => prev.filter((t) => t !== id)), 3500);
+                }}
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] text-[#94a3b8] hover:text-[#e53935] hover:bg-[#fef2f2] transition-all cursor-pointer border border-transparent hover:border-[#fecaca]"
+                title="Sync development — scan all pages and update preview codes"
+              >
+                <RefreshCw className="w-3 h-3" />
+              </button>
             </div>
           )}
           {!sidebarOpen && <div className="my-3 mx-2 border-t border-[#e2e8f0]" />}
@@ -435,13 +582,81 @@ export function DashboardLayout() {
               <Menu className="w-5 h-5" />
             </button>
 
-            <div className="hidden md:flex items-center gap-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-[10px] px-3 py-2 w-[280px]">
-              <Search className="w-4 h-4 text-[#94a3b8]" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="bg-transparent border-none outline-none text-[13px] text-[#0f172a] placeholder-[#94a3b8] w-full"
-              />
+            {/* Search Pages & Components */}
+            <div className="relative" ref={headerSearchRef}>
+              <div className={`flex items-center gap-2 rounded-[10px] border transition-all ${
+                headerSearchFocused
+                  ? "border-[#e53935] bg-white shadow-[0_0_0_3px_rgba(229,57,53,0.08)]"
+                  : "border-[#e2e8f0] bg-[#f8fafc] hover:border-[#cbd5e1]"
+              }`}>
+                <Search className="w-4 h-4 text-[#94a3b8] ml-3 shrink-0" />
+                <input
+                  ref={headerSearchInputRef}
+                  type="text"
+                  value={headerSearch}
+                  onChange={(e) => setHeaderSearch(e.target.value)}
+                  onFocus={() => setHeaderSearchFocused(true)}
+                  placeholder="Search dev pages & components..."
+                  className="bg-transparent border-none outline-none text-[13px] text-[#0f172a] placeholder:text-[#94a3b8] w-[180px] sm:w-[260px] py-2 pr-2"
+                />
+                <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] text-[#94a3b8] bg-[#f1f5f9] border border-[#e2e8f0] rounded px-1.5 py-0.5 mr-2 font-mono">
+                  {navigator.platform?.includes("Mac") ? "\u2318" : "Ctrl"}K
+                </kbd>
+              </div>
+
+              {/* Search Results Dropdown */}
+              {headerSearchFocused && headerSearch.trim() && (
+                <div className="absolute left-0 top-full mt-2 w-[360px] max-h-[420px] overflow-y-auto bg-white rounded-[12px] border border-[#e2e8f0] shadow-[0_8px_30px_rgba(0,0,0,0.12)] z-50">
+                  {filteredSearchItems.length === 0 ? (
+                    <div className="px-4 py-8 text-center">
+                      <Search className="w-8 h-8 text-[#cbd5e1] mx-auto mb-2" />
+                      <p className="text-[13px] text-[#64748b] font-medium">No results found</p>
+                      <p className="text-[11px] text-[#94a3b8] mt-0.5">Try searching for a page name or component</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Group by section */}
+                      {(["Frontend", "Frontend Component", "Backend", "Backend Component"] as const)
+                        .filter((sec) => filteredSearchItems.some((item) => item.section === sec))
+                        .map((section) => (
+                          <div key={section}>
+                            <div className="px-3.5 pt-3 pb-1.5 sticky top-0 bg-white/95 backdrop-blur-sm">
+                              <p className="text-[10px] text-[#94a3b8] uppercase tracking-[1px] font-semibold">
+                                {section === "Frontend" ? "Frontend Pages" : section === "Backend" ? "Backend Pages" : section === "Frontend Component" ? "Frontend Components" : "Backend Components"}
+                              </p>
+                            </div>
+                            {filteredSearchItems
+                              .filter((item) => item.section === section)
+                              .map((item, idx) => {
+                                const Icon = item.icon;
+                                return (
+                                  <button
+                                    key={`${item.label}-${idx}`}
+                                    onClick={() => handleSearchSelect(item.target, item.pageId)}
+                                    className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-[#f8fafc] transition-colors cursor-pointer group"
+                                  >
+                                    <div className="w-8 h-8 rounded-lg bg-[#f1f5f9] group-hover:bg-[#fef2f2] flex items-center justify-center shrink-0 transition-colors">
+                                      <Icon className="w-4 h-4 text-[#64748b] group-hover:text-[#e53935] transition-colors" />
+                                    </div>
+                                    <div className="flex-1 text-left min-w-0">
+                                      <p className="text-[12px] text-[#0f172a] font-medium truncate">{item.label}</p>
+                                      <p className="text-[10px] text-[#94a3b8] truncate">{item.description}</p>
+                                    </div>
+                                    <ChevronRight className="w-3.5 h-3.5 text-[#cbd5e1] group-hover:text-[#e53935] shrink-0 transition-colors" />
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        ))}
+                      <div className="px-3.5 py-2 border-t border-[#f1f5f9] bg-[#fafbfc] rounded-b-[12px]">
+                        <p className="text-[10px] text-[#94a3b8]">
+                          {filteredSearchItems.length} result{filteredSearchItems.length !== 1 ? "s" : ""} &middot; Press <kbd className="inline-flex px-1 py-0.5 rounded bg-[#f1f5f9] text-[9px] font-mono border border-[#e2e8f0]">Esc</kbd> to close
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -530,6 +745,10 @@ export function DashboardLayout() {
               <BackendDev />
             ) : activeItem === "Diagram and Schema" ? (
               <DatabaseDiagramAndSchema />
+            ) : activeItem === "Blood Type" ? (
+              <BloodTypeList />
+            ) : activeItem === "License Policy" ? (
+              <LicensePolicyList />
             ) : (
               <>
                 {/* Welcome Section */}
@@ -655,6 +874,48 @@ export function DashboardLayout() {
             )}
           </div>
         </main>
+      </div>
+
+      {/* Dev Update Toast Notifications */}
+      <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none">
+        <AnimatePresence>
+          {devUpdateToasts.map((id) => (
+            <motion.div
+              key={id}
+              initial={{ opacity: 0, x: 80, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 80, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              className="pointer-events-auto w-[340px] bg-white rounded-[12px] border border-[#e2e8f0] shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden"
+            >
+              <div className="flex items-start gap-3 p-4">
+                <div className="w-8 h-8 rounded-full bg-[#f0fdf4] flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#16a34a]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] text-[#0f172a] font-semibold">Development Updated</p>
+                  <p className="text-[11px] text-[#64748b] mt-0.5">Frontend, Backend, and Database sections have been synced successfully.</p>
+                </div>
+                <button
+                  onClick={() => setDevUpdateToasts((prev) => prev.filter((t) => t !== id))}
+                  className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-[#94a3b8] hover:text-[#0f172a] hover:bg-[#f1f5f9] transition-colors cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              {/* Green gradient progress bar */}
+              <div className="h-[3px] w-full bg-[#f1f5f9]">
+                <motion.div
+                  initial={{ width: "100%" }}
+                  animate={{ width: "0%" }}
+                  transition={{ duration: 3.5, ease: "linear" }}
+                  className="h-full rounded-full"
+                  style={{ background: "linear-gradient(90deg, #16a34a, #4ade80)" }}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );

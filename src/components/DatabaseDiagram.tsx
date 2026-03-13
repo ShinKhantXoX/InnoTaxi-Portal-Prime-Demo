@@ -94,7 +94,6 @@ const entities: TableEntity[] = [
       { name: "vehicle_class", type: "VARCHAR(150)" },
       { name: "validity_years", type: "INT", default: "1" },
       { name: "status", type: "ENUM('ACTIVE','INACTIVE')", default: "'ACTIVE'" },
-      { name: "description", type: "TEXT", nullable: true },
       { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
       { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
       { name: "deleted_at", type: "TIMESTAMP", nullable: true },
@@ -197,6 +196,22 @@ const entities: TableEntity[] = [
       { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
     ],
   },
+  {
+    name: "license_policies",
+    label: "License Policies",
+    color: "#0891b2",
+    icon: Layers,
+    columns: [
+      { name: "id", type: "BIGINT", pk: true },
+      { name: "label", type: "VARCHAR(255)" },
+      { name: "description", type: "TEXT", nullable: true },
+      { name: "policy_type", type: "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')", default: "'DRIVER_LICENSE'" },
+      { name: "status", type: "ENUM('ACTIVE','INACTIVE')", default: "'ACTIVE'" },
+      { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "deleted_at", type: "TIMESTAMP", nullable: true },
+    ],
+  },
 ];
 
 // ─── Relationships ───
@@ -231,7 +246,8 @@ function generateDDL(engine: DbEngine): string {
     lines.push(`CREATE TYPE vehicle_type AS ENUM ('SEDAN', 'SUV', 'HATCHBACK', 'VAN', 'MOTORCYCLE', 'THREE_WHEEL');`);
     lines.push(`CREATE TYPE vehicle_status AS ENUM ('ACTIVE', 'INACTIVE', 'MAINTENANCE');`);
     lines.push(`CREATE TYPE ride_status AS ENUM ('REQUESTED', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');`);
-    lines.push(`CREATE TYPE audit_action AS ENUM ('CREATE', 'UPDATE', 'DELETE');\n`);
+    lines.push(`CREATE TYPE audit_action AS ENUM ('CREATE', 'UPDATE', 'DELETE');`);
+    lines.push(`CREATE TYPE policy_type AS ENUM ('DRIVER_LICENSE', 'VEHICLE_LICENSE');\n`);
   }
 
   for (const entity of entities) {
@@ -251,12 +267,13 @@ function generateDDL(engine: DbEngine): string {
         if (engine === "postgresql") {
           // Use the custom enum type
           const enumMap: Record<string, string> = {
-            "ENUM('ACTIVE','INACTIVE')": col.name === "status" && entity.name === "driver_license_types" ? "license_status" : col.name === "status" && entity.name === "passengers" ? "license_status" : col.name === "status" && entity.name === "vehicles" ? "vehicle_status" : "driver_status",
+            "ENUM('ACTIVE','INACTIVE')": col.name === "status" && entity.name === "driver_license_types" ? "license_status" : col.name === "status" && entity.name === "passengers" ? "license_status" : col.name === "status" && entity.name === "vehicles" ? "vehicle_status" : col.name === "status" && entity.name === "license_policies" ? "license_status" : "driver_status",
             "ENUM('ACTIVE','PENDING','SUSPENDED','INACTIVE')": "driver_status",
             "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
             "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
             "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
             "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
+            "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
           };
           colType = enumMap[col.type] || "VARCHAR(50)";
         } else if (engine === "sqlserver" || engine === "sqlite") {
@@ -327,6 +344,7 @@ function generateDDL(engine: DbEngine): string {
     lines.push(`COMMENT ON TABLE rides IS 'Ride transactions between drivers and passengers';`);
     lines.push(`COMMENT ON TABLE passengers IS 'Registered passengers who use the taxi service';`);
     lines.push(`COMMENT ON TABLE audit_logs IS 'Audit trail for all data mutations across tables';`);
+    lines.push(`COMMENT ON TABLE license_policies IS 'Policies governing driver and vehicle license issuance, renewal, and compliance';`);
   }
 
   return lines.join("\n");
@@ -513,7 +531,6 @@ const mermaidCode = `erDiagram
         varchar vehicle_class
         int validity_years
         enum status "ACTIVE | INACTIVE"
-        text description
         timestamp created_at
         timestamp updated_at
         timestamp deleted_at
@@ -750,7 +767,7 @@ interface ErdLine {
 }
 
 const erdNodeDefs: Omit<ErdNode, "keyCols">[] = [
-  { name: "driver_license_types", x: 340, y: 20,  w: 230, h: 168, color: "#e53935", label: "driver_license_types" },
+  { name: "driver_license_types", x: 340, y: 20,  w: 230, h: 152, color: "#e53935", label: "driver_license_types" },
   { name: "drivers",       x: 380, y: 260, w: 196, h: 186, color: "#2563eb", label: "drivers" },
   { name: "vehicles",      x: 40,  y: 510, w: 196, h: 168, color: "#16a34a", label: "vehicles" },
   { name: "rides",         x: 380, y: 510, w: 196, h: 176, color: "#7c3aed", label: "rides" },
@@ -1368,12 +1385,13 @@ function generateTableDDL(entity: TableEntity, engine: DbEngine): string {
     if (enumCols.length > 0) {
       lines.push(`-- Custom ENUM types`);
       const enumMap: Record<string, string> = {
-        "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" ? "license_status" : "vehicle_status",
+        "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" || entity.name === "license_policies" ? "license_status" : "vehicle_status",
         "ENUM('ACTIVE','PENDING','SUSPENDED','INACTIVE')": "driver_status",
         "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
         "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
         "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
         "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
+        "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
       };
       const seen = new Set<string>();
       for (const col of enumCols) {
@@ -1400,12 +1418,13 @@ function generateTableDDL(entity: TableEntity, engine: DbEngine): string {
     } else if (col.type.startsWith("ENUM")) {
       if (engine === "postgresql") {
         const enumMap: Record<string, string> = {
-          "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" ? "license_status" : "vehicle_status",
+          "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" || entity.name === "license_policies" ? "license_status" : "vehicle_status",
           "ENUM('ACTIVE','PENDING','SUSPENDED','INACTIVE')": "driver_status",
           "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
           "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
           "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
           "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
+          "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
         };
         colType = enumMap[col.type] || "VARCHAR(50)";
       } else if (engine === "sqlserver" || engine === "sqlite") {
