@@ -34,10 +34,6 @@ import {
 import { motion } from "motion/react";
 import * as htmlToImage from "html-to-image";
 
-import "primereact/resources/themes/lara-light-blue/theme.css";
-import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
-
 export interface LicenseType {
   id: number;
   code: string;
@@ -1415,7 +1411,7 @@ export function LicenseTypeList() {
     { field: "status" as keyof LicenseType, label: "Status" },
     { field: "description" as keyof LicenseType, label: "Description" },
     { field: "createdAt" as keyof LicenseType, label: "Created At" },
-    { field: "updatedAt" as keyof LicenseType, label: "Updated At" },
+    { field: "updatedAt" as keyof LicenseType, label: "Updated" },
     { field: "deletedAt" as keyof LicenseType, label: "Deleted At" },
   ];
 
@@ -1429,9 +1425,10 @@ export function LicenseTypeList() {
     { field: "category", label: "Category", default: true },
     { field: "vehicleClass", label: "Vehicle Class", default: true },
     { field: "validityYears", label: "Validity", default: true },
+    { field: "description", label: "Description", default: true },
     { field: "status", label: "Status", default: true },
     { field: "createdAt", label: "Created At", default: false },
-    { field: "updatedAt", label: "Updated At", default: false },
+    { field: "updatedAt", label: "Updated", default: true },
     { field: "deletedAt", label: "Deleted At", default: false },
   ];
 
@@ -1762,20 +1759,22 @@ export function LicenseTypeList() {
   };
 
   const statusBodyTemplate = (rowData: LicenseType) => {
-    if (rowData.status === "ACTIVE") {
-      return <Tag value={rowData.status} severity="success" rounded />;
-    }
+    if (rowData.status === "ACTIVE") return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#f0fdf4] text-[#16a34a]">
+        <Check className="w-3 h-3" />
+        Active
+      </span>
+    );
     return (
-      <Tag
-        value={rowData.status}
-        rounded
-        className="!bg-[#f1f5f9] !text-[#94a3b8] !uppercase"
-      />
+      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#f1f5f9] text-[#94a3b8]">
+        <X className="w-3 h-3" />
+        Inactive
+      </span>
     );
   };
 
   const validityBodyTemplate = (rowData: LicenseType) => (
-    <span className="text-[13px]">
+    <span className="text-[12px] text-[#334155]">
       {rowData.validityYears} {rowData.validityYears === 1 ? "Year" : "Years"}
     </span>
   );
@@ -1784,7 +1783,7 @@ export function LicenseTypeList() {
     <div className="flex justify-center">
       <button
         type="button"
-        className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors cursor-pointer text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#0f172a]"
+        className="w-7 h-7 flex items-center justify-center rounded-full bg-[#fef2f2] transition-colors cursor-pointer text-[#e53935] hover:bg-[#fee2e2]"
         title="Actions"
         onClick={(e) => {
           e.stopPropagation();
@@ -1792,14 +1791,39 @@ export function LicenseTypeList() {
           actionMenuRef.current?.toggle(e);
         }}
       >
-        <EllipsisVertical className="w-4 h-4" />
+        <EllipsisVertical className="w-3.5 h-3.5" />
       </button>
     </div>
   );
 
   const codeBodyTemplate = (rowData: LicenseType) => (
-    <span className="font-mono text-[12px] bg-[#f1f5f9] text-[#475569] px-2 py-0.5 rounded uppercase">
-      {rowData.code}
+    <div className="flex items-center gap-2">
+      <div className="w-7 h-7 rounded-full bg-[#eff6ff] flex items-center justify-center flex-shrink-0">
+        <FileText className="w-3.5 h-3.5 text-[#3b82f6]" />
+      </div>
+      <span className="text-[12px] text-[#0f172a] font-semibold">{rowData.code}</span>
+    </div>
+  );
+
+  const descriptionBodyTemplate = (rowData: LicenseType) => (
+    <span className="text-[12px] text-[#64748b] line-clamp-1 max-w-[220px]" title={rowData.description}>
+      {rowData.description}
+    </span>
+  );
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+
+  const updatedBodyTemplate = (rowData: LicenseType) => (
+    <span className="text-[12px] text-[#64748b]">{formatDate(rowData.updatedAt)}</span>
+  );
+
+  const categoryBodyTemplate = (rowData: LicenseType) => (
+    <span className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#f5f3ff] text-[#7c3aed]">
+      {rowData.category}
     </span>
   );
 
@@ -2808,32 +2832,39 @@ export function LicenseTypeList() {
           size="small"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-          onRowClick={(e) => navigate(`/dashboard/license-types/${(e.data as LicenseType).id}`)}
-          rowClassName={() => "cursor-pointer"}
         >
           {visibleColumns.includes("code") && (
-            <Column field="code" header="Code" body={codeBodyTemplate} sortable style={{ minWidth: "90px" }} />
+            <Column field="code" header="Code" body={codeBodyTemplate} sortable style={{ minWidth: "130px" }} />
           )}
           {visibleColumns.includes("name") && (
-            <Column field="name" header="License Name" sortable style={{ minWidth: "180px", fontWeight: 500 }} />
+            <Column field="name" header="License Name" sortable style={{ minWidth: "180px" }} body={(rowData: LicenseType) => (
+              <span className="text-[12px] text-[#334155]">{rowData.name}</span>
+            )} />
           )}
           {visibleColumns.includes("category") && (
-            <Column field="category" header="Category" sortable style={{ minWidth: "130px" }} />
+            <Column field="category" header="Category" body={categoryBodyTemplate} sortable style={{ minWidth: "140px" }} />
           )}
           {visibleColumns.includes("vehicleClass") && (
-            <Column field="vehicleClass" header="Vehicle Class" sortable style={{ minWidth: "220px" }} />
+            <Column field="vehicleClass" header="Vehicle Class" sortable style={{ minWidth: "220px" }} body={(rowData: LicenseType) => (
+              <span className="text-[12px] text-[#64748b] line-clamp-1 max-w-[200px]" title={rowData.vehicleClass}>{rowData.vehicleClass}</span>
+            )} />
           )}
           {visibleColumns.includes("validityYears") && (
             <Column field="validityYears" header="Validity" body={validityBodyTemplate} sortable style={{ minWidth: "85px" }} />
           )}
-          {visibleColumns.includes("status") && (
-            <Column field="status" header="Status" body={statusBodyTemplate} sortable style={{ minWidth: "95px" }} />
-          )}
-          {visibleColumns.includes("createdAt") && (
-            <Column field="createdAt" header="Created At" sortable style={{ minWidth: "120px" }} />
+          {visibleColumns.includes("description") && (
+            <Column field="description" header="Description" body={descriptionBodyTemplate} sortable style={{ minWidth: "200px" }} />
           )}
           {visibleColumns.includes("updatedAt") && (
-            <Column field="updatedAt" header="Updated At" sortable style={{ minWidth: "120px" }} />
+            <Column field="updatedAt" header="Updated" body={updatedBodyTemplate} sortable style={{ minWidth: "130px" }} />
+          )}
+          {visibleColumns.includes("status") && (
+            <Column field="status" header="Status" body={statusBodyTemplate} sortable style={{ minWidth: "100px" }} />
+          )}
+          {visibleColumns.includes("createdAt") && (
+            <Column field="createdAt" header="Created At" sortable style={{ minWidth: "120px" }} body={(rowData: LicenseType) => (
+              <span className="text-[12px] text-[#64748b]">{formatDate(rowData.createdAt)}</span>
+            )} />
           )}
           {visibleColumns.includes("deletedAt") && (
             <Column
@@ -2843,7 +2874,7 @@ export function LicenseTypeList() {
               style={{ minWidth: "120px" }}
               body={(rowData: LicenseType) => (
                 <span className={`text-[12px] ${rowData.deletedAt ? "text-[#e53935]" : "text-[#cbd5e1]"}`}>
-                  {rowData.deletedAt ?? "—"}
+                  {rowData.deletedAt ? formatDate(rowData.deletedAt) : "—"}
                 </span>
               )}
             />

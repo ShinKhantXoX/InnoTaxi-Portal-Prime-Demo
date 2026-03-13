@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type ReactNode } from "react";
-import { Copy, Check, ChevronDown, ChevronRight, Server, Code2, FileCode2, BarChart3, PieChart, Table, Pencil, Eye, LineChart } from "lucide-react";
+import { Copy, Check, ChevronDown, ChevronRight, Server, Code2, FileCode2, BarChart3, PieChart, Table, Pencil, Eye, LineChart, Droplets, Search, X } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 import {
   backendLangConfig,
@@ -14,6 +14,8 @@ import { getDetailBackendCode, detailBackendFileConfig } from "./detailBackendCo
 import { getUpdateBackendCode, updateBackendFileConfig } from "./updateBackendCodes";
 import { getMonthlyChartBackendCode, monthlyChartBackendFileConfig } from "./chartMonthlyBackendCodes";
 import { chartBackendCode, pieBackendCode, tableBackendCode } from "./LicenseTypeList";
+import { licensePolicyBackendCode, licensePolicyBackendFileConfig, getCreatePolicyBackendCode, createPolicyBackendFileConfig } from "./licensePolicyBackendCodes";
+import { bloodTypeBackendCode } from "./BloodTypeList";
 
 // ─── Types ───
 interface BackendSnippet {
@@ -129,6 +131,66 @@ const pages: PageSection[] = [
       },
     ],
   },
+  {
+    id: "license-policy",
+    label: "Driver License Policy",
+    description: "Endpoints for managing driver license policies",
+    route: "/api/v1/license-policies",
+    snippets: [
+      {
+        id: "license-policy-backend",
+        label: "License Policy Endpoint",
+        description: "Retrieve and manage driver license policies",
+        icon: FileCode2,
+        endpoint: "GET|POST|PUT|DELETE /api/v1/license-policies",
+        getCode: (lang) => licensePolicyBackendCode,
+        getFile: (lang) => licensePolicyBackendFileConfig[lang] || backendLangConfig[lang].file,
+      },
+      {
+        id: "create-policy-backend",
+        label: "Create Policy Endpoint",
+        description: "Create new driver license policy",
+        icon: FileCode2,
+        endpoint: "POST /api/v1/license-policies",
+        getCode: (lang) => getCreatePolicyBackendCode(lang),
+        getFile: (lang) => (createPolicyBackendFileConfig[lang] as any)?.file || backendLangConfig[lang].file,
+      },
+    ],
+  },
+  {
+    id: "license-policy-detail",
+    label: "Driver License Policy Detail",
+    description: "Single resource endpoints with update for license policies",
+    route: "/api/v1/license-policies/:id",
+    snippets: [
+      {
+        id: "detail-policy-backend",
+        label: "Detail & Update Endpoint",
+        description: "Retrieve and update single license policy with validation",
+        icon: FileCode2,
+        endpoint: "GET|PUT /api/v1/license-policies/:id",
+        getCode: (lang) => licensePolicyBackendCode,
+        getFile: (lang) => licensePolicyBackendFileConfig[lang] || backendLangConfig[lang].file,
+      },
+    ],
+  },
+  {
+    id: "blood-type",
+    label: "Blood Type",
+    description: "Endpoints for managing blood type master data",
+    route: "/api/v1/blood-types",
+    snippets: [
+      {
+        id: "blood-type-backend",
+        label: "Blood Type CRUD",
+        description: "Full REST API for blood type management with soft delete",
+        icon: Droplets,
+        endpoint: "GET|POST|PUT|DELETE /api/v1/blood-types",
+        getCode: (lang) => bloodTypeBackendCode,
+        getFile: (lang) => backendLangConfig[lang].file.replace("license-type", "blood-type").replace("LicenseType", "BloodType"),
+      },
+    ],
+  },
 ];
 
 // ─── API endpoints summary table data ───
@@ -143,6 +205,16 @@ const endpointRows = [
   { method: "GET", path: "/api/v1/license-types/distribution", description: "Driver distribution across all categories", page: "Driver License Type List", category: "Statistics" },
   { method: "GET", path: "/api/v1/license-types/distribution/top", description: "Top 5 driver license types by driver count", page: "Driver License Type List", category: "Statistics" },
   { method: "GET", path: "/api/v1/license-types/:id/monthly-drivers", description: "Monthly driver registration count by year", page: "Driver License Type Detail", category: "Analytics" },
+  { method: "GET", path: "/api/v1/license-policies", description: "List all driver license policies (paginated, searchable)", page: "Driver License Policy", category: "CRUD" },
+  { method: "GET", path: "/api/v1/license-policies/:id", description: "Get single driver license policy by ID", page: "Driver License Policy", category: "CRUD" },
+  { method: "POST", path: "/api/v1/license-policies", description: "Create new driver license policy", page: "Driver License Policy", category: "CRUD" },
+  { method: "PUT", path: "/api/v1/license-policies/:id", description: "Update driver license policy fields", page: "Driver License Policy", category: "CRUD" },
+  { method: "DELETE", path: "/api/v1/license-policies/:id", description: "Soft delete driver license policy", page: "Driver License Policy", category: "CRUD" },
+  { method: "GET", path: "/api/v1/blood-types", description: "List all blood types (paginated, searchable)", page: "Blood Type", category: "CRUD" },
+  { method: "GET", path: "/api/v1/blood-types/:id", description: "Get single blood type by ID", page: "Blood Type", category: "CRUD" },
+  { method: "POST", path: "/api/v1/blood-types", description: "Create new blood type", page: "Blood Type", category: "CRUD" },
+  { method: "PUT", path: "/api/v1/blood-types/:id", description: "Update blood type fields", page: "Blood Type", category: "CRUD" },
+  { method: "DELETE", path: "/api/v1/blood-types/:id", description: "Soft delete blood type", page: "Blood Type", category: "CRUD" },
 ];
 
 const methodColors: Record<string, { text: string; bg: string }> = {
@@ -301,10 +373,46 @@ function BackendCodeBlock({ snippet }: { snippet: BackendSnippet }) {
 
 // ─── Main Page ───
 export function BackendDev() {
-  const [expandedPages, setExpandedPages] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(pages.map((p) => [p.id, true]))
-  );
+  const [expandedPages, setExpandedPages] = useState<Record<string, boolean>>(() => {
+    const target = sessionStorage.getItem("innotaxi_dev_search_target");
+    if (target) {
+      sessionStorage.removeItem("innotaxi_dev_search_target");
+      return Object.fromEntries(pages.map((p) => [p.id, p.id === target]));
+    }
+    return Object.fromEntries(pages.map((p) => [p.id, false]));
+  });
   const [endpointsExpanded, setEndpointsExpanded] = useState(true);
+  const [endpointSearch, setEndpointSearch] = useState("");
+
+  const filteredEndpointRows = endpointRows.filter((row) => {
+    if (!endpointSearch.trim()) return true;
+    const q = endpointSearch.toLowerCase();
+    return (
+      row.method.toLowerCase().includes(q) ||
+      row.path.toLowerCase().includes(q) ||
+      row.description.toLowerCase().includes(q) ||
+      row.page.toLowerCase().includes(q) ||
+      row.category.toLowerCase().includes(q)
+    );
+  });
+
+  // Listen for search navigation
+  useEffect(() => {
+    const handler = () => {
+      const target = sessionStorage.getItem("innotaxi_dev_search_target");
+      if (target) {
+        sessionStorage.removeItem("innotaxi_dev_search_target");
+        setExpandedPages(Object.fromEntries(pages.map((p) => [p.id, p.id === target])));
+        setTimeout(() => {
+          const el = document.getElementById(`backend-page-${target}`);
+          el?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+      }
+    };
+    window.addEventListener("storage", handler);
+    handler();
+    return () => window.removeEventListener("storage", handler);
+  }, []);
 
   const togglePage = (pageId: string) => {
     setExpandedPages((prev) => ({ ...prev, [pageId]: !prev[pageId] }));
@@ -362,31 +470,82 @@ export function BackendDev() {
 
       {/* API Endpoints Summary Table */}
       <div className="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden mb-4">
-        <button
-          onClick={() => setEndpointsExpanded(!endpointsExpanded)}
-          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-[#f8fafc] transition-colors cursor-pointer"
-        >
-          <div className="w-8 h-8 rounded-lg bg-[#fef3c7] flex items-center justify-center">
-            <Code2 className="w-4 h-4 text-[#d97706]" />
-          </div>
-          <div className="flex-1 text-left min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-[14px] text-[#0f172a] font-semibold">API Endpoints Overview</h2>
-              <span className="px-2 py-0.5 rounded-full bg-[#f1f5f9] text-[10px] text-[#64748b] font-medium">
-                {endpointRows.length} endpoints
-              </span>
+        <div className="flex items-center gap-3 px-5 py-4">
+          <button
+            onClick={() => setEndpointsExpanded(!endpointsExpanded)}
+            className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-lg bg-[#fef3c7] flex items-center justify-center shrink-0">
+              <Code2 className="w-4 h-4 text-[#d97706]" />
             </div>
-            <p className="text-[11px] text-[#94a3b8]">All REST API routes across the application</p>
+            <div className="flex-1 text-left min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[14px] text-[#0f172a] font-semibold">API Endpoints Overview</h2>
+                <span className="px-2 py-0.5 rounded-full bg-[#f1f5f9] text-[10px] text-[#64748b] font-medium">
+                  {endpointSearch.trim() ? `${filteredEndpointRows.length}/${endpointRows.length}` : `${endpointRows.length} endpoints`}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#94a3b8]">All REST API routes across the application</p>
+            </div>
+          </button>
+
+          {/* Search box */}
+          <div className="relative hidden sm:flex items-center">
+            <Search className="w-3.5 h-3.5 text-[#94a3b8] absolute left-2.5 pointer-events-none" />
+            <input
+              type="text"
+              value={endpointSearch}
+              onChange={(e) => {
+                setEndpointSearch(e.target.value);
+                if (!endpointsExpanded) setEndpointsExpanded(true);
+              }}
+              placeholder="Search routes..."
+              className="w-[180px] pl-8 pr-7 py-1.5 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] text-[11px] text-[#0f172a] placeholder:text-[#94a3b8] outline-none focus:border-[#d97706] focus:bg-white focus:shadow-[0_0_0_3px_rgba(217,119,6,0.08)] transition-all"
+            />
+            {endpointSearch && (
+              <button
+                onClick={() => setEndpointSearch("")}
+                className="absolute right-2 w-4 h-4 flex items-center justify-center rounded-full text-[#94a3b8] hover:text-[#0f172a] hover:bg-[#e2e8f0] transition-colors cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
-          {endpointsExpanded ? (
-            <ChevronDown className="w-4 h-4 text-[#94a3b8]" />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-[#94a3b8]" />
-          )}
-        </button>
+
+          <button
+            onClick={() => setEndpointsExpanded(!endpointsExpanded)}
+            className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#f1f5f9] transition-colors cursor-pointer"
+          >
+            {endpointsExpanded ? (
+              <ChevronDown className="w-4 h-4 text-[#94a3b8]" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-[#94a3b8]" />
+            )}
+          </button>
+        </div>
 
         {endpointsExpanded && (
           <div className="px-5 pb-5">
+            {/* Mobile search — visible on small screens */}
+            <div className="relative flex sm:hidden items-center mb-3">
+              <Search className="w-3.5 h-3.5 text-[#94a3b8] absolute left-2.5 pointer-events-none" />
+              <input
+                type="text"
+                value={endpointSearch}
+                onChange={(e) => setEndpointSearch(e.target.value)}
+                placeholder="Search routes..."
+                className="w-full pl-8 pr-7 py-1.5 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] text-[11px] text-[#0f172a] placeholder:text-[#94a3b8] outline-none focus:border-[#d97706] focus:bg-white focus:shadow-[0_0_0_3px_rgba(217,119,6,0.08)] transition-all"
+              />
+              {endpointSearch && (
+                <button
+                  onClick={() => setEndpointSearch("")}
+                  className="absolute right-2 w-4 h-4 flex items-center justify-center rounded-full text-[#94a3b8] hover:text-[#0f172a] hover:bg-[#e2e8f0] transition-colors cursor-pointer"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+
             <div className="overflow-x-auto rounded-xl border border-[#e2e8f0]">
               <table className="w-full text-left">
                 <thead>
@@ -399,42 +558,52 @@ export function BackendDev() {
                   </tr>
                 </thead>
                 <tbody>
-                  {endpointRows.map((row, idx) => {
-                    const mc = methodColors[row.method] ?? { text: "#64748b", bg: "#f1f5f9" };
-                    const cc = categoryColors[row.category] ?? { text: "#64748b", bg: "#f1f5f9" };
-                    return (
-                      <tr
-                        key={idx}
-                        className={`border-b border-[#f1f5f9] last:border-0 ${idx % 2 === 0 ? "" : "bg-[#fafbfc]"}`}
-                      >
-                        <td className="px-3 py-2">
-                          <span
-                            className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold tracking-wide"
-                            style={{ color: mc.text, backgroundColor: mc.bg }}
-                          >
-                            {row.method}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2">
-                          <code className="text-[11px] text-[#0f172a] font-mono">{row.path}</code>
-                        </td>
-                        <td className="px-3 py-2 hidden md:table-cell">
-                          <span className="text-[11px] text-[#64748b]">{row.description}</span>
-                        </td>
-                        <td className="px-3 py-2 hidden lg:table-cell">
-                          <span className="text-[10px] text-[#94a3b8] font-medium">{row.page}</span>
-                        </td>
-                        <td className="px-3 py-2">
-                          <span
-                            className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-semibold"
-                            style={{ color: cc.text, backgroundColor: cc.bg }}
-                          >
-                            {row.category}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {filteredEndpointRows.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-8 text-center">
+                        <Search className="w-6 h-6 text-[#cbd5e1] mx-auto mb-2" />
+                        <p className="text-[12px] text-[#64748b]">No endpoints match "<span className="font-medium">{endpointSearch}</span>"</p>
+                        <p className="text-[10px] text-[#94a3b8] mt-0.5">Try searching by method, path, or category</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredEndpointRows.map((row, idx) => {
+                      const mc = methodColors[row.method] ?? { text: "#64748b", bg: "#f1f5f9" };
+                      const cc = categoryColors[row.category] ?? { text: "#64748b", bg: "#f1f5f9" };
+                      return (
+                        <tr
+                          key={idx}
+                          className={`border-b border-[#f1f5f9] last:border-0 ${idx % 2 === 0 ? "" : "bg-[#fafbfc]"}`}
+                        >
+                          <td className="px-3 py-2">
+                            <span
+                              className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold tracking-wide"
+                              style={{ color: mc.text, backgroundColor: mc.bg }}
+                            >
+                              {row.method}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2">
+                            <code className="text-[11px] text-[#0f172a] font-mono">{row.path}</code>
+                          </td>
+                          <td className="px-3 py-2 hidden md:table-cell">
+                            <span className="text-[11px] text-[#64748b]">{row.description}</span>
+                          </td>
+                          <td className="px-3 py-2 hidden lg:table-cell">
+                            <span className="text-[10px] text-[#94a3b8] font-medium">{row.page}</span>
+                          </td>
+                          <td className="px-3 py-2">
+                            <span
+                              className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-semibold"
+                              style={{ color: cc.text, backgroundColor: cc.bg }}
+                            >
+                              {row.category}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -445,10 +614,11 @@ export function BackendDev() {
       {/* Pages with code previews */}
       <div className="flex flex-col gap-4">
         {pages.map((page) => {
-          const isExpanded = expandedPages[page.id] ?? true;
+          const isExpanded = expandedPages[page.id] ?? false;
           return (
             <div
               key={page.id}
+              id={`backend-page-${page.id}`}
               className="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden"
             >
               {/* Page header */}

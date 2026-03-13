@@ -10,11 +10,8 @@ import { getDetailBackendCode, detailBackendFileConfig, detailReactCode, detailV
 import { getUpdateBackendCode, updateBackendFileConfig, updateReactCode, updateVueCode, updateAngularCode } from "./updateBackendCodes";
 import { getMonthlyChartBackendCode, monthlyChartBackendFileConfig, monthlyChartReactCode, monthlyChartVueCode, monthlyChartAngularCode } from "./chartMonthlyBackendCodes";
 import { motion } from "motion/react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import html2canvas from "html2canvas";
-
-import "primereact/resources/themes/lara-light-blue/theme.css";
-import "primereact/resources/primereact.min.css";
 
 // ── API sample response builder ──
 const sampleApiResponse = (item: LicenseType) => `// GET /api/v1/license-types/${item.id}
@@ -494,9 +491,9 @@ export function LicenseTypeDetail() {
         </div>
 
         {/* Chart */}
-        <div className="h-[300px]" ref={chartRef}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart key={`${item.code}-${chartYear}`} data={monthlyData} margin={{ top: 8, right: 8, left: -12, bottom: 4 }}>
+        <div className="h-[300px] w-full min-w-0" ref={chartRef}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart key={`${item.code}-${chartYear}`} data={monthlyData} margin={{ top: 8, right: 8, left: -12, bottom: 4 }} barCategoryGap="20%">
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis
                 dataKey="month"
@@ -526,15 +523,15 @@ export function LicenseTypeDetail() {
                 verticalAlign="top"
                 align="right"
                 wrapperStyle={{ top: 10, right: 10 }}
-                iconType="circle"
+                iconType="square"
                 iconSize={8}
                 itemStyle={{ fontSize: "11px", color: "#64748b" }}
               />
-              <Line type="monotone" dataKey="active" name="ACTIVE" stroke="#22c55e" strokeWidth={2} dot={{ r: 3, fill: "#22c55e" }} activeDot={{ r: 5 }} />
-              <Line type="monotone" dataKey="pending" name="PENDING" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: "#f59e0b" }} activeDot={{ r: 5 }} />
-              <Line type="monotone" dataKey="suspended" name="SUSPENDED" stroke="#e53935" strokeWidth={2} dot={{ r: 3, fill: "#e53935" }} activeDot={{ r: 5 }} />
-              <Line type="monotone" dataKey="inactive" name="INACTIVE" stroke="#94a3b8" strokeWidth={2} dot={{ r: 3, fill: "#94a3b8" }} activeDot={{ r: 5 }} />
-            </LineChart>
+              <Bar dataKey="active" name="ACTIVE" fill="#22c55e" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="pending" name="PENDING" fill="#f59e0b" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="suspended" name="SUSPENDED" fill="#e53935" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="inactive" name="INACTIVE" fill="#94a3b8" radius={[3, 3, 0, 0]} />
+            </BarChart>
           </ResponsiveContainer>
         </div>
 
