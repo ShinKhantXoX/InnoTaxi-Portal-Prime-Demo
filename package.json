@@ -55,6 +55,7 @@
     "primeicons": "^7.0.0",
     "primereact": "^10.9.7",
     "prism-react-renderer": "^2.4.1",
+    "quill": "^2.0.3",
     "react-day-picker": "8.10.1",
     "react-dnd": "16.0.1",
     "react-dnd-html5-backend": "16.0.1",
