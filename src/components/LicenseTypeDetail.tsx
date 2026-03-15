@@ -5,6 +5,7 @@ import { Toast } from "primereact/toast";
 import { Highlight, themes } from "prism-react-renderer";
 import { FileText, ArrowLeft, Code2, Copy, Check, X, ChevronDown, Clock, Info, List, Pencil, Trash2, CheckCircle2, BarChart3, TrendingUp, Download, Calendar } from "lucide-react";
 import { mockData, type LicenseType } from "./LicenseTypeList";
+import { licensePolicyMockData, type PolicyType } from "./LicensePolicyList";
 import { backendLangConfig, backendLangOptions, type BackendLang } from "./chartBackendCodes";
 import { getDetailBackendCode, detailBackendFileConfig, detailReactCode, detailVueCode, detailAngularCode } from "./detailBackendCodes";
 import { getUpdateBackendCode, updateBackendFileConfig, updateReactCode, updateVueCode, updateAngularCode } from "./updateBackendCodes";
@@ -55,6 +56,7 @@ export function LicenseTypeDetail() {
   const [formVehicleClass, setFormVehicleClass] = useState("");
   const [formValidityYears, setFormValidityYears] = useState("");
   const [formStatus, setFormStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
+  const [formPolicyType, setFormPolicyType] = useState<"DRIVER_LICENSE" | "VEHICLE_LICENSE">("DRIVER_LICENSE");
 
   // Update notification state
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
@@ -253,6 +255,11 @@ export function LicenseTypeDetail() {
   const handleUpdate = () => {
     setShowUpdateNotification(true);
     setUpdateCountdown(3);
+    // Navigate back after a short delay so user sees the notification
+    setTimeout(() => {
+      sessionStorage.setItem("innotaxi_active_item", "License Type");
+      navigate("/dashboard");
+    }, 1500);
   };
 
   // Handle chart download
@@ -336,21 +343,25 @@ export function LicenseTypeDetail() {
 
       {/* ═══ Page Header ═══ */}
       <div className="mb-5">
+        <button
+          onClick={() => { sessionStorage.setItem("innotaxi_active_item", "License Type"); navigate("/dashboard"); }}
+          className="flex items-center gap-1.5 text-[13px] text-[#64748b] hover:text-[#0f172a] transition-colors cursor-pointer mb-4"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Driver License Types
+        </button>
+
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#fef2f2] flex items-center justify-center">
-              <FileText className="w-4 h-4 text-[#e53935]" />
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-[10px] bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center">
+              <FileText className="w-5 h-5 text-[#e53935]" />
             </div>
             <div>
               <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">
                 Driver License Type Detail
               </h1>
               <p className="text-[12px] text-[#94a3b8]">
-                <span className="text-[12px]">Master Data Setup</span>
-                <span className="mx-0.5">&rsaquo;</span>
-                <button onClick={() => { sessionStorage.setItem("innotaxi_active_item", "License Type"); navigate("/dashboard"); }} className="text-[12px] font-inherit hover:text-[#64748b] transition-colors cursor-pointer">Driver License Type</button>
-                <span className="mx-0.5">&rsaquo;</span>
-                <span className="text-[#64748b] font-medium">{item.code}</span>
+                View and update license type record <span className="text-[#64748b] font-medium">{item.code}</span>
               </p>
             </div>
           </div>
@@ -362,184 +373,7 @@ export function LicenseTypeDetail() {
       
 
       {/* ═══ Monthly Driver Count Bar Chart ═══ */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="bg-white rounded-[12px] border border-[#e2e8f0] p-5 mb-5"
-      >
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#fef2f2] flex items-center justify-center">
-              <BarChart3 className="w-4 h-4 text-[#e53935]" />
-            </div>
-            <div>
-              <h3 className="text-[15px] text-[#0f172a] font-semibold">Monthly Driver Count</h3>
-              <p className="text-[12px] text-[#94a3b8] mt-0.5">
-                {chartYear} driver statistics for <span className="text-[#64748b] font-medium">{item.code} — {item.name}</span>
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-[3px] bg-[#22c55e]" />
-              <span className="text-[11px] text-[#64748b]">ACTIVE</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-[3px] bg-[#f59e0b]" />
-              <span className="text-[11px] text-[#64748b]">PENDING</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-[3px] bg-[#e53935]" />
-              <span className="text-[11px] text-[#64748b]">SUSPENDED</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-[3px] bg-[#94a3b8]" />
-              <span className="text-[11px] text-[#64748b]">INACTIVE</span>
-            </div>
-            {/* Download Dropdown */}
-            <div className="relative" ref={downloadDropdownRef}>
-              <button
-                onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors cursor-pointer border border-[#e2e8f0] hover:border-[#cbd5e1]"
-                title="Download Chart"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <ChevronDown className={`w-3 h-3 transition-transform ${downloadDropdownOpen ? "rotate-180" : ""}`} />
-              </button>
-              {downloadDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-[#e2e8f0] py-1 z-50 min-w-[140px]">
-                  <button
-                    onClick={() => handleChartDownload("png")}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-[#475569] hover:bg-[#f8fafc] transition-colors cursor-pointer"
-                  >
-                    <span className="w-5 h-5 rounded bg-[#eef2ff] flex items-center justify-center text-[9px] text-[#6366f1] font-semibold">PNG</span>
-                    Download PNG
-                  </button>
-                  <button
-                    onClick={() => handleChartDownload("jpg")}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-[#475569] hover:bg-[#f8fafc] transition-colors cursor-pointer"
-                  >
-                    <span className="w-5 h-5 rounded bg-[#fef2f2] flex items-center justify-center text-[9px] text-[#e53935] font-semibold">JPG</span>
-                    Download JPG
-                  </button>
-                </div>
-              )}
-            </div>
-            {/* Year Dropdown */}
-            <div className="relative" ref={yearDropdownRef}>
-              <button
-                onClick={() => setYearDropdownOpen(!yearDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors cursor-pointer border border-[#e2e8f0] hover:border-[#cbd5e1]"
-                title="Select Year"
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <ChevronDown className={`w-3 h-3 transition-transform ${yearDropdownOpen ? "rotate-180" : ""}`} />
-              </button>
-              {yearDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-[#e2e8f0] py-1 z-50 min-w-[140px]">
-                  {chartYearOptions.map((year) => (
-                    <button
-                      key={year}
-                      onClick={() => { setChartYear(year); setYearDropdownOpen(false); }}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-[11px] transition-colors cursor-pointer ${
-                        chartYear === year
-                          ? "bg-[#fef3c7] text-[#92400e] font-medium"
-                          : "text-[#475569] hover:bg-[#f8fafc]"
-                      }`}
-                    >
-                      {year}
-                      {chartYear === year && <Check className="w-3 h-3 ml-auto text-[#92400e]" />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Code Preview Button */}
-            <button
-              onClick={() => setChartCodePreviewOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-[#64748b] hover:bg-[#eef2ff] hover:text-[#4f46e5] transition-colors cursor-pointer border border-[#e2e8f0] hover:border-[#c7d2fe]"
-              title="View Chart API Code"
-            >
-              
-              <span>&lt;/&gt;</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Mini Stats */}
-        <div className="grid grid-cols-4 gap-3 mb-5">
-          <div className="bg-[#f0fdf4] rounded-lg px-3.5 py-2.5">
-            <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.3px] font-medium">Avg. Active / Month</p>
-            <p className="text-[18px] text-[#22c55e] font-semibold tracking-[-0.3px] mt-0.5">{Math.round(totalActive / 12)}</p>
-          </div>
-          <div className="bg-[#fffbeb] rounded-lg px-3.5 py-2.5">
-            <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.3px] font-medium">Total Pending</p>
-            <p className="text-[18px] text-[#f59e0b] font-semibold tracking-[-0.3px] mt-0.5">{totalPending}</p>
-          </div>
-          <div className="bg-[#fef2f2] rounded-lg px-3.5 py-2.5">
-            <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.3px] font-medium">Total Suspended</p>
-            <p className="text-[18px] text-[#e53935] font-semibold tracking-[-0.3px] mt-0.5">{monthlyData.reduce((s, d) => s + d.suspended, 0)}</p>
-          </div>
-          <div className="bg-[#f8fafc] rounded-lg px-3.5 py-2.5">
-            <div className="flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-[#22c55e]" />
-              <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.3px] font-medium">Peak Month</p>
-            </div>
-            <p className="text-[18px] text-[#0f172a] font-semibold tracking-[-0.3px] mt-0.5">{peakMonth.month} <span className="text-[12px] text-[#64748b] font-normal">({peakMonth.active})</span></p>
-          </div>
-        </div>
-
-        {/* Chart */}
-        <div className="h-[300px] w-full min-w-0" ref={chartRef}>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart key={`${item.code}-${chartYear}`} data={monthlyData} margin={{ top: 8, right: 8, left: -12, bottom: 4 }} barCategoryGap="20%">
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 11, fill: "#64748b" }}
-              />
-              <YAxis
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 11, fill: "#94a3b8" }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#0f172a",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "8px 12px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                }}
-                itemStyle={{ color: "#e2e8f0", fontSize: "12px" }}
-                labelStyle={{ color: "#fff", fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}
-                labelFormatter={(label: string) => `${label} ${chartYear} — ${item.code}`}
-                cursor={{ fill: "rgba(229, 57, 53, 0.04)" }}
-              />
-              <Legend
-                verticalAlign="top"
-                align="right"
-                wrapperStyle={{ top: 10, right: 10 }}
-                iconType="square"
-                iconSize={8}
-                itemStyle={{ fontSize: "11px", color: "#64748b" }}
-              />
-              <Bar dataKey="active" name="ACTIVE" fill="#22c55e" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="pending" name="PENDING" fill="#f59e0b" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="suspended" name="SUSPENDED" fill="#e53935" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="inactive" name="INACTIVE" fill="#94a3b8" radius={[3, 3, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#f1f5f9]">
-          <span className="text-[11px] text-[#94a3b8]">Data period: Jan — Dec {chartYear} &middot; License type: {item.code}</span>
-          <span className="text-[11px] text-[#e53935] font-medium">Peak: {peakMonth.month} ({peakMonth.active} active drivers)</span>
-        </div>
-      </motion.div>
+      
 
       {/* ═══ Info + Timestamps Cards ═══ */}
       <div className="grid grid-cols-1 gap-5 mb-5">
@@ -570,7 +404,7 @@ export function LicenseTypeDetail() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
             {/* ID */}
             
 
@@ -630,6 +464,25 @@ export function LicenseTypeDetail() {
                 >
                   <option value="ACTIVE">ACTIVE</option>
                   <option value="INACTIVE">INACTIVE</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-[#94a3b8] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Policy Type */}
+            <div>
+              <label className="block text-[11px] text-[#94a3b8] uppercase tracking-[0.3px] font-medium mb-1.5">Policy Type</label>
+              <div className="relative">
+                <select
+                  value={formPolicyType}
+                  onChange={(e) => setFormPolicyType(e.target.value as "DRIVER_LICENSE" | "VEHICLE_LICENSE")}
+                  className="w-full px-3 py-2 rounded-lg border border-[#e2e8f0] bg-white text-[13px] text-[#0f172a] outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/20 transition-all appearance-none cursor-pointer pr-8"
+                >
+                  {[...new Map(licensePolicyMockData.map(p => [p.policyType, p])).values()].map((policy) => (
+                    <option key={policy.policyType} value={policy.policyType}>
+                      {policy.label}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="w-3.5 h-3.5 text-[#94a3b8] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>

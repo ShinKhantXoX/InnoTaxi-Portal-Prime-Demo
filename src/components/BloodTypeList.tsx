@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
@@ -10,7 +11,7 @@ import { Toolbar } from "primereact/toolbar";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Menu } from "primereact/menu";
 import { Checkbox } from "primereact/checkbox";
-import { Droplets, Plus, Pencil, Trash2, Download, RefreshCw, Search, EllipsisVertical, Check, X, Filter, ChevronDown, Columns3, Eye, EyeOff, Code2, Copy } from "lucide-react";
+import { Droplets, Plus, Pencil, Trash2, Download, RefreshCw, Search, EllipsisVertical, Check, X, ChevronDown, Columns3, Eye, EyeOff, Code2, Copy } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -84,14 +85,14 @@ import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 
 const bloodTypes = [
-  { id: 1, code: 'A+', name: 'A Positive', group: 'A', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', updatedAt: '2026-01-15', status: 'ACTIVE' },
-  { id: 2, code: 'A-', name: 'A Negative', group: 'A', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', updatedAt: '2026-02-08', status: 'ACTIVE' },
-  { id: 3, code: 'B+', name: 'B Positive', group: 'B', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', updatedAt: '2026-01-22', status: 'ACTIVE' },
-  { id: 4, code: 'B-', name: 'B Negative', group: 'B', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', updatedAt: '2026-02-14', status: 'ACTIVE' },
-  { id: 5, code: 'AB+', name: 'AB Positive', group: 'AB', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', updatedAt: '2026-01-30', status: 'ACTIVE' },
-  { id: 6, code: 'AB-', name: 'AB Negative', group: 'AB', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', updatedAt: '2026-02-05', status: 'ACTIVE' },
-  { id: 7, code: 'O+', name: 'O Positive', group: 'O', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', updatedAt: '2026-02-18', status: 'ACTIVE' },
-  { id: 8, code: 'O-', name: 'O Negative', group: 'O', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', updatedAt: '2026-03-01', status: 'ACTIVE' },
+  { id: 1, code: 'A+', name: 'A Positive', group: 'A', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', status: 'ACTIVE' },
+  { id: 2, code: 'A-', name: 'A Negative', group: 'A', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', status: 'ACTIVE' },
+  { id: 3, code: 'B+', name: 'B Positive', group: 'B', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', status: 'ACTIVE' },
+  { id: 4, code: 'B-', name: 'B Negative', group: 'B', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', status: 'ACTIVE' },
+  { id: 5, code: 'AB+', name: 'AB Positive', group: 'AB', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', status: 'ACTIVE' },
+  { id: 6, code: 'AB-', name: 'AB Negative', group: 'AB', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', status: 'ACTIVE' },
+  { id: 7, code: 'O+', name: 'O Positive', group: 'O', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', status: 'ACTIVE' },
+  { id: 8, code: 'O-', name: 'O Negative', group: 'O', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', status: 'ACTIVE' },
 ];
 
 export default function BloodTypeList() {
@@ -125,13 +126,8 @@ export default function BloodTypeList() {
     </span>
   );
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
-
   return (
-    <>
+    <div>
       <Toast ref={toast} />
       <Toolbar left={() => <h3>Blood Types</h3>} />
       <DataTable
@@ -154,10 +150,9 @@ export default function BloodTypeList() {
         <Column field="rhFactor" header="Rh Factor" body={rhTemplate} sortable />
         <Column field="description" header="Description" sortable />
         <Column field="drivers" header="Drivers" sortable />
-        <Column field="updatedAt" header="Updated" sortable body={(rowData) => formatDate(rowData.updatedAt)} />
         <Column field="status" header="Status" body={statusTemplate} sortable />
       </DataTable>
-    </>
+    </div>
   );
 }`;
 
@@ -194,11 +189,6 @@ export const bloodTypeVueTableCode = `<template>
       </Column>
       <Column field="description" header="Description" sortable />
       <Column field="drivers" header="Drivers" sortable />
-      <Column field="updatedAt" header="Updated" sortable>
-        <template #body="{ data }">
-          {{ formatDate(data.updatedAt) }}
-        </template>
-      </Column>
       <Column field="status" header="Status" sortable>
         <template #body="{ data }">
           <Tag :value="data.status === 'ACTIVE' ? 'Active' : 'Inactive'"
@@ -219,22 +209,17 @@ import Toast from 'primevue/toast';
 import Toolbar from 'primevue/toolbar';
 
 const bloodTypes = ref([
-  { id: 1, code: 'A+', name: 'A Positive', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', updatedAt: '2026-01-15', status: 'ACTIVE' },
-  { id: 2, code: 'A-', name: 'A Negative', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', updatedAt: '2026-02-08', status: 'ACTIVE' },
-  { id: 3, code: 'B+', name: 'B Positive', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', updatedAt: '2026-01-22', status: 'ACTIVE' },
-  { id: 4, code: 'B-', name: 'B Negative', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', updatedAt: '2026-02-14', status: 'ACTIVE' },
-  { id: 5, code: 'AB+', name: 'AB Positive', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', updatedAt: '2026-01-30', status: 'ACTIVE' },
-  { id: 6, code: 'AB-', name: 'AB Negative', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', updatedAt: '2026-02-05', status: 'ACTIVE' },
-  { id: 7, code: 'O+', name: 'O Positive', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', updatedAt: '2026-02-18', status: 'ACTIVE' },
-  { id: 8, code: 'O-', name: 'O Negative', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', updatedAt: '2026-03-01', status: 'ACTIVE' },
+  { id: 1, code: 'A+', name: 'A Positive', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', status: 'ACTIVE' },
+  { id: 2, code: 'A-', name: 'A Negative', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', status: 'ACTIVE' },
+  { id: 3, code: 'B+', name: 'B Positive', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', status: 'ACTIVE' },
+  { id: 4, code: 'B-', name: 'B Negative', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', status: 'ACTIVE' },
+  { id: 5, code: 'AB+', name: 'AB Positive', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', status: 'ACTIVE' },
+  { id: 6, code: 'AB-', name: 'AB Negative', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', status: 'ACTIVE' },
+  { id: 7, code: 'O+', name: 'O Positive', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', status: 'ACTIVE' },
+  { id: 8, code: 'O-', name: 'O Negative', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', status: 'ACTIVE' },
 ]);
 
 const globalFilter = ref('');
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-};
 
 const filteredData = computed(() => {
   if (!globalFilter.value.trim()) return bloodTypes.value;
@@ -261,7 +246,6 @@ interface BloodType {
   rhFactor: string;
   description: string;
   drivers: number;
-  updatedAt: string;
   status: string;
 }
 
@@ -297,7 +281,6 @@ interface BloodType {
           <th pSortableColumn="rhFactor">Rh Factor <p-sortIcon field="rhFactor" /></th>
           <th pSortableColumn="description">Description <p-sortIcon field="description" /></th>
           <th pSortableColumn="drivers">Drivers <p-sortIcon field="drivers" /></th>
-          <th pSortableColumn="updatedAt">Updated <p-sortIcon field="updatedAt" /></th>
           <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
         </tr>
       </ng-template>
@@ -308,7 +291,6 @@ interface BloodType {
           <td><p-tag [value]="bt.rhFactor" [severity]="bt.rhFactor === 'Positive' ? 'success' : 'danger'" [rounded]="true" /></td>
           <td>{{ bt.description }}</td>
           <td>{{ bt.drivers }}</td>
-          <td>{{ bt.updatedAt | date:'MMM d, yyyy' }}</td>
           <td><p-tag [value]="bt.status === 'ACTIVE' ? 'Active' : 'Inactive'" [severity]="bt.status === 'ACTIVE' ? 'success' : 'danger'" [rounded]="true" /></td>
         </tr>
       </ng-template>
@@ -317,14 +299,14 @@ interface BloodType {
 })
 export class BloodTypeListComponent implements OnInit {
   bloodTypes: BloodType[] = [
-    { id: 1, code: 'A+', name: 'A Positive', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', updatedAt: '2026-01-15', status: 'ACTIVE' },
-    { id: 2, code: 'A-', name: 'A Negative', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', updatedAt: '2026-02-08', status: 'ACTIVE' },
-    { id: 3, code: 'B+', name: 'B Positive', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', updatedAt: '2026-01-22', status: 'ACTIVE' },
-    { id: 4, code: 'B-', name: 'B Negative', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', updatedAt: '2026-02-14', status: 'ACTIVE' },
-    { id: 5, code: 'AB+', name: 'AB Positive', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', updatedAt: '2026-01-30', status: 'ACTIVE' },
-    { id: 6, code: 'AB-', name: 'AB Negative', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', updatedAt: '2026-02-05', status: 'ACTIVE' },
-    { id: 7, code: 'O+', name: 'O Positive', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', updatedAt: '2026-02-18', status: 'ACTIVE' },
-    { id: 8, code: 'O-', name: 'O Negative', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', updatedAt: '2026-03-01', status: 'ACTIVE' },
+    { id: 1, code: 'A+', name: 'A Positive', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', status: 'ACTIVE' },
+    { id: 2, code: 'A-', name: 'A Negative', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', status: 'ACTIVE' },
+    { id: 3, code: 'B+', name: 'B Positive', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', status: 'ACTIVE' },
+    { id: 4, code: 'B-', name: 'B Negative', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', status: 'ACTIVE' },
+    { id: 5, code: 'AB+', name: 'AB Positive', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', status: 'ACTIVE' },
+    { id: 6, code: 'AB-', name: 'AB Negative', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', status: 'ACTIVE' },
+    { id: 7, code: 'O+', name: 'O Positive', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', status: 'ACTIVE' },
+    { id: 8, code: 'O-', name: 'O Negative', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', status: 'ACTIVE' },
   ];
   globalFilter = '';
   filteredData: BloodType[] = [];
@@ -461,6 +443,7 @@ export class BloodTypeService {
 }`;
 
 export function BloodTypeList() {
+  const navigate = useNavigate();
   const toast = useRef<Toast>(null);
   const [bloodTypes, setBloodTypes] = useState<BloodType[]>(bloodTypeMockData);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -471,9 +454,6 @@ export function BloodTypeList() {
   const actionMenuRef = useRef<Menu>(null);
   const activeRowRef = useRef<BloodType | null>(null);
   const [exportDialogVisible, setExportDialogVisible] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL");
-  const [statusFilterOpen, setStatusFilterOpen] = useState(false);
-  const statusFilterRef = useRef<HTMLDivElement>(null);
   const [columnsDropdownOpen, setColumnsDropdownOpen] = useState(false);
   const columnsDropdownRef = useRef<HTMLDivElement>(null);
   const [tableCodePreviewOpen, setTableCodePreviewOpen] = useState(false);
@@ -489,10 +469,6 @@ export function BloodTypeList() {
     { field: "description" as keyof BloodType, label: "Description" },
     { field: "drivers" as keyof BloodType, label: "Drivers" },
     { field: "customers" as keyof BloodType, label: "Customers" },
-    { field: "status" as keyof BloodType, label: "Status" },
-    { field: "createdAt" as keyof BloodType, label: "Created At" },
-    { field: "updatedAt" as keyof BloodType, label: "Updated" },
-    { field: "deletedAt" as keyof BloodType, label: "Deleted At" },
   ];
 
   const [selectedExportColumns, setSelectedExportColumns] = useState<string[]>(
@@ -506,11 +482,7 @@ export function BloodTypeList() {
     { field: "rhFactor", label: "Rh Factor", default: true },
     { field: "description", label: "Description", default: true },
     { field: "drivers", label: "Drivers", default: true },
-    { field: "customers", label: "Customers", default: false },
-    { field: "status", label: "Status", default: true },
-    { field: "createdAt", label: "Created At", default: false },
-    { field: "updatedAt", label: "Updated", default: true },
-    { field: "deletedAt", label: "Deleted At", default: false },
+    { field: "customers", label: "Customers", default: true },
   ];
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
@@ -519,9 +491,6 @@ export function BloodTypeList() {
 
   const filteredData = useMemo(() => {
     let data = bloodTypes;
-    if (statusFilter !== "ALL") {
-      data = data.filter((bt) => bt.status === statusFilter);
-    }
     if (globalFilter.trim()) {
       const lower = globalFilter.toLowerCase();
       data = data.filter((bt) =>
@@ -531,12 +500,11 @@ export function BloodTypeList() {
       );
     }
     return data;
-  }, [bloodTypes, globalFilter, statusFilter]);
+  }, [bloodTypes, globalFilter]);
 
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (statusFilterRef.current && !statusFilterRef.current.contains(e.target as Node)) setStatusFilterOpen(false);
       if (columnsDropdownRef.current && !columnsDropdownRef.current.contains(e.target as Node)) setColumnsDropdownOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -697,21 +665,6 @@ export function BloodTypeList() {
     toast.current?.show({ severity: "info", summary: "Exported", detail: `${filteredData.length} row(s) exported`, life: 3000 });
   };
 
-  const statusBodyTemplate = (rowData: BloodType) => {
-    if (rowData.status === "ACTIVE") return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#f0fdf4] text-[#16a34a]">
-        <Check className="w-3 h-3" />
-        Active
-      </span>
-    );
-    return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#f1f5f9] text-[#94a3b8]">
-        <X className="w-3 h-3" />
-        Inactive
-      </span>
-    );
-  };
-
   const rhBodyTemplate = (rowData: BloodType) => (
     <span className={`inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full ${
       rowData.rhFactor === "Positive" ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-[#fef2f2] text-[#e53935]"
@@ -747,90 +700,30 @@ export function BloodTypeList() {
     <span className="text-[12px] text-[#0f172a] font-medium">{rowData.customers.toLocaleString()}</span>
   );
 
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return "—";
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  };
-
-  const updatedBodyTemplate = (rowData: BloodType) => (
-    <span className="text-[12px] text-[#64748b]">{formatDate(rowData.updatedAt)}</span>
-  );
-
   const actionBodyTemplate = (rowData: BloodType) => (
     <div className="flex justify-center">
       <button
         type="button"
-        className="w-7 h-7 flex items-center justify-center rounded-full bg-[#fef2f2] transition-colors cursor-pointer text-[#e53935] hover:bg-[#fee2e2]"
-        title="Actions"
+        className="w-7 h-7 flex items-center justify-center rounded-full bg-[#eef2ff] transition-colors cursor-pointer text-[#6366f1] hover:bg-[#e0e7ff]"
+        title="View"
         onClick={(e) => {
           e.stopPropagation();
-          activeRowRef.current = rowData;
-          actionMenuRef.current?.toggle(e);
+          navigate(`/dashboard/blood-types/${rowData.id}`);
         }}
       >
-        <EllipsisVertical className="w-3.5 h-3.5" />
+        <Eye className="w-3.5 h-3.5" />
       </button>
     </div>
   );
 
   const leftToolbarTemplate = () => (
     <div className="flex items-center gap-2">
-      <button
-        onClick={openNew}
-        className="flex items-center gap-1.5 bg-[#e53935] hover:bg-[#c62828] text-white px-3.5 py-2 rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer"
-      >
-        <Plus className="w-4 h-4" />
-        New
-      </button>
+      
     </div>
   );
 
   const rightToolbarTemplate = () => (
     <div className="flex items-center gap-2">
-      {/* Status Filter */}
-      <div className="relative" ref={statusFilterRef}>
-        <button
-          onClick={() => setStatusFilterOpen((prev) => !prev)}
-          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer border ${
-            statusFilter !== "ALL"
-              ? "border-[#e53935] bg-[#fef2f2] text-[#e53935]"
-              : "border-[#e2e8f0] text-[#475569] hover:bg-[#f8fafc] hover:text-[#0f172a]"
-          }`}
-        >
-          <Filter className="w-4 h-4" />
-          {statusFilter === "ALL" ? "Status" : statusFilter === "ACTIVE" ? "Active" : "Inactive"}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${statusFilterOpen ? "rotate-180" : ""}`} />
-        </button>
-        {statusFilterOpen && (
-          <div className="absolute right-0 top-full mt-1.5 bg-white border border-[#e2e8f0] rounded-[10px] shadow-lg z-50 min-w-[160px] py-1.5 overflow-hidden">
-            {([
-              { key: "ALL" as const, label: "All Statuses", count: bloodTypes.length },
-              { key: "ACTIVE" as const, label: "Active", count: bloodTypes.filter((bt) => bt.status === "ACTIVE").length },
-              { key: "INACTIVE" as const, label: "Inactive", count: bloodTypes.filter((bt) => bt.status === "INACTIVE").length },
-            ]).map((opt) => (
-              <button
-                key={opt.key}
-                onClick={() => { setStatusFilter(opt.key); setStatusFilterOpen(false); }}
-                className={`w-full flex items-center justify-between px-3.5 py-2 text-[12px] transition-colors cursor-pointer ${
-                  statusFilter === opt.key ? "bg-[#fef2f2] text-[#e53935] font-medium" : "text-[#475569] hover:bg-[#f8fafc]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {statusFilter === opt.key && <Check className="w-3.5 h-3.5" />}
-                  <span className={statusFilter === opt.key ? "" : "ml-5.5"}>{opt.label}</span>
-                </div>
-                <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${
-                  statusFilter === opt.key ? "bg-[#e53935] text-white" : "bg-[#f1f5f9] text-[#94a3b8]"
-                }`}>
-                  {opt.count}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="w-px h-6 bg-[#e2e8f0]" />
       {/* Export */}
       <button
         onClick={() => setExportDialogVisible(true)}
@@ -939,7 +832,6 @@ export function BloodTypeList() {
           title="Refresh"
           onClick={() => {
             setBloodTypes([...bloodTypeMockData]);
-            setStatusFilter("ALL");
             toast.current?.show({ severity: "info", summary: "Refreshed", detail: "Data has been reset", life: 2000 });
           }}
         >
@@ -1066,30 +958,6 @@ export function BloodTypeList() {
           )}
           {visibleColumns.includes("customers") && (
             <Column field="customers" header="Customers" body={customersBodyTemplate} sortable style={{ minWidth: "110px" }} />
-          )}
-          {visibleColumns.includes("updatedAt") && (
-            <Column field="updatedAt" header="Updated" body={updatedBodyTemplate} sortable style={{ minWidth: "130px" }} />
-          )}
-          {visibleColumns.includes("status") && (
-            <Column field="status" header="Status" body={statusBodyTemplate} sortable style={{ minWidth: "100px" }} />
-          )}
-          {visibleColumns.includes("createdAt") && (
-            <Column field="createdAt" header="Created At" sortable style={{ minWidth: "120px" }} body={(rowData: BloodType) => (
-              <span className="text-[12px] text-[#64748b]">{formatDate(rowData.createdAt)}</span>
-            )} />
-          )}
-          {visibleColumns.includes("deletedAt") && (
-            <Column
-              field="deletedAt"
-              header="Deleted At"
-              sortable
-              style={{ minWidth: "120px" }}
-              body={(rowData: BloodType) => (
-                <span className={`text-[12px] ${rowData.deletedAt ? "text-[#e53935]" : "text-[#cbd5e1]"}`}>
-                  {rowData.deletedAt ? formatDate(rowData.deletedAt) : "—"}
-                </span>
-              )}
-            />
           )}
           <Column header="Actions" body={actionBodyTemplate} style={{ minWidth: "60px" }} frozen alignFrozen="right" />
         </DataTable>
