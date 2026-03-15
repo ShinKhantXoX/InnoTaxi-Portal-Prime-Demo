@@ -1,5 +1,5 @@
 import { useState, useEffect, type ReactNode } from "react";
-import { Copy, Check, ChevronDown, ChevronRight, Code, Code2, FileCode2, BarChart3, PieChart, Table, Pencil, Eye, LineChart, LogIn, Plus, Droplets } from "lucide-react";
+import { Copy, Check, ChevronDown, ChevronRight, Code, Code2, FileCode2, BarChart3, PieChart, Table, Pencil, Eye, LineChart, LogIn, Plus, Droplets, ShieldAlert, UserPlus } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 
 // Login page codes
@@ -16,17 +16,17 @@ import {
   primeReactTableCode, primeVueTableCode, primeAngularTableCode,
 } from "./LicenseTypeList";
 
-// License Policy List codes
+// Policies List codes
 import {
   policyReactTableCode, policyVueTableCode, policyAngularTableCode,
 } from "./LicensePolicyList";
 
-// License Policy Add codes
+// Policies Add codes
 import {
   createPolicyReactCode, createPolicyVueCode, createPolicyAngularCode,
 } from "./licensePolicyBackendCodes";
 
-// License Policy Detail codes
+// Policies Detail codes
 import {
   detailReactCode as policyDetailReactCode,
   detailVueCode as policyDetailVueCode,
@@ -37,6 +37,12 @@ import {
 import {
   bloodTypeReactTableCode, bloodTypeVueTableCode, bloodTypeAngularTableCode,
 } from "./BloodTypeList";
+
+// Emergency Profile codes
+import {
+  emergencyReactTableCode, emergencyVueTableCode, emergencyAngularTableCode,
+  emergencyReactFormCode, emergencyVueFormCode, emergencyAngularFormCode,
+} from "./emergencyProfileCodes";
 
 // Driver License Type Detail codes
 import { detailReactCode, detailVueCode, detailAngularCode } from "./detailBackendCodes";
@@ -179,9 +185,9 @@ const pages: PageSection[] = [
   },
   {
     id: "policy-list",
-    label: "License Policy List",
-    description: "Data table with charts for license policy management",
-    route: "/dashboard (License Policy)",
+    label: "Policies List",
+    description: "Data table with charts for license policies management",
+    route: "/dashboard (Policies)",
     snippets: [
       {
         id: "data-table",
@@ -278,6 +284,36 @@ const pages: PageSection[] = [
       },
     ],
   },
+  {
+    id: "emergency-profiles",
+    label: "Emergency Profiles",
+    description: "Emergency contact management for drivers/customers with nullable driver_id/customer_id, relationship, and review status (UNDER_REVIEW/REJECT/APPROVE)",
+    route: "/dashboard (Emergency Profiles)",
+    snippets: [
+      {
+        id: "emergency-table",
+        label: "Data Table",
+        description: "Search, Filter, Pagination for emergency contacts",
+        icon: ShieldAlert,
+        frameworks: {
+          vue: [{ key: "component", label: "Component", fileName: "EmergencyProfileTable.vue", code: emergencyVueTableCode, language: "markup" }],
+          react: [{ key: "component", label: "Component", fileName: "EmergencyProfileTable.tsx", code: emergencyReactTableCode, language: "tsx" }],
+          angular: [{ key: "component", label: "Component", fileName: "emergency-profile-table.component.ts", code: emergencyAngularTableCode, language: "typescript" }],
+        },
+      },
+      {
+        id: "emergency-form",
+        label: "Add Emergency Contact",
+        description: "POST /api/v1/emergency-profiles — nullable driver_id/customer_id, contact_name, relationship, prefix + phone_number",
+        icon: UserPlus,
+        frameworks: {
+          vue: [{ key: "component", label: "Component", fileName: "EmergencyProfileForm.vue", code: emergencyVueFormCode, language: "markup" }],
+          react: [{ key: "component", label: "Component", fileName: "EmergencyProfileForm.tsx", code: emergencyReactFormCode, language: "tsx" }],
+          angular: [{ key: "component", label: "Component", fileName: "emergency-profile-form.component.ts", code: emergencyAngularFormCode, language: "typescript" }],
+        },
+      },
+    ],
+  },
 ];
 
 // ─── Copy helper ───
@@ -365,7 +401,7 @@ function CodeBlock({ snippet }: { snippet: CodeSnippet }) {
 
           {/* Sub-tabs (only show if more than 1 tab) */}
           {tabs.length > 1 && (
-            <>
+            <div className="contents">
               <div className="w-px h-5 bg-[#e2e8f0]" />
               <div className="flex items-center gap-0.5">
                 {tabs.map((tab) => (
@@ -382,7 +418,7 @@ function CodeBlock({ snippet }: { snippet: CodeSnippet }) {
                   </button>
                 ))}
               </div>
-            </>
+            </div>
           )}
         </div>
 

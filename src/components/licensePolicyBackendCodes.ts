@@ -10,7 +10,7 @@ export const licensePolicyBackendFileConfig: Record<BackendLang, string> = {
   csharp: "LicensePolicyController.cs",
   python: "license_policy.py",
   golang: "license_policy_handler.go",
-  ruby: "license_policies_controller.rb",
+  ruby: "policies_controller.rb",
 };
 
 export const licensePolicyBackendCode = `// license-policy.controller.ts — NestJS + TypeORM
@@ -115,7 +115,7 @@ export const createPolicyBackendFileConfig: Record<BackendLang, { file: string; 
   csharp: { file: "LicensePolicyController.cs", language: "csharp" },
   python: { file: "license_policy.py", language: "python" },
   golang: { file: "license_policy_handler.go", language: "go" },
-  ruby: { file: "license_policies_controller.rb", language: "ruby" },
+  ruby: { file: "policies_controller.rb", language: "ruby" },
 };
 
 export function getCreatePolicyBackendCode(lang: BackendLang): string {
@@ -423,7 +423,7 @@ func (h *LicensePolicyHandler) Create(c *gin.Context) {
 	})
 }`,
 
-    ruby: `# license_policies_controller.rb — Ruby on Rails
+    ruby: `# policies_controller.rb — Ruby on Rails
 class Api::V1::LicensePoliciesController < ApplicationController
   # POST /api/v1/license-policies
   def create
@@ -737,7 +737,7 @@ export class LicensePolicyAddComponent {
 // ── Database Schema ──
 
 export const policyDatabaseSchema = `-- ═══════════════════════════════════════════════════════════
--- license_policies — Database Schema (PostgreSQL)
+-- policies — Database Schema (PostgreSQL)
 -- ═══════════════════════════════════════════════════════════
 
 -- Enum types
@@ -752,7 +752,7 @@ CREATE TYPE policy_status_enum AS ENUM (
 );
 
 -- Main table
-CREATE TABLE license_policies (
+CREATE TABLE policies (
   id            SERIAL          PRIMARY KEY,
   label         VARCHAR(255)    NOT NULL,
   description   TEXT            NULL,
@@ -764,16 +764,16 @@ CREATE TABLE license_policies (
 );
 
 -- Indexes
-CREATE INDEX idx_license_policies_status
-  ON license_policies (status)
+CREATE INDEX idx_policies_status
+  ON policies (status)
   WHERE deleted_at IS NULL;
 
-CREATE INDEX idx_license_policies_policy_type
-  ON license_policies (policy_type)
+CREATE INDEX idx_policies_policy_type
+  ON policies (policy_type)
   WHERE deleted_at IS NULL;
 
-CREATE INDEX idx_license_policies_label
-  ON license_policies USING gin (label gin_trgm_ops);
+CREATE INDEX idx_policies_label
+  ON policies USING gin (label gin_trgm_ops);
 
 -- Auto-update updated_at trigger
 CREATE OR REPLACE FUNCTION update_modified_column()
@@ -784,21 +784,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_license_policies_updated_at
-  BEFORE UPDATE ON license_policies
+CREATE TRIGGER set_policies_updated_at
+  BEFORE UPDATE ON policies
   FOR EACH ROW
   EXECUTE FUNCTION update_modified_column();
 
 -- Soft delete helper view
-CREATE VIEW active_license_policies AS
+CREATE VIEW active_policies AS
   SELECT *
-  FROM license_policies
+  FROM policies
   WHERE deleted_at IS NULL;
 
 -- ═══════════════════════════════════════════════════════════
 -- Sample seed data
 -- ═══════════════════════════════════════════════════════════
-INSERT INTO license_policies (label, description, policy_type, status)
+INSERT INTO policies (label, description, policy_type, status)
 VALUES
   ('Standard Driver License Policy',
    'Default policy for driver license issuance and renewal.',
@@ -813,6 +813,6 @@ VALUES
 -- ═══════════════════════════════════════════════════════════
 -- Relationships (referenced by other tables)
 -- ═══════════════════════════════════════════════════════════
--- license_policy_rules.policy_id → license_policies.id
--- driver_licenses.policy_id     → license_policies.id
--- vehicle_licenses.policy_id    → license_policies.id`;
+-- license_policy_rules.policy_id → policies.id
+-- driver_licenses.policy_id     → policies.id
+-- vehicle_licenses.policy_id    → policies.id`;

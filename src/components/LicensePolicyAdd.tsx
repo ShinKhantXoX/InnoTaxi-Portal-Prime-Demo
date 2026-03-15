@@ -72,7 +72,7 @@ export function LicensePolicyAdd() {
       return { react: "LicensePolicyAdd.tsx", vue: "LicensePolicyAdd.vue", angular: "license-policy-add.component.ts" }[codeFramework];
     }
     if (codeCategory === "database") {
-      return "license_policies.sql";
+      return "policies.sql";
     }
     return createPolicyBackendFileConfig[backendLang].file;
   };
@@ -147,12 +147,12 @@ export function LicensePolicyAdd() {
     setShowCreateNotification(true);
 
     setTimeout(() => {
-      navigate("/dashboard", { state: { activeItem: "License Policy" } });
+      navigate("/dashboard", { state: { activeItem: "Policies" } });
     }, 600);
   };
 
   const handleCancel = () => {
-    navigate("/dashboard", { state: { activeItem: "License Policy" } });
+    navigate("/dashboard", { state: { activeItem: "Policies" } });
   };
 
   return (
@@ -164,7 +164,7 @@ export function LicensePolicyAdd() {
           className="flex items-center gap-1.5 text-[13px] text-[#64748b] hover:text-[#0f172a] transition-colors cursor-pointer mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to License Policy
+          Back to Policies
         </button>
 
         <div className="flex items-center gap-3">
@@ -173,10 +173,10 @@ export function LicensePolicyAdd() {
           </div>
           <div>
             <h1 className="text-[20px] text-[#0f172a] font-semibold">
-              New License Policy
+              New Policies
             </h1>
             <p className="text-[12px] text-[#94a3b8]">
-              Create a new driver license policy record
+              Create a new policy record
             </p>
           </div>
         </div>
@@ -199,7 +199,8 @@ export function LicensePolicyAdd() {
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-[#64748b] hover:bg-[#eef2ff] hover:text-[#4f46e5] transition-colors cursor-pointer border border-[#e2e8f0] hover:border-[#c7d2fe]"
             title="View Create Code"
           >
-            <span>&lt;/&gt;</span>
+            <Code2 className="w-3.5 h-3.5" />
+            <span>View Code</span>
           </button>
         </div>
 
@@ -220,7 +221,7 @@ export function LicensePolicyAdd() {
                     ? "border-[#e53935] focus:border-[#e53935] focus:ring-[#e53935]/20"
                     : "border-[#e2e8f0]"
                 }`}
-                placeholder="e.g. ယာဉ်မောင်းလိုင်စင် Policy"
+                placeholder="Policy Name"
               />
               {submitted && !label.trim() && (
                 <small className="flex items-center gap-1 text-[#e53935] text-[11px] mt-1">
@@ -325,7 +326,7 @@ export function LicensePolicyAdd() {
                 <Code2 className="w-3.5 h-3.5 text-[#4f46e5]" />
               </div>
               <div>
-                <h3 className="text-[13px] text-[#0f172a] font-semibold">Create License Policy Code Preview</h3>
+                <h3 className="text-[13px] text-[#0f172a] font-semibold">Create Policies Code Preview</h3>
                 <p className="text-[10px] text-[#94a3b8]">POST /api/v1/license-policies</p>
               </div>
             </div>

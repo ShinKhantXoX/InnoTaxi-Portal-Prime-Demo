@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, Outlet, useOutlet, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import imgImage from "/Logo.svg";
@@ -28,6 +28,14 @@ import {
   Droplets,
   RefreshCw,
   CheckCircle2,
+  User,
+  Shield,
+  CreditCard,
+  Star,
+  Phone,
+  Smartphone,
+  Zap,
+  ArrowRight,
 } from "lucide-react";
 import { LicenseTypeList } from "./LicenseTypeList";
 import { FrontendDev } from "./FrontendDev";
@@ -35,6 +43,9 @@ import { BackendDev } from "./BackendDev";
 import { DatabaseDiagramAndSchema } from "./DatabaseDiagramAndSchema";
 import { BloodTypeList } from "./BloodTypeList";
 import { LicensePolicyList } from "./LicensePolicyList";
+import { DriverList } from "./DriverList";
+import { DriverProfileList } from "./DriverProfileList";
+import { SystemFlow } from "./SystemFlow";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface UserProfile {
@@ -49,11 +60,7 @@ interface UserProfile {
 const sidebarItems = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
   { icon: Users, label: "Drivers", active: false },
-  { icon: Users, label: "Passengers", active: false },
-  { icon: Car, label: "Vehicles", active: false },
-  { icon: MapPin, label: "Rides", active: false },
-  { icon: BarChart3, label: "Analytics", active: false },
-  { icon: Settings, label: "Settings", active: false },
+  { icon: User, label: "Driver Profile", active: false },
 ];
 
 export function DashboardLayout() {
@@ -69,10 +76,14 @@ export function DashboardLayout() {
   });
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
     const stored = sessionStorage.getItem("innotaxi_active_item");
+    const result: Record<string, boolean> = {};
     if (stored === "Diagram and Schema" || stored === "Schema" || stored === "Migration") {
-      return { database: true };
+      result.database = true;
     }
-    return {};
+    if (stored === "Frontend" || stored === "Backend") {
+      result.code = true;
+    }
+    return result;
   });
   const [user, setUser] = useState<UserProfile | null>(null);
   const [notifications] = useState(3);
@@ -87,28 +98,35 @@ export function DashboardLayout() {
     // ─── Frontend Pages ───
     { label: "Login Page", section: "Frontend", icon: Code, target: "Frontend", pageId: "login", description: "Authentication page with PrimeUI form components", route: "/" },
     { label: "Driver License Type List", section: "Frontend", icon: Code, target: "Frontend", pageId: "license-list", description: "Data table with charts for driver license type management", route: "/dashboard (Driver License Type)" },
-    { label: "License Policy List", section: "Frontend", icon: Code, target: "Frontend", pageId: "policy-list", description: "Data table with charts for license policy management", route: "/dashboard (License Policy)" },
+    { label: "Policies List", section: "Frontend", icon: Code, target: "Frontend", pageId: "policy-list", description: "Data table with charts for policies management", route: "/dashboard (Policies)" },
     { label: "Blood Type List", section: "Frontend", icon: Code, target: "Frontend", pageId: "blood-type-list", description: "Data table with charts for blood type management", route: "/dashboard (Blood Type)" },
+    { label: "Driver List", section: "Frontend", icon: Code, target: "Frontend", pageId: "driver-list", description: "Data table for driver management with CRUD operations", route: "/dashboard (Drivers)" },
     { label: "Driver License Type Detail", section: "Frontend", icon: Code, target: "Frontend", pageId: "license-detail", description: "Detail view with update form and monthly statistics chart", route: "/dashboard/license-types/:id" },
-    { label: "License Policy Detail", section: "Frontend", icon: Code, target: "Frontend", pageId: "policy-list", description: "Detail view with update form for license policy", route: "/dashboard/license-policy/:id" },
+    { label: "Policies Detail", section: "Frontend", icon: Code, target: "Frontend", pageId: "policy-list", description: "Detail view with update form for policies", route: "/dashboard/license-policies/:id" },
+    { label: "Emergency Profiles", section: "Frontend", icon: Code, target: "Frontend", pageId: "emergency-profiles", description: "Emergency contact management for drivers/customers with nullable driver_id/customer_id, relationship, and review status", route: "/dashboard (Emergency Profiles)" },
     // ─── Frontend Components ───
     { label: "Login Form", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "login", description: "Complete login form with email/password validation, auto-fill, and demo credentials" },
     { label: "Bar Chart", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-list", description: "Drivers by Driver License Type — Grouped Bar Chart" },
     { label: "Doughnut Chart", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-list", description: "Driver Distribution — Doughnut/Pie Chart" },
     { label: "Data Table (License Type)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-list", description: "Search, Filter, Export, Columns, Pagination" },
-    { label: "Data Table (License Policy)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "Search, Filter, Export, Columns, Pagination" },
-    { label: "Add Policy Form", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "POST /api/v1/license-policies" },
-    { label: "Detail Policy View", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "GET /api/v1/license-policies/:id" },
+    { label: "Data Table (Policies)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "Search, Filter, Export, Columns, Pagination" },
+    { label: "Add Policy Form", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "POST /api/v1/policies" },
+    { label: "Detail Policy View", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "policy-list", description: "GET /api/v1/policies/:id" },
     { label: "Data Table (Blood Type)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "blood-type-list", description: "Search, Filter, Export, Columns, Pagination" },
+    { label: "Data Table (Drivers)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "driver-list", description: "Search, Filter, Export, Columns, Pagination for drivers" },
     { label: "Detail View", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-detail", description: "GET /api/v1/license-types/:id" },
     { label: "Update Form", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-detail", description: "PUT /api/v1/license-types/:id" },
     { label: "Monthly Driver Chart", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "license-detail", description: "Monthly driver count line/area chart with year filter" },
+    { label: "Data Table (Emergency Profiles)", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "emergency-profiles", description: "Search, Filter, Pagination for emergency contacts" },
+    { label: "Add Emergency Contact Form", section: "Frontend Component", icon: Code, target: "Frontend", pageId: "emergency-profiles", description: "POST /api/v1/emergency-profiles — contact_name, relationship, prefix + phone_number" },
     // ─── Backend Pages ───
     { label: "Driver License Type List", section: "Backend", icon: Server, target: "Backend", pageId: "license-list", description: "Statistics endpoints and CRUD API for driver license type management", route: "/api/v1/license-types" },
     { label: "Driver License Type Detail", section: "Backend", icon: Server, target: "Backend", pageId: "license-detail", description: "Single resource endpoints with update and monthly analytics", route: "/api/v1/license-types/:id" },
-    { label: "Driver License Policy", section: "Backend", icon: Server, target: "Backend", pageId: "license-policy", description: "Endpoints for managing driver license policies", route: "/api/v1/license-policies" },
-    { label: "Driver License Policy Detail", section: "Backend", icon: Server, target: "Backend", pageId: "license-policy-detail", description: "Single resource endpoints with update for license policies", route: "/api/v1/license-policies/:id" },
+    { label: "Policy", section: "Backend", icon: Server, target: "Backend", pageId: "license-policy", description: "Endpoints for managing policies", route: "/api/v1/policies" },
+    { label: "Policy Detail", section: "Backend", icon: Server, target: "Backend", pageId: "license-policy-detail", description: "Single resource endpoints with update for policies", route: "/api/v1/policies/:id" },
     { label: "Blood Type", section: "Backend", icon: Server, target: "Backend", pageId: "blood-type", description: "Endpoints for managing blood type master data", route: "/api/v1/blood-types" },
+    { label: "Drivers", section: "Backend", icon: Server, target: "Backend", pageId: "driver-list", description: "CRUD API endpoints for driver management", route: "/api/v1/drivers" },
+    { label: "Emergency Profiles", section: "Backend", icon: Server, target: "Backend", pageId: "emergency-profiles", description: "CRUD API for emergency contact management (nullable driver_id/customer_id, max 3 per owner, UNDER_REVIEW/REJECT/APPROVE status)", route: "/api/v1/emergency-profiles" },
     // ─── Backend Components ───
     { label: "Bar Chart Statistics", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-list", description: "Driver count by driver license type with status breakdown" },
     { label: "Distribution Statistics", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-list", description: "Driver distribution across all license categories" },
@@ -116,10 +134,12 @@ export function DashboardLayout() {
     { label: "Detail Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-detail", description: "Retrieve single driver license type with relations and metadata" },
     { label: "Update Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-detail", description: "Update driver license type fields with validation and audit logging" },
     { label: "Monthly Analytics", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-detail", description: "Monthly driver registration count with year filter" },
-    { label: "License Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy", description: "Retrieve and manage driver license policies" },
-    { label: "Create Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy", description: "Create new driver license policy" },
-    { label: "Detail & Update Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy-detail", description: "Retrieve and update single license policy with validation" },
+    { label: "Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy", description: "Retrieve and manage policies" },
+    { label: "Create Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy", description: "Create new policy" },
+    { label: "Detail & Update Policy Endpoint", section: "Backend Component", icon: Server, target: "Backend", pageId: "license-policy-detail", description: "Retrieve and update single policy with validation" },
     { label: "Blood Type CRUD", section: "Backend Component", icon: Server, target: "Backend", pageId: "blood-type", description: "Full REST API for blood type management with soft delete" },
+    { label: "Driver CRUD", section: "Backend Component", icon: Server, target: "Backend", pageId: "driver-list", description: "Full REST API for driver management with validation and soft delete" },
+    { label: "Emergency Profiles CRUD", section: "Backend Component", icon: Server, target: "Backend", pageId: "emergency-profiles", description: "Full REST API for emergency contact management with nullable driver_id/customer_id and review status flow" },
   ], []);
 
   const filteredSearchItems = useMemo(() => {
@@ -193,8 +213,8 @@ export function DashboardLayout() {
     if (location.pathname.startsWith("/dashboard/license-types/")) {
       setActiveItem("Driver License Type");
     }
-    if (location.pathname.startsWith("/dashboard/license-policy/")) {
-      setActiveItem("License Policy");
+    if (location.pathname.startsWith("/dashboard/license-policies/")) {
+      setActiveItem("Policies");
     }
     // Handle navigation state (e.g. returning from add page)
     if (location.state?.activeItem) {
@@ -278,34 +298,44 @@ export function DashboardLayout() {
             {sidebarItems.map((item) => {
               const isActive = activeItem === item.label;
               return (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    setActiveItem(item.label);
-                    setMobileSidebarOpen(false);
-                    if (location.pathname !== "/dashboard") navigate("/dashboard");
-                  }}
-                  className={`
-                    flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
-                    ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
-                    ${
-                      isActive
-                        ? "bg-[#fef2f2] text-[#e53935]"
-                        : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
-                    }
-                  `}
-                  title={!sidebarOpen ? item.label : undefined}
-                >
-                  <item.icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
-                  {sidebarOpen && (
-                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
-                      {item.label}
-                    </span>
+                <div key={item.label}>
+                  {item.label === "Drivers" && sidebarOpen && (
+                    <div className="px-3 pt-5 pb-1.5">
+                      <p className="text-[10px] tracking-[1px] uppercase text-[#94a3b8] font-semibold">Driver Management</p>
+                    </div>
                   )}
-                  {isActive && sidebarOpen && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
+                  {item.label === "Drivers" && !sidebarOpen && (
+                    <div className="my-3 mx-2 border-t border-[#e2e8f0]" />
                   )}
-                </button>
+                  <button
+                    key={item.label}
+                    onClick={() => {
+                      setActiveItem(item.label);
+                      setMobileSidebarOpen(false);
+                      if (location.pathname !== "/dashboard") navigate("/dashboard");
+                    }}
+                    className={`
+                      flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                      ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                      ${
+                        isActive
+                          ? "bg-[#fef2f2] text-[#e53935]"
+                          : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                      }
+                    `}
+                    title={!sidebarOpen ? item.label : undefined}
+                  >
+                    <item.icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
+                    {sidebarOpen && (
+                      <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
+                        {item.label}
+                      </span>
+                    )}
+                    {isActive && sidebarOpen && (
+                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
+                    )}
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -353,13 +383,13 @@ export function DashboardLayout() {
               );
             })()}
 
-            {/* License Policy (simple item) */}
+            {/* License Policies (simple item) */}
             {(() => {
-              const isActive = activeItem === "License Policy";
+              const isActive = activeItem === "Policies";
               return (
                 <button
                   onClick={() => {
-                    setActiveItem("License Policy");
+                    setActiveItem("Policies");
                     setMobileSidebarOpen(false);
                     if (location.pathname !== "/dashboard") navigate("/dashboard");
                   }}
@@ -372,12 +402,12 @@ export function DashboardLayout() {
                         : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
                     }
                   `}
-                  title={!sidebarOpen ? "License Policy" : undefined}
+                  title={!sidebarOpen ? "Policies" : undefined}
                 >
                   <ScrollText className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
                   {sidebarOpen && (
                     <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
-                      License Policy
+                      Policies
                     </span>
                   )}
                   {isActive && sidebarOpen && (
@@ -428,25 +458,7 @@ export function DashboardLayout() {
               <p className="text-[10px] tracking-[1px] uppercase text-[#94a3b8] font-semibold">
                 Development
               </p>
-              <button
-                onClick={() => {
-                  // Navigate to Diagram and Schema + expand Database menu
-                  setActiveItem("Diagram and Schema");
-                  setExpandedMenus((prev) => ({ ...prev, database: true }));
-                  setMobileSidebarOpen(false);
-                  if (location.pathname !== "/dashboard") navigate("/dashboard");
-                  // Set sync flag so DatabaseDiagramAndSchema can pick it up
-                  sessionStorage.setItem("innotaxi_dev_sync_trigger", Date.now().toString());
-                  // Trigger update notification
-                  const id = Date.now();
-                  setDevUpdateToasts((prev) => [...prev, id]);
-                  setTimeout(() => setDevUpdateToasts((prev) => prev.filter((t) => t !== id)), 3500);
-                }}
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] text-[#94a3b8] hover:text-[#e53935] hover:bg-[#fef2f2] transition-all cursor-pointer border border-transparent hover:border-[#fecaca]"
-                title="Sync development — scan all pages and update preview codes"
-              >
-                <RefreshCw className="w-3 h-3" />
-              </button>
+              
             </div>
           )}
           {!sidebarOpen && <div className="my-3 mx-2 border-t border-[#e2e8f0]" />}
@@ -477,7 +489,7 @@ export function DashboardLayout() {
                 activeItem === "Diagram and Schema" || activeItem === "Schema" || activeItem === "Migration" ? "text-[#e53935]" : ""
               }`} />
               {sidebarOpen && (
-                <>
+                <span className="contents">
                   <span className={`text-[13px] flex-1 text-left ${
                     activeItem === "Diagram and Schema" || activeItem === "Schema" || activeItem === "Migration" ? "font-semibold" : "font-medium"
                   }`}>
@@ -488,7 +500,7 @@ export function DashboardLayout() {
                       expandedMenus.database ? "rotate-180" : ""
                     }`}
                   />
-                </>
+                </span>
               )}
             </button>
 
@@ -529,17 +541,91 @@ export function DashboardLayout() {
               </div>
             )}
 
-            {/* Frontend & Backend (simple items) */}
-            {[
-              { icon: Code, label: "Frontend" },
-              { icon: Server, label: "Backend" },
-            ].map((item) => {
-              const isActive = activeItem === item.label;
+            {/* Code (expandable with Frontend & Backend sub-items) */}
+            <button
+              onClick={() => {
+                if (sidebarOpen) {
+                  setExpandedMenus((prev) => ({ ...prev, code: !prev.code }));
+                } else {
+                  setActiveItem("Frontend");
+                  setMobileSidebarOpen(false);
+                }
+              }}
+              className={`
+                flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                ${
+                  activeItem === "Frontend" || activeItem === "Backend"
+                    ? "bg-[#fef2f2] text-[#e53935]"
+                    : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                }
+              `}
+              title={!sidebarOpen ? "Code" : undefined}
+            >
+              <Code className={`w-[18px] h-[18px] shrink-0 ${
+                activeItem === "Frontend" || activeItem === "Backend" ? "text-[#e53935]" : ""
+              }`} />
+              {sidebarOpen && (
+                <span className="contents">
+                  <span className={`text-[13px] flex-1 text-left ${
+                    activeItem === "Frontend" || activeItem === "Backend" ? "font-semibold" : "font-medium"
+                  }`}>
+                    Code
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      expandedMenus.code ? "rotate-180" : ""
+                    }`}
+                  />
+                </span>
+              )}
+            </button>
+
+            {/* Code sub-menu items */}
+            {sidebarOpen && expandedMenus.code && (
+              <div className="flex flex-col gap-0.5 ml-4 pl-3 border-l-[2px] border-[#e2e8f0]">
+                {[
+                  { icon: Code, label: "Frontend", key: "Frontend" },
+                  { icon: Server, label: "Backend", key: "Backend" },
+                ].map((sub) => {
+                  const isSubActive = activeItem === sub.key;
+                  return (
+                    <button
+                      key={sub.key}
+                      onClick={() => {
+                        setActiveItem(sub.key);
+                        setMobileSidebarOpen(false);
+                        if (location.pathname !== "/dashboard") navigate("/dashboard");
+                      }}
+                      className={`
+                        flex items-center gap-2.5 rounded-[8px] px-2.5 py-2 transition-all cursor-pointer
+                        ${
+                          isSubActive
+                            ? "bg-[#fef2f2] text-[#e53935]"
+                            : "text-[#94a3b8] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                        }
+                      `}
+                    >
+                      <sub.icon className={`w-[15px] h-[15px] shrink-0 ${isSubActive ? "text-[#e53935]" : ""}`} />
+                      <span className={`text-[12px] ${isSubActive ? "font-semibold" : "font-medium"}`}>
+                        {sub.label}
+                      </span>
+                      {isSubActive && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* System Flow (standalone item) */}
+            {(() => {
+              const isActive = activeItem === "System Flow";
               return (
                 <button
-                  key={item.label}
                   onClick={() => {
-                    setActiveItem(item.label);
+                    setActiveItem("System Flow");
                     setMobileSidebarOpen(false);
                     if (location.pathname !== "/dashboard") navigate("/dashboard");
                   }}
@@ -552,12 +638,12 @@ export function DashboardLayout() {
                         : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
                     }
                   `}
-                  title={!sidebarOpen ? item.label : undefined}
+                  title={!sidebarOpen ? "System Flow" : undefined}
                 >
-                  <item.icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
+                  <ArrowRightLeft className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
                   {sidebarOpen && (
                     <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
-                      {item.label}
+                      System Flow
                     </span>
                   )}
                   {isActive && sidebarOpen && (
@@ -565,7 +651,7 @@ export function DashboardLayout() {
                   )}
                 </button>
               );
-            })}
+            })()}
           </div>
         </nav>
       </aside>
@@ -584,25 +670,7 @@ export function DashboardLayout() {
 
             {/* Search Pages & Components */}
             <div className="relative" ref={headerSearchRef}>
-              <div className={`flex items-center gap-2 rounded-[10px] border transition-all ${
-                headerSearchFocused
-                  ? "border-[#e53935] bg-white shadow-[0_0_0_3px_rgba(229,57,53,0.08)]"
-                  : "border-[#e2e8f0] bg-[#f8fafc] hover:border-[#cbd5e1]"
-              }`}>
-                <Search className="w-4 h-4 text-[#94a3b8] ml-3 shrink-0" />
-                <input
-                  ref={headerSearchInputRef}
-                  type="text"
-                  value={headerSearch}
-                  onChange={(e) => setHeaderSearch(e.target.value)}
-                  onFocus={() => setHeaderSearchFocused(true)}
-                  placeholder="Search dev pages & components..."
-                  className="bg-transparent border-none outline-none text-[13px] text-[#0f172a] placeholder:text-[#94a3b8] w-[180px] sm:w-[260px] py-2 pr-2"
-                />
-                <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] text-[#94a3b8] bg-[#f1f5f9] border border-[#e2e8f0] rounded px-1.5 py-0.5 mr-2 font-mono">
-                  {navigator.platform?.includes("Mac") ? "\u2318" : "Ctrl"}K
-                </kbd>
-              </div>
+              
 
               {/* Search Results Dropdown */}
               {headerSearchFocused && headerSearch.trim() && (
@@ -614,7 +682,7 @@ export function DashboardLayout() {
                       <p className="text-[11px] text-[#94a3b8] mt-0.5">Try searching for a page name or component</p>
                     </div>
                   ) : (
-                    <>
+                    <div>
                       {/* Group by section */}
                       {(["Frontend", "Frontend Component", "Backend", "Backend Component"] as const)
                         .filter((sec) => filteredSearchItems.some((item) => item.section === sec))
@@ -653,7 +721,7 @@ export function DashboardLayout() {
                           {filteredSearchItems.length} result{filteredSearchItems.length !== 1 ? "s" : ""} &middot; Press <kbd className="inline-flex px-1 py-0.5 rounded bg-[#f1f5f9] text-[9px] font-mono border border-[#e2e8f0]">Esc</kbd> to close
                         </p>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
@@ -694,7 +762,7 @@ export function DashboardLayout() {
 
               {/* Dropdown */}
               {userMenuOpen && (
-                <>
+                <div className="contents">
                   <div
                     className="fixed inset-0 z-40"
                     onClick={() => setUserMenuOpen(false)}
@@ -726,7 +794,7 @@ export function DashboardLayout() {
                       </button>
                     </div>
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -747,10 +815,16 @@ export function DashboardLayout() {
               <DatabaseDiagramAndSchema />
             ) : activeItem === "Blood Type" ? (
               <BloodTypeList />
-            ) : activeItem === "License Policy" ? (
+            ) : activeItem === "Policies" ? (
               <LicensePolicyList />
+            ) : activeItem === "Drivers" ? (
+              <DriverList />
+            ) : activeItem === "Driver Profile" ? (
+              <DriverProfileList />
+            ) : activeItem === "System Flow" ? (
+              <SystemFlow />
             ) : (
-              <>
+              <div>
                 {/* Welcome Section */}
                 <div className="mb-6">
                   <h1 className="text-[22px] text-[#0f172a] font-semibold tracking-[-0.22px]">
@@ -870,7 +944,163 @@ export function DashboardLayout() {
                     <span className="text-[11px] text-[#e53935] font-medium">Top: KHA (89 drivers)</span>
                   </div>
                 </div>
-              </>
+
+                {/* System Flow Diagram Card */}
+                <div className="bg-white rounded-[12px] border border-[#e2e8f0] p-5 mb-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center">
+                        <ArrowRightLeft className="w-4.5 h-4.5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-[15px] text-[#0f172a] font-semibold">System Flow Diagram</h3>
+                        <p className="text-[12px] text-[#94a3b8] mt-0.5">End-to-end architecture overview — 7 core flows across InnoTaxi</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setActiveItem("System Flow");
+                        if (location.pathname !== "/dashboard") navigate("/dashboard");
+                      }}
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] text-[12px] font-medium text-[#6366f1] bg-[#eef2ff] hover:bg-[#e0e7ff] transition-colors cursor-pointer"
+                    >
+                      View All Flows
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Architecture Diagram */}
+                  <div className="relative bg-[#fafbfc] rounded-[10px] border border-[#e2e8f0] p-6 overflow-hidden">
+                    {/* Background grid pattern */}
+                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle, #0f172a 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+
+                    {/* Top Layer: Client Apps */}
+                    <div className="relative flex items-center justify-center gap-6 mb-4">
+                      <div className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-[10px] border border-[#e2e8f0] shadow-sm">
+                        <Smartphone className="w-4 h-4 text-[#e53935]" />
+                        <span className="text-[12px] text-[#334155] font-medium">Driver App</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-[10px] border border-[#e2e8f0] shadow-sm">
+                        <Smartphone className="w-4 h-4 text-[#3b82f6]" />
+                        <span className="text-[12px] text-[#334155] font-medium">Passenger App</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-[10px] border border-[#e2e8f0] shadow-sm">
+                        <LayoutDashboard className="w-4 h-4 text-[#8b5cf6]" />
+                        <span className="text-[12px] text-[#334155] font-medium">Admin Panel</span>
+                      </div>
+                    </div>
+
+                    {/* Connector arrows down */}
+                    <div className="flex justify-center mb-4">
+                      <div className="flex items-center gap-8">
+                        <div className="flex flex-col items-center">
+                          <div className="w-px h-6 bg-[#cbd5e1]" />
+                          <ChevronDown className="w-3 h-3 text-[#cbd5e1] -mt-0.5" />
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-px h-6 bg-[#cbd5e1]" />
+                          <ChevronDown className="w-3 h-3 text-[#cbd5e1] -mt-0.5" />
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-px h-6 bg-[#cbd5e1]" />
+                          <ChevronDown className="w-3 h-3 text-[#cbd5e1] -mt-0.5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Middle Layer: API Gateway */}
+                    <div className="relative flex items-center justify-center mb-4">
+                      <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-[#0f172a] to-[#1e293b] rounded-[10px] shadow-md">
+                        <Shield className="w-4 h-4 text-[#fbbf24]" />
+                        <span className="text-[12px] text-white font-medium">API Gateway</span>
+                        <div className="w-px h-4 bg-[#334155]" />
+                        <Zap className="w-3.5 h-3.5 text-[#4ade80]" />
+                        <span className="text-[11px] text-[#94a3b8]">Auth &amp; Rate Limiting</span>
+                      </div>
+                    </div>
+
+                    {/* Connector arrows down */}
+                    <div className="flex justify-center mb-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-px h-6 bg-[#cbd5e1]" />
+                        <ChevronDown className="w-3 h-3 text-[#cbd5e1] -mt-0.5" />
+                      </div>
+                    </div>
+
+                    {/* Flow Cards Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
+                      {[
+                        { icon: Users, label: "Driver Registration", color: "#e53935", steps: 10 },
+                        { icon: Car, label: "Ride Booking", color: "#3b82f6", steps: 12 },
+                        { icon: CreditCard, label: "Payment Processing", color: "#16a34a", steps: 8 },
+                        { icon: Shield, label: "License Verification", color: "#f59e0b", steps: 9 },
+                        { icon: Bell, label: "Notification System", color: "#8b5cf6", steps: 7 },
+                        { icon: Star, label: "Rating & Review", color: "#ec4899", steps: 8 },
+                        { icon: Phone, label: "Emergency Contact", color: "#06b6d4", steps: 6 },
+                      ].map((flow) => (
+                        <button
+                          key={flow.label}
+                          onClick={() => {
+                            setActiveItem("System Flow");
+                            if (location.pathname !== "/dashboard") navigate("/dashboard");
+                          }}
+                          className="group flex flex-col gap-2.5 p-3.5 bg-white rounded-[10px] border border-[#e2e8f0] hover:border-[#cbd5e1] hover:shadow-sm transition-all cursor-pointer text-left"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div
+                              className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
+                              style={{ backgroundColor: `${flow.color}12` }}
+                            >
+                              <flow.icon className="w-4 h-4" style={{ color: flow.color }} />
+                            </div>
+                            <ArrowRight className="w-3 h-3 text-[#cbd5e1] group-hover:text-[#64748b] transition-colors" />
+                          </div>
+                          <div>
+                            <p className="text-[12px] text-[#0f172a] font-medium">{flow.label}</p>
+                            <p className="text-[10px] text-[#94a3b8] mt-0.5">{flow.steps} steps</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Connector arrows down */}
+                    <div className="flex justify-center mb-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-px h-6 bg-[#cbd5e1]" />
+                        <ChevronDown className="w-3 h-3 text-[#cbd5e1] -mt-0.5" />
+                      </div>
+                    </div>
+
+                    {/* Bottom Layer: Database & Services */}
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-[10px] border border-[#e2e8f0] shadow-sm">
+                        <Database className="w-4 h-4 text-[#6366f1]" />
+                        <span className="text-[12px] text-[#334155] font-medium">PostgreSQL</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-[10px] border border-[#e2e8f0] shadow-sm">
+                        <Zap className="w-4 h-4 text-[#f59e0b]" />
+                        <span className="text-[12px] text-[#334155] font-medium">Redis Cache</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-[10px] border border-[#e2e8f0] shadow-sm">
+                        <Server className="w-4 h-4 text-[#22c55e]" />
+                        <span className="text-[12px] text-[#334155] font-medium">Push Service</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer Summary */}
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#f1f5f9]">
+                    <div className="flex items-center gap-4">
+                      <span className="text-[11px] text-[#94a3b8]">7 system flows</span>
+                      <div className="w-px h-3 bg-[#e2e8f0]" />
+                      <span className="text-[11px] text-[#94a3b8]">60+ steps</span>
+                      <div className="w-px h-3 bg-[#e2e8f0]" />
+                      <span className="text-[11px] text-[#94a3b8]">5 actors</span>
+                    </div>
+                    <span className="text-[11px] text-[#6366f1] font-medium">Mermaid sequence diagrams available</span>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </main>

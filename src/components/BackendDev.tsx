@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type ReactNode } from "react";
-import { Copy, Check, ChevronDown, ChevronRight, Server, Code2, FileCode2, BarChart3, PieChart, Table, Pencil, Eye, LineChart, Droplets, Search, X } from "lucide-react";
+import { Copy, Check, ChevronDown, ChevronRight, Server, Code2, FileCode2, BarChart3, PieChart, Table, Pencil, Eye, LineChart, Droplets, Search, X, ShieldAlert } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 import {
   backendLangConfig,
@@ -16,6 +16,7 @@ import { getMonthlyChartBackendCode, monthlyChartBackendFileConfig } from "./cha
 import { chartBackendCode, pieBackendCode, tableBackendCode } from "./LicenseTypeList";
 import { licensePolicyBackendCode, licensePolicyBackendFileConfig, getCreatePolicyBackendCode, createPolicyBackendFileConfig } from "./licensePolicyBackendCodes";
 import { bloodTypeBackendCode } from "./BloodTypeList";
+import { getEmergencyProfileBackendCode, emergencyProfileBackendFileConfig } from "./emergencyProfileBackendCodes";
 
 // ─── Types ───
 interface BackendSnippet {
@@ -191,6 +192,23 @@ const pages: PageSection[] = [
       },
     ],
   },
+  {
+    id: "emergency-profiles",
+    label: "Emergency Profiles",
+    description: "CRUD API for driver/customer emergency contacts management (nullable driver_id/customer_id, UNDER_REVIEW/REJECT/APPROVE status)",
+    route: "/api/v1/emergency-profiles",
+    snippets: [
+      {
+        id: "emergency-crud-backend",
+        label: "Emergency Profiles CRUD",
+        description: "Full REST API for emergency contact management with nullable driver_id/customer_id, review status, and soft delete (max 3 per owner)",
+        icon: ShieldAlert,
+        endpoint: "GET|POST|PUT|DELETE /api/v1/emergency-profiles",
+        getCode: (lang) => getEmergencyProfileBackendCode(lang),
+        getFile: (lang) => emergencyProfileBackendFileConfig[lang],
+      },
+    ],
+  },
 ];
 
 // ─── API endpoints summary table data ───
@@ -205,16 +223,22 @@ const endpointRows = [
   { method: "GET", path: "/api/v1/license-types/distribution", description: "Driver distribution across all categories", page: "Driver License Type List", category: "Statistics" },
   { method: "GET", path: "/api/v1/license-types/distribution/top", description: "Top 5 driver license types by driver count", page: "Driver License Type List", category: "Statistics" },
   { method: "GET", path: "/api/v1/license-types/:id/monthly-drivers", description: "Monthly driver registration count by year", page: "Driver License Type Detail", category: "Analytics" },
-  { method: "GET", path: "/api/v1/license-policies", description: "List all driver license policies (paginated, searchable)", page: "Driver License Policy", category: "CRUD" },
-  { method: "GET", path: "/api/v1/license-policies/:id", description: "Get single driver license policy by ID", page: "Driver License Policy", category: "CRUD" },
-  { method: "POST", path: "/api/v1/license-policies", description: "Create new driver license policy", page: "Driver License Policy", category: "CRUD" },
-  { method: "PUT", path: "/api/v1/license-policies/:id", description: "Update driver license policy fields", page: "Driver License Policy", category: "CRUD" },
-  { method: "DELETE", path: "/api/v1/license-policies/:id", description: "Soft delete driver license policy", page: "Driver License Policy", category: "CRUD" },
+
   { method: "GET", path: "/api/v1/blood-types", description: "List all blood types (paginated, searchable)", page: "Blood Type", category: "CRUD" },
   { method: "GET", path: "/api/v1/blood-types/:id", description: "Get single blood type by ID", page: "Blood Type", category: "CRUD" },
   { method: "POST", path: "/api/v1/blood-types", description: "Create new blood type", page: "Blood Type", category: "CRUD" },
   { method: "PUT", path: "/api/v1/blood-types/:id", description: "Update blood type fields", page: "Blood Type", category: "CRUD" },
   { method: "DELETE", path: "/api/v1/blood-types/:id", description: "Soft delete blood type", page: "Blood Type", category: "CRUD" },
+  { method: "GET", path: "/api/v1/policies", description: "List all policies (paginated, searchable)", page: "Policy", category: "CRUD" },
+  { method: "GET", path: "/api/v1/policies/:id", description: "Get single policy by ID", page: "Policy", category: "CRUD" },
+  { method: "POST", path: "/api/v1/policies", description: "Create new policy", page: "Policy", category: "CRUD" },
+  { method: "PUT", path: "/api/v1/policies/:id", description: "Update policy fields", page: "Policy", category: "CRUD" },
+  { method: "DELETE", path: "/api/v1/policies/:id", description: "Soft delete policy", page: "Policy", category: "CRUD" },
+  { method: "GET", path: "/api/v1/emergency-profiles", description: "List emergency contacts (paginated, filterable by relationship/driver/customer)", page: "Emergency Profiles", category: "CRUD" },
+  { method: "GET", path: "/api/v1/emergency-profiles/:id", description: "Get single emergency contact by ID", page: "Emergency Profiles", category: "CRUD" },
+  { method: "POST", path: "/api/v1/emergency-profiles", description: "Create emergency contact (nullable driver_id/customer_id, contact_name, relationship, prefix, phone_number)", page: "Emergency Profiles", category: "CRUD" },
+  { method: "PUT", path: "/api/v1/emergency-profiles/:id", description: "Update emergency contact fields", page: "Emergency Profiles", category: "CRUD" },
+  { method: "DELETE", path: "/api/v1/emergency-profiles/:id", description: "Soft delete emergency contact", page: "Emergency Profiles", category: "CRUD" },
 ];
 
 const methodColors: Record<string, { text: string; bg: string }> = {

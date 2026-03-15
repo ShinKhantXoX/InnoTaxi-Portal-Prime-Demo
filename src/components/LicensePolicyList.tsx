@@ -102,7 +102,7 @@ interface LicensePolicy {
 }
 
 const policies: LicensePolicy[] = [
-  { id: 1, label: 'ယာဉ်မောင်းလိုင်စင် Policy အရေးကြီးချက်များ', description: '၁. အသက်ကန့်သတ်ချက်\\nအနည်းဆုံး အသက် ၁၈ နှစ် ပြည့်ရမည်။\\n၂. စာမေးပွဲစနစ်\\n၃. Renewal Policy\\n၄. Upgrade Policy\\n၅. Cancellation / Suspension', policyType: 'DRIVER_LICENSE', status: 'ACTIVE', createdAt: '2024-01-15', updatedAt: '2026-01-20', deletedAt: null },
+  { id: 1, label: 'ယာဉ်မောင်းလိုင်စင် Policy အရေးကြီးချက်များ', description: '၁. အသက်ကန့်သတ်ချက်\\nအနည်းဆုံး အသက် ၁၈ နှစ် ပြည့���ရမည်။\\n၂. စာမေးပွဲစနစ်\\n၃. Renewal Policy\\n၄. Upgrade Policy\\n၅. Cancellation / Suspension', policyType: 'DRIVER_LICENSE', status: 'ACTIVE', createdAt: '2024-01-15', updatedAt: '2026-01-20', deletedAt: null },
 ];
 
 export default function LicensePolicyTable() {
@@ -177,7 +177,7 @@ export default function LicensePolicyTable() {
   );
 
   return (
-    <>
+    <div>
       <Toast ref={toast} />
       <Toolbar left={leftToolbar} right={rightToolbar} />
       <DataTable
@@ -216,7 +216,7 @@ export default function LicensePolicyTable() {
         <Column field="deletedAt" header="Deleted"
           body={(r) => formatDate(r.deletedAt)} sortable />
       </DataTable>
-    </>
+    </div>
   );
 }`;
 
@@ -622,7 +622,7 @@ export function LicensePolicyList() {
         </button>
       ),
       command: () => {
-        if (activeRowRef.current) navigate(`/dashboard/license-policy/${activeRowRef.current.id}`);
+        if (activeRowRef.current) navigate(`/dashboard/license-policies/${activeRowRef.current.id}`);
       },
     },
     {
@@ -761,15 +761,15 @@ export function LicensePolicyList() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "license_policies.csv";
+      a.download = "policies.csv";
       a.click();
       URL.revokeObjectURL(url);
     } else if (fmt === "excel") {
       const worksheetData = [headers, ...dataToExport.map((p) => cols.map((c) => String(p[c.field] ?? "—")))];
       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "License Policies");
-      XLSX.writeFile(workbook, "license_policies.xlsx");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Policies");
+      XLSX.writeFile(workbook, "policies.xlsx");
     } else {
       const doc = new jsPDF();
       autoTable(doc, {
@@ -779,7 +779,7 @@ export function LicensePolicyList() {
         headStyles: { fillColor: [240, 249, 255], textColor: [59, 130, 246], fontSize: 10 },
         bodyStyles: { fontSize: 10 },
       });
-      doc.save("license_policies.pdf");
+      doc.save("policies.pdf");
     }
     setExportDialogVisible(false);
     toast.current?.show({ severity: "info", summary: "Exported", detail: `${dataToExport.length} row(s) exported as ${fmt.toUpperCase()}`, life: 3000 });
@@ -848,10 +848,10 @@ export function LicensePolicyList() {
         title="View Details"
         onClick={(e) => {
           e.stopPropagation();
-          navigate(`/dashboard/license-policy/${rowData.id}`);
+          navigate(`/dashboard/license-policies/${rowData.id}`);
         }}
       >
-        <Eye className="w-3.5 h-3.5" />
+        <Pencil className="w-3.5 h-3.5" />
       </button>
       
     </div>
@@ -861,7 +861,7 @@ export function LicensePolicyList() {
   const leftToolbarTemplate = () => (
     <div className="flex items-center gap-2">
       <button
-        onClick={() => navigate("/dashboard/license-policy/add")}
+        onClick={() => navigate("/dashboard/license-policies/add")}
         className="flex items-center gap-1.5 bg-[#e53935] hover:bg-[#c62828] text-white px-3.5 py-2 rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer"
       >
         <Plus className="w-4 h-4" />
@@ -988,7 +988,7 @@ export function LicensePolicyList() {
   const header = (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
-        <h2 className="text-[15px] text-[#0f172a] font-semibold m-0">License Policies</h2>
+        <h2 className="text-[15px] text-[#0f172a] font-semibold m-0">Policies</h2>
       </div>
       <div className="flex items-center gap-2">
         <div className="relative">
@@ -1054,10 +1054,10 @@ export function LicensePolicyList() {
           </div>
           <div>
             <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">
-              License Policy Management
+              Policies Management
             </h1>
             <p className="text-[12px] text-[#94a3b8]">
-              Master Data Setup &rsaquo; License Policy &rsaquo; List
+              Master Data Setup &rsaquo; Policies &rsaquo; List
             </p>
           </div>
         </div>
@@ -1093,6 +1093,7 @@ export function LicensePolicyList() {
           stripedRows
           removableSort
           scrollable
+          scrollHeight="calc(100vh - 430px)"
           rowHover
           size="small"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -1100,7 +1101,14 @@ export function LicensePolicyList() {
           className="[&_.p-datatable-header]:!bg-white [&_.p-datatable-header]:!border-b [&_.p-datatable-header]:!border-[#e2e8f0] [&_.p-datatable-header]:!px-4 [&_.p-datatable-header]:!py-3 [&_.p-datatable-thead>tr>th]:!bg-[#f8fafc] [&_.p-datatable-thead>tr>th]:!text-[#64748b] [&_.p-datatable-thead>tr>th]:!text-[11px] [&_.p-datatable-thead>tr>th]:!font-semibold [&_.p-datatable-thead>tr>th]:!uppercase [&_.p-datatable-thead>tr>th]:!tracking-[0.5px] [&_.p-datatable-thead>tr>th]:!border-[#e2e8f0] [&_.p-datatable-tbody>tr>td]:!border-[#f1f5f9] [&_.p-datatable-tbody>tr>td]:!py-3 [&_.p-datatable-tbody>tr>td]:!text-[12px] [&_.p-paginator]:!text-[11px] [&_.p-paginator]:!py-2.5 [&_.p-paginator]:!px-4 [&_.p-paginator]:!border-t [&_.p-paginator]:!border-[#e2e8f0] [&_.p-paginator_.p-dropdown]:!border-[#cbd5e1] [&_.p-paginator_.p-dropdown]:!rounded-lg [&_.p-paginator_.p-dropdown]:!min-w-[72px] [&_.p-paginator_.p-dropdown]:!h-8 [&_.p-paginator_.p-dropdown]:!shadow-sm [&_.p-paginator_.p-dropdown_.p-dropdown-label]:!text-[11px] [&_.p-paginator_.p-dropdown_.p-dropdown-label]:!py-1 [&_.p-paginator_.p-dropdown_.p-dropdown-label]:!px-2.5 [&_.p-paginator_.p-dropdown_.p-dropdown-label]:!text-[#334155] [&_.p-paginator_.p-dropdown_.p-dropdown-trigger]:!w-7 [&_.p-paginator_.p-dropdown:hover]:!border-[#94a3b8] [&_.p-paginator_.p-dropdown:focus-within]:!border-[#6366f1] [&_.p-paginator_.p-dropdown:focus-within]:!ring-2 [&_.p-paginator_.p-dropdown:focus-within]:!ring-[#6366f1]/20 [&_.p-paginator_.p-paginator-current]:!text-[#64748b] [&_.p-paginator_.p-paginator-current]:!mx-2"
         >
           {visibleColumns.includes("label") && (
-            <Column field="label" header="Label" sortable style={{ minWidth: "220px" }} />
+            <Column field="label" header="Label" sortable style={{ minWidth: "220px" }} body={(rowData) => (
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-[#eef2ff] flex items-center justify-center flex-shrink-0">
+                  <ScrollText className="w-3 h-3 text-[#6366f1]" />
+                </div>
+                <span className="text-[12px] text-[#0f172a] font-medium">{rowData.label}</span>
+              </div>
+            )} />
           )}
           {visibleColumns.includes("description") && (
             <Column field="description" header="Description" sortable body={descriptionBodyTemplate} style={{ minWidth: "280px" }} />
@@ -1111,11 +1119,11 @@ export function LicensePolicyList() {
           {visibleColumns.includes("status") && (
             <Column field="status" header="Status" sortable body={statusBodyTemplate} style={{ minWidth: "110px" }} />
           )}
-          {visibleColumns.includes("createdAt") && (
-            <Column field="createdAt" header="Created At" sortable body={dateBodyTemplate("createdAt")} style={{ minWidth: "130px" }} />
-          )}
           {visibleColumns.includes("updatedAt") && (
             <Column field="updatedAt" header="Updated" sortable body={dateBodyTemplate("updatedAt")} style={{ minWidth: "130px" }} />
+          )}
+          {visibleColumns.includes("createdAt") && (
+            <Column field="createdAt" header="Created At" sortable body={dateBodyTemplate("createdAt")} style={{ minWidth: "130px" }} />
           )}
           {visibleColumns.includes("deletedAt") && (
             <Column field="deletedAt" header="Deleted At" sortable body={dateBodyTemplate("deletedAt")} style={{ minWidth: "130px" }} />
@@ -1148,7 +1156,7 @@ export function LicensePolicyList() {
               </div>
               <div>
                 <h3 className="text-[13px] text-[#0f172a] font-semibold">DataTable Code Preview</h3>
-                <p className="text-[10px] text-[#94a3b8]">License Policy &mdash; Search, Filter, Export, Pagination</p>
+                <p className="text-[10px] text-[#94a3b8]">Policies &mdash; Search, Filter, Export, Pagination</p>
               </div>
             </div>
             <button
@@ -1311,7 +1319,7 @@ export function LicensePolicyList() {
       <Dialog
         visible={dialogVisible}
         onHide={() => setDialogVisible(false)}
-        header={editMode ? "Edit License Policy" : "New License Policy"}
+        header={editMode ? "Edit Policies" : "New Policies"}
         footer={dialogFooter}
         modal
         style={{ width: "520px" }}
@@ -1368,7 +1376,7 @@ export function LicensePolicyList() {
       <Dialog
         visible={detailDialogVisible}
         onHide={() => setDetailDialogVisible(false)}
-        header="License Policy Details"
+        header="Policies Details"
         modal
         style={{ width: "520px" }}
         draggable={false}

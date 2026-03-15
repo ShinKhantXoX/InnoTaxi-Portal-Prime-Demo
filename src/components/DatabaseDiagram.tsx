@@ -18,8 +18,6 @@ import {
   ToggleLeft,
   FileText,
   X,
-  Code2,
-  Eye,
 } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 
@@ -93,6 +91,7 @@ const entities: TableEntity[] = [
       { name: "category", type: "VARCHAR(100)" },
       { name: "vehicle_class", type: "VARCHAR(150)" },
       { name: "validity_years", type: "INT", default: "1" },
+      { name: "policy_id", type: "BIGINT", fk: "policies.id", index: true, nullable: true },
       { name: "status", type: "ENUM('ACTIVE','INACTIVE')", default: "'ACTIVE'" },
       { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
       { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
@@ -106,17 +105,14 @@ const entities: TableEntity[] = [
     icon: Table,
     columns: [
       { name: "id", type: "BIGINT", pk: true },
-      { name: "license_type_id", type: "BIGINT", fk: "driver_license_types.id", index: true },
       { name: "full_name", type: "VARCHAR(255)" },
-      { name: "nrc_number", type: "VARCHAR(50)", unique: true },
-      { name: "phone", type: "VARCHAR(20)" },
-      { name: "email", type: "VARCHAR(255)", nullable: true, unique: true },
-      { name: "date_of_birth", type: "DATE" },
-      { name: "address", type: "TEXT", nullable: true },
-      { name: "status", type: "ENUM('ACTIVE','PENDING','SUSPENDED','INACTIVE')", default: "'PENDING'" },
-      { name: "license_number", type: "VARCHAR(50)", unique: true },
-      { name: "license_issued_at", type: "DATE" },
-      { name: "license_expires_at", type: "DATE" },
+      { name: "gender", type: "ENUM('MALE','FEMALE')" },
+      { name: "dob", type: "DATE" },
+      { name: "prefix", type: "VARCHAR(10)", default: "'Mr.'" },
+      { name: "phone_number", type: "VARCHAR(20)" },
+      { name: "email", type: "VARCHAR(255)", unique: true },
+      { name: "password", type: "VARCHAR(255)" },
+      { name: "status", type: "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')", default: "'PENDING'" },
       { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
       { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
       { name: "deleted_at", type: "TIMESTAMP", nullable: true },
@@ -197,8 +193,52 @@ const entities: TableEntity[] = [
     ],
   },
   {
-    name: "license_policies",
-    label: "License Policies",
+    name: "driver_profiles",
+    label: "Driver Profiles",
+    color: "#8b5cf6",
+    icon: Table,
+    columns: [
+      { name: "id", type: "BIGINT", pk: true },
+      { name: "driver_id", type: "BIGINT", fk: "drivers.id", index: true },
+      { name: "profile_image", type: "VARCHAR(500)", nullable: true },
+      { name: "current_address", type: "VARCHAR(500)" },
+      { name: "region_and_state", type: "VARCHAR(255)" },
+      { name: "city", type: "VARCHAR(255)" },
+      { name: "township", type: "VARCHAR(255)" },
+      { name: "postal_code", type: "VARCHAR(20)" },
+      { name: "status", type: "ENUM('UNDER_REVIEW','REJECT','APPROVED')", default: "'UNDER_REVIEW'" },
+      { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "deleted_at", type: "TIMESTAMP", nullable: true },
+    ],
+  },
+  {
+    name: "driver_license_profiles",
+    label: "Driver License Profiles",
+    color: "#ec4899",
+    icon: Table,
+    columns: [
+      { name: "id", type: "BIGINT", pk: true },
+      { name: "driver_id", type: "BIGINT", fk: "drivers.id", index: true },
+      { name: "name", type: "VARCHAR(255)" },
+      { name: "driver_license_type_id", type: "BIGINT", fk: "driver_license_types.id", index: true },
+      { name: "license_number", type: "VARCHAR(50)", unique: true },
+      { name: "dob", type: "DATE" },
+      { name: "nrc", type: "VARCHAR(100)" },
+      { name: "blood_type", type: "VARCHAR(10)" },
+      { name: "license_front_image", type: "VARCHAR(500)", nullable: true },
+      { name: "license_back_image", type: "VARCHAR(500)", nullable: true },
+      { name: "status", type: "ENUM('UNDER_REVIEW','REJECT','APPROVED')", default: "'UNDER_REVIEW'" },
+      { name: "issue_date", type: "DATE", nullable: true },
+      { name: "expired_at", type: "TIMESTAMP", nullable: true },
+      { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "deleted_at", type: "TIMESTAMP", nullable: true },
+    ],
+  },
+  {
+    name: "policies",
+    label: "Policies",
     color: "#0891b2",
     icon: Layers,
     columns: [
@@ -212,15 +252,39 @@ const entities: TableEntity[] = [
       { name: "deleted_at", type: "TIMESTAMP", nullable: true },
     ],
   },
+  {
+    name: "emergency_profiles",
+    label: "Emergency Profiles",
+    color: "#dc2626",
+    icon: Table,
+    columns: [
+      { name: "id", type: "BIGINT", pk: true },
+      { name: "driver_id", type: "BIGINT", fk: "drivers.id", nullable: true, index: true },
+      { name: "customer_id", type: "BIGINT", fk: "passengers.id", nullable: true, index: true },
+      { name: "contact_name", type: "VARCHAR(255)" },
+      { name: "prefix", type: "VARCHAR(10)" },
+      { name: "phone_number", type: "VARCHAR(20)" },
+      { name: "relationship", type: "ENUM('SPOUSE','PARENT','SIBLING','CHILD','FRIEND','OTHER')" },
+      { name: "status", type: "ENUM('UNDER_REVIEW','REJECT','APPROVE')", default: "'UNDER_REVIEW'" },
+      { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "deleted_at", type: "TIMESTAMP", nullable: true },
+    ],
+  },
 ];
 
 // ─── Relationships ───
 const relationships = [
-  { from: "drivers", fromCol: "license_type_id", to: "driver_license_types", toCol: "id", type: "N:1" as const, label: "belongs to" },
+  { from: "driver_license_types", fromCol: "policy_id", to: "policies", toCol: "id", type: "N:1" as const, label: "governed by" },
+  { from: "driver_profiles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "1:1" as const, label: "belongs to" },
+  { from: "driver_license_profiles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "held by" },
+  { from: "driver_license_profiles", fromCol: "driver_license_type_id", to: "driver_license_types", toCol: "id", type: "N:1" as const, label: "type of" },
   { from: "vehicles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "owned by" },
   { from: "rides", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "driven by" },
   { from: "rides", fromCol: "passenger_id", to: "passengers", toCol: "id", type: "N:1" as const, label: "requested by" },
   { from: "rides", fromCol: "vehicle_id", to: "vehicles", toCol: "id", type: "N:1" as const, label: "uses" },
+  { from: "emergency_profiles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "emergency contact for" },
+  { from: "emergency_profiles", fromCol: "customer_id", to: "passengers", toCol: "id", type: "N:1" as const, label: "emergency contact for" },
 ];
 
 // ─── DDL Code generators ───
@@ -242,12 +306,16 @@ function generateDDL(engine: DbEngine): string {
   if (engine === "postgresql") {
     lines.push(`-- Create custom ENUM types`);
     lines.push(`CREATE TYPE license_status AS ENUM ('ACTIVE', 'INACTIVE');`);
-    lines.push(`CREATE TYPE driver_status AS ENUM ('ACTIVE', 'PENDING', 'SUSPENDED', 'INACTIVE');`);
+    lines.push(`CREATE TYPE gender AS ENUM ('MALE', 'FEMALE');`);
+    lines.push(`CREATE TYPE driver_status AS ENUM ('ACTIVE', 'PENDING', 'INACTIVE', 'SUSPENDED');`);
     lines.push(`CREATE TYPE vehicle_type AS ENUM ('SEDAN', 'SUV', 'HATCHBACK', 'VAN', 'MOTORCYCLE', 'THREE_WHEEL');`);
     lines.push(`CREATE TYPE vehicle_status AS ENUM ('ACTIVE', 'INACTIVE', 'MAINTENANCE');`);
     lines.push(`CREATE TYPE ride_status AS ENUM ('REQUESTED', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');`);
     lines.push(`CREATE TYPE audit_action AS ENUM ('CREATE', 'UPDATE', 'DELETE');`);
-    lines.push(`CREATE TYPE policy_type AS ENUM ('DRIVER_LICENSE', 'VEHICLE_LICENSE');\n`);
+    lines.push(`CREATE TYPE driver_profile_status AS ENUM ('UNDER_REVIEW', 'REJECT', 'APPROVED');`);
+    lines.push(`CREATE TYPE policy_type AS ENUM ('DRIVER_LICENSE', 'VEHICLE_LICENSE');`);
+    lines.push(`CREATE TYPE relationship_type AS ENUM ('SPOUSE', 'PARENT', 'SIBLING', 'CHILD', 'FRIEND', 'OTHER');`);
+    lines.push(`CREATE TYPE emergency_profile_status AS ENUM ('UNDER_REVIEW', 'REJECT', 'APPROVE');\n`);
   }
 
   for (const entity of entities) {
@@ -267,13 +335,17 @@ function generateDDL(engine: DbEngine): string {
         if (engine === "postgresql") {
           // Use the custom enum type
           const enumMap: Record<string, string> = {
-            "ENUM('ACTIVE','INACTIVE')": col.name === "status" && entity.name === "driver_license_types" ? "license_status" : col.name === "status" && entity.name === "passengers" ? "license_status" : col.name === "status" && entity.name === "vehicles" ? "vehicle_status" : col.name === "status" && entity.name === "license_policies" ? "license_status" : "driver_status",
-            "ENUM('ACTIVE','PENDING','SUSPENDED','INACTIVE')": "driver_status",
+            "ENUM('ACTIVE','INACTIVE')": col.name === "status" && entity.name === "driver_license_types" ? "license_status" : col.name === "status" && entity.name === "passengers" ? "license_status" : col.name === "status" && entity.name === "vehicles" ? "vehicle_status" : col.name === "status" && entity.name === "policies" ? "license_status" : "driver_status",
+            "ENUM('MALE','FEMALE')": "gender",
+            "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')": "driver_status",
             "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
             "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
             "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
             "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
+            "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "driver_profile_status",
             "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
+            "ENUM('SPOUSE','PARENT','SIBLING','CHILD','FRIEND','OTHER')": "relationship_type",
+            "ENUM('UNDER_REVIEW','REJECT','APPROVE')": "emergency_profile_status",
           };
           colType = enumMap[col.type] || "VARCHAR(50)";
         } else if (engine === "sqlserver" || engine === "sqlite") {
@@ -344,7 +416,10 @@ function generateDDL(engine: DbEngine): string {
     lines.push(`COMMENT ON TABLE rides IS 'Ride transactions between drivers and passengers';`);
     lines.push(`COMMENT ON TABLE passengers IS 'Registered passengers who use the taxi service';`);
     lines.push(`COMMENT ON TABLE audit_logs IS 'Audit trail for all data mutations across tables';`);
-    lines.push(`COMMENT ON TABLE license_policies IS 'Policies governing driver and vehicle license issuance, renewal, and compliance';`);
+    lines.push(`COMMENT ON TABLE driver_profiles IS 'Driver profile information including address, profile image, and review status';`);
+    lines.push(`COMMENT ON TABLE driver_license_profiles IS 'Driver license profile documents with issue date, expiry, and review status';`);
+    lines.push(`COMMENT ON TABLE policies IS 'Policies governing driver and vehicle license issuance, renewal, and compliance';`);
+    lines.push(`COMMENT ON TABLE emergency_profiles IS 'Emergency contact profiles for drivers/customers with nullable driver_id and customer_id, contact name, phone prefix, relationship, and review status';`);
   }
 
   return lines.join("\n");
@@ -530,6 +605,7 @@ const mermaidCode = `erDiagram
         varchar category
         varchar vehicle_class
         int validity_years
+        bigint policy_id FK
         enum status "ACTIVE | INACTIVE"
         timestamp created_at
         timestamp updated_at
@@ -538,17 +614,14 @@ const mermaidCode = `erDiagram
 
     drivers {
         bigint id PK
-        bigint license_type_id FK
         varchar full_name
-        varchar nrc_number UK
-        varchar phone
+        enum gender "MALE | FEMALE"
+        date dob
+        varchar prefix
+        varchar phone_number
         varchar email UK
-        date date_of_birth
-        text address
-        enum status "ACTIVE | PENDING | SUSPENDED | INACTIVE"
-        varchar license_number UK
-        date license_issued_at
-        date license_expires_at
+        varchar password
+        enum status "ACTIVE | PENDING | INACTIVE | SUSPENDED"
         timestamp created_at
         timestamp updated_at
         timestamp deleted_at
@@ -608,11 +681,64 @@ const mermaidCode = `erDiagram
         timestamp created_at
     }
 
-    driver_license_types ||--o{ drivers : "has many"
+    driver_profiles {
+        bigint id PK
+        bigint driver_id FK
+        varchar profile_image
+        varchar current_address
+        varchar region_and_state
+        varchar city
+        varchar township
+        varchar postal_code
+        enum status "UNDER_REVIEW | REJECT | APPROVED"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    driver_license_profiles {
+        bigint id PK
+        bigint driver_id FK
+        varchar name
+        bigint driver_license_type_id FK
+        varchar license_number UK
+        date dob
+        varchar nrc
+        varchar blood_type
+        varchar license_front_image
+        varchar license_back_image
+        enum status "UNDER_REVIEW | REJECT | APPROVED"
+        date issue_date
+        timestamp expired_at
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    emergency_profiles {
+        bigint id PK
+        bigint driver_id FK "nullable"
+        bigint customer_id FK "nullable"
+        varchar contact_name
+        varchar prefix
+        varchar phone_number
+        enum relationship "SPOUSE | PARENT | SIBLING | CHILD | FRIEND | OTHER"
+        enum status "UNDER_REVIEW | REJECT | APPROVE"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    policies ||--o{ driver_license_types : "governs"
     drivers ||--o{ vehicles : "owns"
     drivers ||--o{ rides : "drives"
+    drivers ||--|{ driver_profiles : "has profile"
+    drivers ||--o{ driver_license_profiles : "has license"
+    driver_license_types ||--o{ driver_license_profiles : "classifies"
     passengers ||--o{ rides : "requests"
     vehicles ||--o{ rides : "used in"
+    drivers ||--o{ emergency_profiles : "has emergency contact"
+    passengers ||--o{ emergency_profiles : "has emergency contact"
 `;
 
 // ─── Column Type Icon ───
@@ -767,12 +893,16 @@ interface ErdLine {
 }
 
 const erdNodeDefs: Omit<ErdNode, "keyCols">[] = [
-  { name: "driver_license_types", x: 340, y: 20,  w: 230, h: 152, color: "#e53935", label: "driver_license_types" },
-  { name: "drivers",       x: 380, y: 260, w: 196, h: 186, color: "#2563eb", label: "drivers" },
-  { name: "vehicles",      x: 40,  y: 510, w: 196, h: 168, color: "#16a34a", label: "vehicles" },
-  { name: "rides",         x: 380, y: 510, w: 196, h: 176, color: "#7c3aed", label: "rides" },
-  { name: "passengers",    x: 720, y: 510, w: 196, h: 156, color: "#d97706", label: "passengers" },
-  { name: "audit_logs",    x: 720, y: 90,  w: 196, h: 156, color: "#64748b", label: "audit_logs" },
+  { name: "policies",    x: 40,  y: 20,  w: 210, h: 220, color: "#0891b2", label: "policies" },
+  { name: "driver_license_types", x: 370, y: 20,  w: 230, h: 280, color: "#e53935", label: "driver_license_types" },
+  { name: "drivers",       x: 410, y: 340, w: 210, h: 280, color: "#2563eb", label: "drivers" },
+  { name: "driver_profiles", x: 40, y: 280, w: 220, h: 280, color: "#8b5cf6", label: "driver_profiles" },
+  { name: "driver_license_profiles", x: 720, y: 280, w: 250, h: 390, color: "#ec4899", label: "driver_license_profiles" },
+  { name: "vehicles",      x: 40,  y: 600, w: 210, h: 280, color: "#16a34a", label: "vehicles" },
+  { name: "rides",         x: 370, y: 660, w: 210, h: 340, color: "#7c3aed", label: "rides" },
+  { name: "passengers",    x: 720, y: 660, w: 210, h: 220, color: "#d97706", label: "passengers" },
+  { name: "audit_logs",    x: 720, y: 20,  w: 210, h: 220, color: "#64748b", label: "audit_logs" },
+  { name: "emergency_profiles", x: 720, y: 940, w: 260, h: 310, color: "#dc2626", label: "emergency_profiles" },
 ];
 
 function buildErdNodes(): ErdNode[] {
@@ -780,7 +910,6 @@ function buildErdNodes(): ErdNode[] {
     const entity = entities.find((e) => e.name === def.name)!;
     const keyCols = entity.columns
       .filter((c) => c.pk || c.fk || c.unique)
-      .slice(0, 5)
       .map((c) => ({
         name: c.name,
         badge: c.pk ? "PK" : c.fk ? "FK" : "UQ",
@@ -792,11 +921,16 @@ function buildErdNodes(): ErdNode[] {
 }
 
 const erdLines: ErdLine[] = [
-  { from: "driver_license_types", to: "drivers",    fromSide: "bottom", toSide: "top",    label: "has many",     fromCard: "1", toCard: "N" },
+  { from: "policies",    to: "driver_license_types", fromSide: "right",  toSide: "left",   label: "governs",      fromCard: "1", toCard: "N" },
+  { from: "drivers",       to: "driver_profiles", fromSide: "left",   toSide: "right",  label: "has profile",  fromCard: "1", toCard: "1" },
+  { from: "drivers",       to: "driver_license_profiles", fromSide: "right", toSide: "left", label: "has license", fromCard: "1", toCard: "N" },
+  { from: "driver_license_types", to: "driver_license_profiles", fromSide: "right", toSide: "top", label: "classifies", fromCard: "1", toCard: "N" },
   { from: "drivers",       to: "vehicles",   fromSide: "bottom", toSide: "top",    label: "owns",         fromCard: "1", toCard: "N" },
   { from: "drivers",       to: "rides",      fromSide: "bottom", toSide: "top",    label: "drives",       fromCard: "1", toCard: "N" },
   { from: "passengers",    to: "rides",      fromSide: "left",   toSide: "right",  label: "requests",     fromCard: "1", toCard: "N" },
   { from: "vehicles",      to: "rides",      fromSide: "right",  toSide: "left",   label: "used in",      fromCard: "1", toCard: "N" },
+  { from: "drivers",       to: "emergency_profiles", fromSide: "right", toSide: "left", label: "contacts", fromCard: "1", toCard: "N" },
+  { from: "passengers",    to: "emergency_profiles", fromSide: "bottom", toSide: "top", label: "contacts", fromCard: "1", toCard: "N" },
 ];
 
 function getAnchorPoint(node: ErdNode, side: "top" | "bottom" | "left" | "right") {
@@ -1385,12 +1519,14 @@ function generateTableDDL(entity: TableEntity, engine: DbEngine): string {
     if (enumCols.length > 0) {
       lines.push(`-- Custom ENUM types`);
       const enumMap: Record<string, string> = {
-        "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" || entity.name === "license_policies" ? "license_status" : "vehicle_status",
-        "ENUM('ACTIVE','PENDING','SUSPENDED','INACTIVE')": "driver_status",
+        "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" || entity.name === "policies" ? "license_status" : "vehicle_status",
+        "ENUM('MALE','FEMALE')": "gender",
+        "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')": "driver_status",
         "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
         "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
         "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
         "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
+        "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "driver_profile_status",
         "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
       };
       const seen = new Set<string>();
@@ -1418,12 +1554,14 @@ function generateTableDDL(entity: TableEntity, engine: DbEngine): string {
     } else if (col.type.startsWith("ENUM")) {
       if (engine === "postgresql") {
         const enumMap: Record<string, string> = {
-          "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" || entity.name === "license_policies" ? "license_status" : "vehicle_status",
-          "ENUM('ACTIVE','PENDING','SUSPENDED','INACTIVE')": "driver_status",
+          "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" || entity.name === "policies" ? "license_status" : "vehicle_status",
+          "ENUM('MALE','FEMALE')": "gender",
+          "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')": "driver_status",
           "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
           "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
           "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
           "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
+          "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "driver_profile_status",
           "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
         };
         colType = enumMap[col.type] || "VARCHAR(50)";
@@ -1502,253 +1640,27 @@ function generateSchemaCode(entity: TableEntity, lang: BackendLang, engine?: DbE
   }
 }
 
-// ─── Schema Code Preview Dialog ───
-function SchemaCodePreviewDialog({
-  tableName,
-  onClose,
-}: {
-  tableName: string;
-  onClose: () => void;
-}) {
-  const entity = entities.find((e) => e.name === tableName);
-  const [activeLang, setActiveLang] = useState<BackendLang>("nodejs");
-  const [dbEngine, setDbEngine] = useState<DbEngine>("postgresql");
-  const [dbDropdownOpen, setDbDropdownOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [onClose]);
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, []);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDbDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  if (!entity) return null;
-
-  const code = generateSchemaCode(entity, activeLang, dbEngine);
-  const langConfig = backendLangs.find((l) => l.id === activeLang)!;
-
-  const handleCopy = () => {
-    copyToClipboard(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)" }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        ref={dialogRef}
-        className="bg-white rounded-2xl shadow-2xl border border-[#e2e8f0] overflow-hidden w-full max-w-[820px] max-h-[85vh] flex flex-col"
-        style={{ animation: "fadeInScale 0.2s ease-out" }}
-      >
-        {/* Dialog Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-[#f8fafc] to-[#f1f5f9] border-b border-[#e2e8f0]">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: `${entity.color}15` }}
-            >
-              <Database className="w-4 h-4" style={{ color: entity.color }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-[14px] text-[#0f172a] font-semibold">{entity.name}</h3>
-                <span className="px-1.5 py-0.5 rounded bg-[#f1f5f9] text-[9px] text-[#64748b] font-mono">
-                  {entity.columns.length} columns
-                </span>
-              </div>
-              <p className="text-[11px] text-[#94a3b8]">Schema model code preview — {entity.label}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Database Engine Dropdown */}
-            <div ref={dropdownRef} className="relative">
-              <button
-                onClick={() => setDbDropdownOpen(!dbDropdownOpen)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border border-[#e2e8f0] bg-white hover:bg-[#f8fafc] text-[#0f172a] transition-colors cursor-pointer"
-              >
-                <span className="text-[13px]">{dbEngines[dbEngine].icon}</span>
-                <span>{dbEngines[dbEngine].label}</span>
-                <ChevronDown className={`w-3 h-3 text-[#94a3b8] transition-transform ${dbDropdownOpen ? "rotate-180" : ""}`} />
-              </button>
-              {dbDropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-lg shadow-lg border border-[#e2e8f0] py-1 z-50" style={{ animation: "fadeInScale 0.15s ease-out" }}>
-                  {dbEngineOptions.map((eng) => (
-                    <button
-                      key={eng}
-                      onClick={() => {
-                        setDbEngine(eng);
-                        setDbDropdownOpen(false);
-                        setCopied(false);
-                      }}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-[11px] transition-colors cursor-pointer ${
-                        dbEngine === eng
-                          ? "bg-[#f1f5f9] text-[#0f172a] font-semibold"
-                          : "text-[#475569] hover:bg-[#f8fafc]"
-                      }`}
-                    >
-                      <span className="text-[14px]">{dbEngines[eng].icon}</span>
-                      <span>{dbEngines[eng].label}</span>
-                      {dbEngine === eng && (
-                        <Check className="w-3 h-3 text-[#6366f1] ml-auto" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#94a3b8] hover:text-[#0f172a] hover:bg-[#f1f5f9] transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Language Pill Tabs */}
-        <div className="flex items-center justify-between px-5 py-2.5 border-b border-[#e2e8f0] bg-[#fafbfc]">
-          <div className="flex items-center gap-1 flex-wrap">
-            {backendLangs.map((lang) => {
-              const isActive = activeLang === lang.id;
-              return (
-                <button
-                  key={lang.id}
-                  onClick={() => {
-                    setActiveLang(lang.id);
-                    setCopied(false);
-                  }}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
-                    isActive
-                      ? "bg-[#0f172a] text-white shadow-sm"
-                      : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a]"
-                  }`}
-                >
-                  <span className={isActive ? "text-white" : "text-[#94a3b8]"}>{lang.logo}</span>
-                  {lang.label}
-                </button>
-              );
-            })}
-          </div>
-          <button
-            onClick={handleCopy}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] transition-colors cursor-pointer border shrink-0 ml-2 ${
-              copied
-                ? "bg-[#f0fdf4] text-[#16a34a] border-[#bbf7d0]"
-                : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] border-[#e2e8f0]"
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? "Copied!" : "Copy Code"}
-          </button>
-        </div>
-
-        {/* Code Block */}
-        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-          {/* Traffic light dots + filename */}
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-[#011627] border-b border-[#1e293b]">
-            <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#f87171]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#34d399]" />
-            </div>
-            <span className="text-[10px] text-[#64748b] ml-2">{langConfig.filename(entity.name, activeLang === "sql" ? dbEngine : undefined)}</span>
-            {activeLang === "sql" && (
-              <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-[#1e293b] text-[#64748b]">
-                {dbEngines[dbEngine].icon} {dbEngines[dbEngine].label}
-              </span>
-            )}
-          </div>
-
-          {/* Syntax-highlighted code */}
-          <div className="flex-1 overflow-auto">
-            <Highlight theme={themes.nightOwl} code={code} language={langConfig.language === "csharp" ? "typescript" : langConfig.language === "sql" ? (dbEngine === "mongoose" ? "javascript" : "sql") : langConfig.language}>
-              {({ style, tokens, getLineProps, getTokenProps }) => (
-                <pre
-                  style={{
-                    ...style,
-                    margin: 0,
-                    padding: "16px",
-                    fontSize: "12px",
-                    lineHeight: "1.6",
-                    minHeight: "100%",
-                  }}
-                >
-                  {tokens.map((line, i) => (
-                    <div key={i} {...getLineProps({ line })}>
-                      <span className="inline-block w-8 text-right mr-4 text-[#475569] select-none text-[11px]">
-                        {i + 1}
-                      </span>
-                      {line.map((token, key) => (
-                        <span key={key} {...getTokenProps({ token })} />
-                      ))}
-                    </div>
-                  ))}
-                </pre>
-              )}
-            </Highlight>
-          </div>
-        </div>
-
-        {/* Dialog Footer */}
-        <div className="flex items-center justify-between px-5 py-2.5 bg-[#f8fafc] border-t border-[#e2e8f0]">
-          <div className="flex items-center gap-2">
-            <Info className="w-3.5 h-3.5 text-[#94a3b8]" />
-            <span className="text-[10px] text-[#94a3b8]">
-              {entity.columns.filter((c) => c.pk).length} PK &middot; {entity.columns.filter((c) => c.fk).length} FK &middot; {entity.columns.filter((c) => c.unique).length} UQ &middot; {entity.columns.filter((c) => c.index).length} IDX
-              &middot; {dbEngines[dbEngine].icon} {dbEngines[dbEngine].label}
-            </span>
-          </div>
-          <span className="text-[10px] text-[#94a3b8]">
-            Press <kbd className="px-1 py-0.5 rounded bg-[#e2e8f0] text-[9px] font-mono">ESC</kbd> to close
-          </span>
-        </div>
-      </div>
-
-      {/* Fade-in animation */}
-      <style>{`
-        @keyframes fadeInScale {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
 // ─── Visual ERD Component ───
 function ErdVisual() {
   const nodes = buildErdNodes();
-  const canvasW = 960;
-  const canvasH = 720;
+  const canvasW = 1010;
+  const canvasH = 1300;
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [hoveredLine, setHoveredLine] = useState<number | null>(null);
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+
+
+  // The "active" node is selected (click) or hovered — selected takes priority
+  const activeNode = selectedNode || hoveredNode;
+
+  // Helper: is a node related to the active node via any relationship line?
+  const isRelatedToActive = (name: string) =>
+    !!activeNode &&
+    erdLines.some(
+      (l) =>
+        (l.from === activeNode || l.to === activeNode) &&
+        (l.from === name || l.to === name)
+    );
 
   return (
     <div className="rounded-xl border border-[#e2e8f0] bg-[#fafbfc] overflow-hidden">
@@ -1781,7 +1693,7 @@ function ErdVisual() {
       </div>
 
       {/* Canvas */}
-      <div className="overflow-auto p-4" style={{ maxHeight: 780 }}>
+      <div className="overflow-auto p-4" style={{ maxHeight: 1320 }} onClick={() => setSelectedNode(null)}>
         <div className="relative mx-auto" style={{ width: canvasW, height: canvasH }}>
           {/* SVG Lines Layer */}
           <svg
@@ -1820,7 +1732,9 @@ function ErdVisual() {
               const toNode = nodes.find((n) => n.name === line.to)!;
               const from = getAnchorPoint(fromNode, line.fromSide);
               const to = getAnchorPoint(toNode, line.toSide);
-              const isHovered = hoveredLine === idx || hoveredNode === line.from || hoveredNode === line.to;
+              const isLineActive = hoveredLine === idx || activeNode === line.from || activeNode === line.to;
+              const isLineDimmed = !!activeNode && !isLineActive;
+              const isHovered = isLineActive;
 
               // Compute control points for smooth cubic bezier curves
               let c1x = from.x, c1y = from.y, c2x = to.x, c2y = to.y;
@@ -1854,7 +1768,7 @@ function ErdVisual() {
               const card2Y = to.y + (c2y - to.y) * 0.2;
 
               return (
-                <g key={idx}>
+                <g key={idx} style={{ opacity: isLineDimmed ? 0.15 : 1, transition: "opacity 0.2s" }}>
                   {/* Hit area for hover */}
                   <path
                     d={pathD}
@@ -1945,18 +1859,15 @@ function ErdVisual() {
 
           {/* Entity Node Cards */}
           {nodes.map((node) => {
-            const isHover = hoveredNode === node.name;
-            const isRelated = erdLines.some(
-              (l) =>
-                (hoveredNode && (l.from === hoveredNode || l.to === hoveredNode)) &&
-                (l.from === node.name || l.to === node.name)
-            );
-            const highlight = isHover || isRelated;
+            const isActive = activeNode === node.name;
+            const isRelated = isRelatedToActive(node.name);
+            const highlight = isActive || isRelated;
+            const isDimmed = !!activeNode && !highlight;
 
             return (
               <div
                 key={node.name}
-                className="absolute rounded-xl border-2 overflow-hidden bg-white transition-all duration-200 cursor-pointer group/card"
+                className="absolute rounded-xl border-2 overflow-hidden bg-white transition-all duration-200 cursor-pointer"
                 style={{
                   left: node.x,
                   top: node.y,
@@ -1967,10 +1878,14 @@ function ErdVisual() {
                     ? `0 4px 20px ${node.color}25, 0 0 0 3px ${node.color}12`
                     : "0 1px 4px rgba(0,0,0,0.06)",
                   transform: highlight ? "scale(1.02)" : "scale(1)",
+                  opacity: isDimmed ? 0.2 : 1,
                 }}
                 onMouseEnter={() => setHoveredNode(node.name)}
                 onMouseLeave={() => setHoveredNode(null)}
-                onClick={() => setSelectedTable(node.name)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedNode((prev) => (prev === node.name ? null : node.name));
+                }}
               >
                 {/* Header bar */}
                 <div
@@ -1989,11 +1904,8 @@ function ErdVisual() {
                   >
                     {node.label}
                   </span>
-                  <span className="ml-auto flex items-center gap-1.5">
-                    <span className="text-[9px] text-[#94a3b8] font-mono">
-                      {entities.find((e) => e.name === node.name)?.columns.length}
-                    </span>
-                    <Code2 className="w-3 h-3 text-[#94a3b8] opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                  <span className="ml-auto text-[9px] text-[#94a3b8] font-mono">
+                    {entities.find((e) => e.name === node.name)?.columns.length}
                   </span>
                 </div>
                 {/* Key columns */}
@@ -2009,36 +1921,35 @@ function ErdVisual() {
                       <span className="text-[10px] text-[#475569] font-mono truncate">{col.name}</span>
                     </div>
                   ))}
-                  {/* "more columns" indicator */}
+                  {/* Remaining non-key columns */}
                   {(() => {
-                    const totalCols = entities.find((e) => e.name === node.name)?.columns.length || 0;
-                    const shown = node.keyCols.length;
-                    const remaining = totalCols - shown;
-                    return remaining > 0 ? (
-                      <div className="text-[9px] text-[#94a3b8] pl-1 pt-0.5">
-                        +{remaining} more columns
+                    const entity = entities.find((e) => e.name === node.name);
+                    if (!entity) return null;
+                    const keyColNames = new Set(node.keyCols.map((c) => c.name));
+                    const remaining = entity.columns.filter((c) => !keyColNames.has(c.name));
+                    if (remaining.length === 0) return null;
+                    return (
+                      <div>
+                        <div className="border-t border-dashed border-[#e2e8f0] my-1" />
+                        {remaining.map((col) => (
+                          <div key={col.name} className="flex items-center gap-1.5">
+                            <span className="px-1 py-0 rounded text-[7px] font-bold shrink-0 text-[#94a3b8] bg-[#f1f5f9]">
+                              COL
+                            </span>
+                            <span className="text-[10px] text-[#94a3b8] font-mono truncate">{col.name}</span>
+                          </div>
+                        ))}
                       </div>
-                    ) : null;
+                    );
                   })()}
                 </div>
-                {/* Click hint footer */}
-                <div className="px-2.5 py-1.5 border-t opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center gap-1" style={{ borderColor: `${node.color}15`, backgroundColor: `${node.color}06` }}>
-                  <Eye className="w-3 h-3" style={{ color: node.color }} />
-                  <span className="text-[9px] font-medium" style={{ color: node.color }}>View Schema Code</span>
-                </div>
+
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Schema Code Preview Dialog */}
-      {selectedTable && (
-        <SchemaCodePreviewDialog
-          tableName={selectedTable}
-          onClose={() => setSelectedTable(null)}
-        />
-      )}
     </div>
   );
 }
@@ -2194,13 +2105,14 @@ function SqlCodeBlock({
 // ─── Main Page ───
 export function DatabaseDiagramAndSchema() {
   const [expandedEntities, setExpandedEntities] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(entities.map((e) => [e.name, true]))
+    Object.fromEntries(entities.map((e) => [e.name, false]))
   );
   const [diagramExpanded, setDiagramExpanded] = useState(true);
   const [relExpanded, setRelExpanded] = useState(true);
   const [ddlExpanded, setDdlExpanded] = useState(true);
   const [mermaidExpanded, setMermaidExpanded] = useState(true);
   const [mermaidCopied, setMermaidCopied] = useState(false);
+  const [showTableColumns, setShowTableColumns] = useState(false);
 
   const toggleEntity = (name: string) => {
     setExpandedEntities((prev) => ({ ...prev, [name]: !prev[name] }));
@@ -2233,53 +2145,34 @@ export function DatabaseDiagramAndSchema() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        {[
-          { label: "Tables", value: entities.length, color: "#e53935", icon: "📊" },
-          { label: "Total Columns", value: totalColumns, color: "#2563eb", icon: "📋" },
-          { label: "Foreign Keys", value: totalFKs, color: "#6366f1", icon: "🔗" },
-          { label: "Indexes", value: totalIndexes, color: "#16a34a", icon: "⚡" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border px-3 py-2.5"
-            style={{ borderColor: `${stat.color}25`, backgroundColor: `${stat.color}08` }}
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="text-[13px]">{stat.icon}</span>
-              <span className="text-[11px] font-semibold" style={{ color: stat.color }}>
-                {stat.label}
-              </span>
-            </div>
-            <p className="text-[20px] font-semibold text-[#0f172a] mt-0.5">{stat.value}</p>
-          </div>
-        ))}
-      </div>
+      
 
       {/* Relationships Table */}
       <div className="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden mb-4">
-        <button
-          onClick={() => setRelExpanded(!relExpanded)}
-          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-[#f8fafc] transition-colors cursor-pointer"
-        >
-          <div className="w-8 h-8 rounded-lg bg-[#fef3c7] flex items-center justify-center">
-            <Link2 className="w-4 h-4 text-[#d97706]" />
-          </div>
-          <div className="flex-1 text-left min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-[14px] text-[#0f172a] font-semibold">Relationships & ERD</h2>
-              <span className="px-2 py-0.5 rounded-full bg-[#f1f5f9] text-[10px] text-[#64748b] font-medium">
-                {relationships.length} relations
-              </span>
+        <div className="w-full flex items-center gap-3 px-5 py-4 hover:bg-[#f8fafc] transition-colors">
+          <button
+            onClick={() => setRelExpanded(!relExpanded)}
+            className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-lg bg-[#fef3c7] flex items-center justify-center shrink-0">
+              <Link2 className="w-4 h-4 text-[#d97706]" />
             </div>
-            <p className="text-[11px] text-[#94a3b8]">Visual entity-relationship diagram with foreign key relationships</p>
-          </div>
-          {relExpanded ? (
-            <ChevronDown className="w-4 h-4 text-[#94a3b8]" />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-[#94a3b8]" />
-          )}
-        </button>
+            <div className="flex-1 text-left min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[14px] text-[#0f172a] font-semibold">Relationships & ERD</h2>
+                <span className="px-2 py-0.5 rounded-full bg-[#f1f5f9] text-[10px] text-[#64748b] font-medium">
+                  {relationships.length} relations
+                </span>
+              </div>
+              <p className="text-[11px] text-[#94a3b8]">Visual entity-relationship diagram with foreign key relationships</p>
+            </div>
+            {relExpanded ? (
+              <ChevronDown className="w-4 h-4 text-[#94a3b8]" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-[#94a3b8]" />
+            )}
+          </button>
+        </div>
 
         {relExpanded && (
           <div className="px-5 pb-5 pt-0">
@@ -2388,7 +2281,7 @@ export function DatabaseDiagramAndSchema() {
                 <EntityCard
                   key={entity.name}
                   entity={entity}
-                  expanded={expandedEntities[entity.name] ?? true}
+                  expanded={expandedEntities[entity.name] ?? false}
                   onToggle={() => toggleEntity(entity.name)}
                 />
               ))}
@@ -2554,6 +2447,9 @@ export function DatabaseDiagramAndSchema() {
           </p>
         </div>
       </div>
+
+
     </div>
   );
 }
+

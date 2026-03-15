@@ -33,6 +33,7 @@ import {
 } from "recharts";
 import { motion } from "motion/react";
 import * as htmlToImage from "html-to-image";
+import { licensePolicyMockData } from "./LicensePolicyList";
 
 export interface LicenseType {
   id: number;
@@ -42,6 +43,7 @@ export interface LicenseType {
   vehicleClass: string;
   validityYears: number;
   status: "ACTIVE" | "INACTIVE";
+  policyType: "DRIVER_LICENSE";
   description: string;
   createdAt: string;
   updatedAt: string;
@@ -56,6 +58,7 @@ const emptyLicenseType: LicenseType = {
   vehicleClass: "",
   validityYears: 1,
   status: "ACTIVE",
+  policyType: "DRIVER_LICENSE",
   description: "",
   createdAt: "",
   updatedAt: "",
@@ -71,6 +74,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "မော်တော်ယာဉ်အမောင်းသင်ရန်",
     validityYears: 1,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "မော်တော်ယာဉ်အမောင်းသင်ယူသူများအတွက် ထုတ်ပေးသော ယာဉ်မောင်းလိုင်စင်",
     createdAt: "2024-01-15",
     updatedAt: "2025-11-20",
@@ -84,6 +88,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "မော်တော်ဆိုင်ကယ်",
     validityYears: 5,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "မော်တော်ဆိုင်ကယ်မောင်းနှင်ခွင့်ရှိသော ယာဉ်မောင်းလိုင်စင်",
     createdAt: "2024-01-15",
     updatedAt: "2025-12-01",
@@ -97,6 +102,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "သုံးတန်အထိတင်ဆောင်နိုင်သော ကိုယ်ပိုင်မော်တော်ယာဉ်နှင့် လူ ၁၅ ဦးအထိ တင်ဆောင်နိုင်သော ကိုယ်ပိုင်မော်တော်ယာဉ်",
     validityYears: 5,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "မော်တော်ကယ်တင်အားသုံးတန်အထိတင်ဆောင်နိုင်သော ကိုယ်ပိုင်မော်တော်ယာဉ်နှင့် လူ ၁၅ ဦးအထိ တင်ဆောင်နိုင်သော ကိုယ်ပိုင်မော်တော်ယာဉ်",
     createdAt: "2024-02-10",
     updatedAt: "2025-10-15",
@@ -110,6 +116,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "စက်ယန္တရား",
     validityYears: 5,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "စက်ယန္တရားမောင်းနှင်ခွင့်ရှိသော ယာဉ်မောင်းလိုင်စင်",
     createdAt: "2024-03-01",
     updatedAt: "2026-01-10",
@@ -123,6 +130,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "တက္ကစီယာဉ်နှင့် \"ခ\" ယာဉ်မောင်းလိုင်စင်၊ \"ဈ\" ယာဉ်မောင်းလိုင်စင်တို့ဖြင့် မောင်းနှင်ခွင့်ရှိသော မော်တော်ယာဉ်များ",
     validityYears: 3,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "တက္ကစီယာဉ်နှင့် \"ခ\"၊ \"ဈ\" လိုင်စင်ဖြင့် မောင်းနှင်ခွင့်ရှိသော မော်တော်ယာဉ်များအတွက် ထုတ်ပေးသော လိုင်စင်",
     createdAt: "2025-06-01",
     updatedAt: "2026-02-28",
@@ -136,6 +144,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "စက်ယန္တရားမှအပ ဥပဒေနှင့်အညီ မှတ်ပုံတင်ထားသော မည်သည့်မော်တော်ယာဉ်ကိုမဆို",
     validityYears: 3,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "စက်ယန္တရားမှအပ ဥပဒေနှင့်အညီ မှတ်ပုံတင်ထားသော မည်သည့်မော်တော်ယာဉ်ကိုမဆို မောင်းနှင်ခွင့်ရှိသော လိုင်စင်",
     createdAt: "2024-05-20",
     updatedAt: "2025-09-30",
@@ -149,6 +158,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "ထရေ့လာကြီး",
     validityYears: 5,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "ထရေ့လာကြီးမောင်းနှင်ခွင့်ရှိသော ယာဉ်မောင်းလိုင်စင်",
     createdAt: "2024-04-12",
     updatedAt: "2025-08-15",
@@ -162,6 +172,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "မော်တော်ဆိုင်ကယ်နှင့် သုံးဘီးတပ်ယာဉ်",
     validityYears: 5,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "မော်တော်ဆိုင်ကယ်နှင့် သုံးဘီးတပ်ယာဉ်မောင်းနှင်ခွင့်ရှိသော ယာဉ်မောင်းလိုင်စင်",
     createdAt: "2024-07-01",
     updatedAt: "2026-01-20",
@@ -175,6 +186,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "ယာဉ်အကူနှင့် လက်မှတ်ရောင်း",
     validityYears: 5,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "ယာဉ်အကူနှင့် လက်မှတ်ရောင်းအတွက် ထုတ်ပေးသော လိုင်စင်",
     createdAt: "2025-09-01",
     updatedAt: "2026-03-01",
@@ -188,6 +200,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "ပြည်တွင်းယာဉ်မောင်းလိုင်စင်အရ မောင်းနှင်ခွင့်ရှိသည့် မော်တော်ယာဉ်အမျိုးအစား",
     validityYears: 1,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "ပြည်တွင်းယာဉ်မောင်းလိုင်စင်အရ မောင်းနှင်ခွင့်ရှိသည့် မော်တော်ယာဉ်အမျိုးအစားအတွက် ထုတ်ပေးသော အပြည်ပြည်ဆိုင်ရာ လိုင်စင်",
     createdAt: "2024-08-15",
     updatedAt: "2025-07-20",
@@ -201,6 +214,7 @@ export const mockData: LicenseType[] = [
     vehicleClass: "သက်ဆိုင်ရာနိုင်ငံကထုတ်ပေးသည့် ယာဉ်မောင်းလိုင်စင်အမျိုးအစားအလိုက် မောင်းနှင်ခွင့်ပြုသည့် မော်တော်ယာဉ်အမျိုးအစား",
     validityYears: 1,
     status: "ACTIVE",
+    policyType: "DRIVER_LICENSE",
     description: "သက်ဆိုင်ရာနိုင်ငံကထုတ်ပေးသည့် ယာဉ်မောင်းလိုင်စင်အမျိုးအစားအလိုက် မောင်းနှင်ခွင့်ပြုသည့် ယာယီလက်မှတ်",
     createdAt: "2025-09-01",
     updatedAt: "2026-03-01",
@@ -342,7 +356,7 @@ onMounted(() => {
       'THA — သ (Learner)', 'KA — က (Motorcycle)',
       'KHA — ခ (Private)', 'GA — ဂ (Machinery)',
       'GHA — ဃ (Taxi)', 'NGA — င (All Vehicles)',
-      'ZA — ဈ (Trailer)', 'HA — ဟ (Motorcycle/3W)',
+      'ZA �� ဈ (Trailer)', 'HA — ဟ (Motorcycle/3W)',
       'SA — စ (Assistant)', 'INT — International',
       'TMP — Temporary'
     ],
@@ -971,7 +985,7 @@ export default function LicenseTypeTable() {
   );
 
   return (
-    <>
+    <div>
       <Toast ref={toast} />
       <Toolbar left={leftToolbar} right={rightToolbar} />
       <DataTable
@@ -1013,7 +1027,7 @@ export default function LicenseTypeTable() {
           sortable
         />
       </DataTable>
-    </>
+    </div>
   );
 }`;
 
@@ -1427,6 +1441,7 @@ export function LicenseTypeList() {
     { field: "validityYears", label: "Validity", default: true },
     { field: "description", label: "Description", default: true },
     { field: "status", label: "Status", default: true },
+    { field: "policyType", label: "Policy Type", default: true },
     { field: "createdAt", label: "Created At", default: false },
     { field: "updatedAt", label: "Updated", default: true },
     { field: "deletedAt", label: "Deleted At", default: false },
@@ -1783,26 +1798,20 @@ export function LicenseTypeList() {
     <div className="flex justify-center">
       <button
         type="button"
-        className="w-7 h-7 flex items-center justify-center rounded-full bg-[#fef2f2] transition-colors cursor-pointer text-[#e53935] hover:bg-[#fee2e2]"
-        title="Actions"
+        className="w-7 h-7 flex items-center justify-center rounded-full bg-[#eef2ff] transition-colors cursor-pointer text-[#6366f1] hover:bg-[#e0e7ff]"
+        title="Edit"
         onClick={(e) => {
           e.stopPropagation();
-          activeRowRef.current = rowData;
-          actionMenuRef.current?.toggle(e);
+          navigate(`/dashboard/license-types/${rowData.id}`);
         }}
       >
-        <EllipsisVertical className="w-3.5 h-3.5" />
+        <Pencil className="w-3.5 h-3.5" />
       </button>
     </div>
   );
 
   const codeBodyTemplate = (rowData: LicenseType) => (
-    <div className="flex items-center gap-2">
-      <div className="w-7 h-7 rounded-full bg-[#eff6ff] flex items-center justify-center flex-shrink-0">
-        <FileText className="w-3.5 h-3.5 text-[#3b82f6]" />
-      </div>
-      <span className="text-[12px] text-[#0f172a] font-semibold">{rowData.code}</span>
-    </div>
+    <span className="text-[12px] text-[#0f172a] font-semibold">{rowData.code}</span>
   );
 
   const descriptionBodyTemplate = (rowData: LicenseType) => (
@@ -1830,7 +1839,7 @@ export function LicenseTypeList() {
   const leftToolbarTemplate = () => (
     <div className="flex items-center gap-2">
       <button
-        onClick={openNew}
+        onClick={() => navigate("/dashboard/license-types/add")}
         className="flex items-center gap-1.5 bg-[#e53935] hover:bg-[#c62828] text-white px-3.5 py-2 rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer"
       >
         <Plus className="w-4 h-4" />
@@ -2097,714 +2106,10 @@ export function LicenseTypeList() {
       {/* Drivers by Driver License Type — Two Column Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 mb-5">
         {/* Bar Chart Column */}
-        <motion.div
-          ref={barChartRef}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="bg-white rounded-[12px] border border-[#e2e8f0] p-5"
-        >
-          <div className="flex flex-col gap-3 mb-5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#fef2f2] flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-[#e53935]" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-[15px] text-[#0f172a] font-semibold">Drivers by Driver License Type</h3>
-                <p className="text-[12px] text-[#94a3b8] mt-0.5">Active &amp; inactive driver count per license category</p>
-              </div>
-              <div className="relative" ref={chartDownloadRef}>
-                <button
-                  onClick={() => setChartDownloadOpen((prev) => !prev)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors cursor-pointer border border-[#e2e8f0]"
-                  title="Download Chart"
-                >
-                  <ImageDown className="w-3.5 h-3.5" />
-                  <span>Download</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${chartDownloadOpen ? "rotate-180" : ""}`} />
-                </button>
-                {chartDownloadOpen && (
-                  <div className="absolute right-0 top-full mt-1 bg-white border border-[#e2e8f0] rounded-lg shadow-lg z-20 min-w-[140px] py-1 overflow-hidden">
-                    <button
-                      onClick={() => { downloadChartAsImage("png"); setChartDownloadOpen(false); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-[#334155] hover:bg-[#f8fafc] transition-colors cursor-pointer"
-                    >
-                      <ImageDown className="w-3.5 h-3.5 text-[#6366f1]" />
-                      Save as PNG
-                    </button>
-                    <button
-                      onClick={() => { downloadChartAsImage("jpg"); setChartDownloadOpen(false); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-[#334155] hover:bg-[#f8fafc] transition-colors cursor-pointer"
-                    >
-                      <ImageDown className="w-3.5 h-3.5 text-[#f59e0b]" />
-                      Save as JPG
-                    </button>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => setChartCodePreviewOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-[#64748b] hover:bg-[#eef2ff] hover:text-[#4f46e5] transition-colors cursor-pointer border border-[#e2e8f0] hover:border-[#c7d2fe]"
-                title="View Code"
-              >
-                
-                <span>&lt;/&gt;</span>
-              </button>
-            </div>
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-[3px] bg-[#22c55e]" />
-                <span className="text-[11px] text-[#64748b]">ACTIVE</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-[3px] bg-[#f59e0b]" />
-                <span className="text-[11px] text-[#64748b]">PENDING</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-[3px] bg-[#e53935]" />
-                <span className="text-[11px] text-[#64748b]">SUSPENDED</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-[3px] bg-[#94a3b8]" />
-                <span className="text-[11px] text-[#64748b]">INACTIVE</span>
-              </div>
-            </div>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, scaleY: 0.6 }}
-            animate={{ opacity: 1, scaleY: 1 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
-            style={{ transformOrigin: "bottom" }}
-            className="h-[320px]"
-          >
-            <ResponsiveContainer width="100%" height={300} minWidth={200}>
-              <BarChart
-                id="license-type-bar-chart"
-                data={driverBarData}
-                margin={{ top: 8, right: 8, left: -12, bottom: 4 }}
-                barGap={3}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                <XAxis
-                  dataKey="code"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 11, fill: "#64748b" }}
-                  tickFormatter={(code: string) => {
-                    const item = driverBarData.find((d) => d.code === code);
-                    return item ? `${code} — ${item.label}` : code;
-                  }}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#0f172a",
-                    border: "none",
-                    borderRadius: "10px",
-                    padding: "10px 14px",
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-                  }}
-                  itemStyle={{ fontSize: "12px", padding: "2px 0" }}
-                  labelStyle={{ color: "#fff", fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}
-                  labelFormatter={(code: string) => {
-                    const item = driverBarData.find((d) => d.code === code);
-                    return item ? `${code} — ${item.label}` : code;
-                  }}
-                  formatter={(value: number, name: string) => [
-                    `${value} drivers`,
-                    name,
-                  ]}
-                  cursor={{ fill: "rgba(229, 57, 53, 0.04)" }}
-                />
-                <Bar
-                  dataKey="active"
-                  name="ACTIVE"
-                  fill="#22c55e"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={28}
-                  animationDuration={1000}
-                  animationEasing="ease-in-out"
-                  id="bar-active"
-                />
-                <Bar
-                  dataKey="inactive"
-                  name="INACTIVE"
-                  fill="#94a3b8"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={28}
-                  animationDuration={1000}
-                  animationBegin={300}
-                  animationEasing="ease-in-out"
-                  id="bar-inactive"
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </motion.div>
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#f1f5f9]">
-            <span className="text-[11px] text-[#94a3b8]">
-              Total: 342 active drivers across 11 driver license types
-            </span>
-            <span className="text-[11px] text-[#e53935] font-medium">
-              Top: KHA — ခ (89 active drivers)
-            </span>
-          </div>
-
-          {/* Code Preview Dialog */}
-          <Dialog
-            visible={chartCodePreviewOpen}
-            onHide={() => { setChartCodePreviewOpen(false); setChartCodeCopied(false); setChartCodeCategory("frontend"); setChartBackendLang("nestjs"); setChartBackendLangOpen(false); }}
-            modal
-            dismissableMask
-            draggable={false}
-            resizable={false}
-            className="!border-none !shadow-none"
-            contentClassName="!p-0 !bg-transparent"
-            headerClassName="!hidden"
-            maskClassName="!bg-black/50 !backdrop-blur-sm"
-            style={{ width: "780px", maxWidth: "92vw" }}
-            pt={{ root: { className: "!bg-transparent !border-none !shadow-none" } }}
-          >
-            <div className="bg-white rounded-2xl overflow-hidden shadow-2xl border border-[#e2e8f0]">
-              {/* Dialog Header */}
-              <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-[#f8fafc] to-[#f1f5f9] border-b border-[#e2e8f0]">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-[#eef2ff] flex items-center justify-center">
-                    <Code2 className="w-3.5 h-3.5 text-[#4f46e5]" />
-                  </div>
-                  <div>
-                    <h3 className="text-[13px] text-[#0f172a] font-semibold">Chart Code Preview</h3>
-                    <p className="text-[10px] text-[#94a3b8]">Drivers by Driver License Type — Bar Chart</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => { setChartCodePreviewOpen(false); setChartCodeCopied(false); setChartCodeCategory("frontend"); setChartBackendLang("nestjs"); setChartBackendLangOpen(false); }}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[#94a3b8] hover:bg-[#fee2e2] hover:text-[#ef4444] transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Category Tabs */}
-              <div className="flex items-center gap-0 px-5 pt-3 pb-0 bg-white border-b border-[#e2e8f0]">
-                {([
-                  { key: "frontend" as const, label: "Frontend", icon: "🖥️", color: "#6366f1" },
-                  { key: "backend" as const, label: "Backend", icon: "⚙️", color: "#f59e0b" },
-                ]).map((cat) => (
-                  <button
-                    key={cat.key}
-                    onClick={() => { setChartCodeCategory(cat.key); setChartCodeCopied(false); }}
-                    className={`flex items-center gap-1.5 px-3.5 py-2.5 text-[11px] transition-all cursor-pointer relative ${
-                      chartCodeCategory === cat.key
-                        ? "text-[#0f172a] font-semibold"
-                        : "text-[#94a3b8] hover:text-[#64748b]"
-                    }`}
-                  >
-                    <span className="text-[12px]">{cat.icon}</span>
-                    {cat.label}
-                    {chartCodeCategory === cat.key && (
-                      <div className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full" style={{ backgroundColor: cat.color }} />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {/* Sub-tabs (Framework tabs for Frontend) & Copy Button */}
-              <div className="flex items-center justify-between px-5 py-2.5 border-b border-[#e2e8f0] bg-[#fafbfc]">
-                <div className="flex items-center gap-1">
-                  {chartCodeCategory === "frontend" ? (
-                    <div className="flex items-center gap-1 bg-[#f1f5f9] rounded-lg p-0.5">
-                      {(["react", "vue", "angular"] as const).map((fw) => {
-                        const fwConfig: Record<string, { label: string; icon: React.ReactNode }> = {
-                          react: { label: "PrimeReact", icon: <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="3" fill="#61DAFB"/><ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#61DAFB" strokeWidth="1.5" fill="none"/><ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#61DAFB" strokeWidth="1.5" fill="none" transform="rotate(60 16 16)"/><ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#61DAFB" strokeWidth="1.5" fill="none" transform="rotate(120 16 16)"/></svg> },
-                          vue: { label: "PrimeVue", icon: <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><path d="M2 4h5.6L16 18.4 24.4 4H30L16 28 2 4z" fill="#41B883"/><path d="M6.8 4H12l4 7.2L20 4h5.2L16 20 6.8 4z" fill="#34495E"/></svg> },
-                          angular: { label: "PrimeAngular", icon: <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><path d="M16 2L3 7l2 18L16 30l11-5 2-18L16 2z" fill="#DD0031"/><path d="M16 2v28l11-5 2-18L16 2z" fill="#C3002F"/><path d="M16 5.7L8.8 22h2.7l1.4-3.6h6.2L20.5 22h2.7L16 5.7zm2.2 10.7h-4.4L16 11l2.2 5.4z" fill="#fff"/></svg> },
-                        };
-                        const cfg = fwConfig[fw];
-                        return (
-                          <button
-                            key={fw}
-                            onClick={() => { setChartCodeFramework(fw); setChartCodeCopied(false); }}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] transition-all cursor-pointer ${
-                              chartCodeFramework === fw
-                                ? "bg-white text-[#0f172a] shadow-sm font-medium"
-                                : "text-[#64748b] hover:text-[#334155]"
-                            }`}
-                          >
-                            <span className="flex items-center">{cfg.icon}</span>
-                            {cfg.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <div className="relative" ref={chartBackendLangRef}>
-                        <button
-                          onClick={() => setChartBackendLangOpen(!chartBackendLangOpen)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-medium bg-[#fef3c7] text-[#92400e] hover:bg-[#fde68a] transition-colors cursor-pointer"
-                        >
-                          <span>{backendLangConfig[chartBackendLang].icon}</span>
-                          {backendLangConfig[chartBackendLang].label}
-                          <ChevronDown className={`w-3 h-3 transition-transform ${chartBackendLangOpen ? "rotate-180" : ""}`} />
-                        </button>
-                        {chartBackendLangOpen && (
-                          <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-[#e2e8f0] py-1 z-50 min-w-[180px]">
-                            {backendLangOptions.map((lang) => {
-                              const cfg = backendLangConfig[lang];
-                              return (
-                                <button
-                                  key={lang}
-                                  onClick={() => { setChartBackendLang(lang); setChartBackendLangOpen(false); setChartCodeCopied(false); }}
-                                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-[11px] transition-colors cursor-pointer ${
-                                    chartBackendLang === lang
-                                      ? "bg-[#fef3c7] text-[#92400e] font-medium"
-                                      : "text-[#475569] hover:bg-[#f8fafc]"
-                                  }`}
-                                >
-                                  <span className="text-[12px]">{cfg.icon}</span>
-                                  {cfg.label}
-                                  {chartBackendLang === lang && <Check className="w-3 h-3 ml-auto text-[#92400e]" />}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={() => {
-                    let text = "";
-                    if (chartCodeCategory === "frontend") {
-                      const codeMap: Record<string, string> = { react: primeReactChartCode, vue: primeVueChartCode, angular: primeAngularChartCode };
-                      text = codeMap[chartCodeFramework];
-                    } else {
-                      text = getChartBackendCode(chartBackendLang, chartBackendCode);
-                    }
-                    const fallbackCopy = (t: string) => {
-                      const textarea = document.createElement("textarea");
-                      textarea.value = t;
-                      textarea.style.position = "fixed";
-                      textarea.style.opacity = "0";
-                      document.body.appendChild(textarea);
-                      textarea.select();
-                      document.execCommand("copy");
-                      document.body.removeChild(textarea);
-                    };
-                    try {
-                      if (navigator.clipboard && window.isSecureContext) {
-                        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
-                      } else {
-                        fallbackCopy(text);
-                      }
-                    } catch { fallbackCopy(text); }
-                    setChartCodeCopied(true);
-                    setTimeout(() => setChartCodeCopied(false), 2000);
-                  }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] transition-colors cursor-pointer border ${
-                    chartCodeCopied
-                      ? "bg-[#f0fdf4] text-[#16a34a] border-[#bbf7d0]"
-                      : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] border-[#e2e8f0]"
-                  }`}
-                >
-                  {chartCodeCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  {chartCodeCopied ? "Copied!" : "Copy Code"}
-                </button>
-              </div>
-
-              {/* Code Block */}
-              <div className="overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-2.5 bg-[#0f172a] border-b border-[#1e293b]">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#f87171]" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#34d399]" />
-                  </div>
-                  <span className="text-[10px] text-[#64748b] ml-2">
-                    {chartCodeCategory === "frontend"
-                      ? (chartCodeFramework === "react" ? "DriversByDriverLicenseType.tsx" : chartCodeFramework === "vue" ? "DriversByDriverLicenseType.vue" : "drivers-by-driver-license-type.component.ts")
-                      : backendLangConfig[chartBackendLang].file}
-                  </span>
-                </div>
-                <Highlight
-                  theme={chartCodeCategory === "frontend" ? themes.nightOwl : themes.vsDark}
-                  code={
-                    chartCodeCategory === "frontend"
-                      ? (chartCodeFramework === "react" ? primeReactChartCode : chartCodeFramework === "vue" ? primeVueChartCode : primeAngularChartCode)
-                      : getChartBackendCode(chartBackendLang, chartBackendCode)
-                  }
-                  language={
-                    chartCodeCategory === "frontend"
-                      ? (chartCodeFramework === "angular" ? "typescript" : chartCodeFramework === "vue" ? "markup" : "tsx")
-                      : "typescript"
-                  }
-                >
-                  {({ style, tokens, getLineProps, getTokenProps }) => (
-                    <pre
-                      style={{ ...style, margin: 0, padding: "16px", fontSize: "12px", lineHeight: "1.6", maxHeight: "460px", overflow: "auto" }}
-                    >
-                      {tokens.map((line, i) => (
-                        <div key={i} {...getLineProps({ line })}>
-                          <span className="inline-block w-8 text-right mr-4 text-[#475569] select-none text-[11px]">
-                            {i + 1}
-                          </span>
-                          {line.map((token, key) => (
-                            <span key={key} {...getTokenProps({ token })} />
-                          ))}
-                        </div>
-                      ))}
-                    </pre>
-                  )}
-                </Highlight>
-              </div>
-            </div>
-          </Dialog>
-        </motion.div>
+        
 
         {/* Pie Chart Column */}
-        <motion.div
-          ref={pieChartRef}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-          className="bg-white rounded-[12px] border border-[#e2e8f0] p-5"
-        >
-          <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-[#f0f9ff] flex items-center justify-center">
-              <svg className="w-4 h-4 text-[#3b82f6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" /></svg>
-            </div>
-            <div>
-              <h3 className="text-[15px] text-[#0f172a] font-semibold">Driver Distribution</h3>
-              <p className="text-[12px] text-[#94a3b8] mt-0.5">Total drivers per license type</p>
-            </div>
-            <div className="ml-auto flex items-center gap-1.5">
-              <div className="relative" ref={pieDownloadRef}>
-                <button
-                  onClick={() => setPieDownloadOpen((prev) => !prev)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors cursor-pointer border border-[#e2e8f0]"
-                  title="Download Chart"
-                >
-                  <ImageDown className="w-3.5 h-3.5" />
-                  <span>Download</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${pieDownloadOpen ? "rotate-180" : ""}`} />
-                </button>
-                {pieDownloadOpen && (
-                  <div className="absolute right-0 top-full mt-1 bg-white border border-[#e2e8f0] rounded-lg shadow-lg z-20 min-w-[140px] py-1 overflow-hidden">
-                    <button
-                      onClick={() => { downloadPieChartAsImage("png"); setPieDownloadOpen(false); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-[#334155] hover:bg-[#f8fafc] transition-colors cursor-pointer"
-                    >
-                      <ImageDown className="w-3.5 h-3.5 text-[#6366f1]" />
-                      Save as PNG
-                    </button>
-                    <button
-                      onClick={() => { downloadPieChartAsImage("jpg"); setPieDownloadOpen(false); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-[#334155] hover:bg-[#f8fafc] transition-colors cursor-pointer"
-                    >
-                      <ImageDown className="w-3.5 h-3.5 text-[#f59e0b]" />
-                      Save as JPG
-                    </button>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => setPieCodePreviewOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-[#64748b] hover:bg-[#eef2ff] hover:text-[#4f46e5] transition-colors cursor-pointer border border-[#e2e8f0] hover:border-[#c7d2fe]"
-                title="View Code"
-              >
-                <span>&lt;/&gt;</span>
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-col items-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-              className="w-[200px] h-[200px] flex-shrink-0 relative"
-            >
-              <PieChart width={200} height={200}>
-                  <Pie
-                    data={driverBarData.map((d) => ({
-                      name: d.code,
-                      label: d.label,
-                      value: d.active + d.inactive,
-                      color: d.color,
-                    }))}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={48}
-                    outerRadius={82}
-                    paddingAngle={2}
-                    dataKey="value"
-                    animationDuration={1000}
-                    animationEasing="ease-in-out"
-                  >
-                    {driverBarData.map((entry) => (
-                      <Cell key={`pie-${entry.code}`} fill={entry.color} stroke="white" strokeWidth={2} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#0f172a",
-                      border: "none",
-                      borderRadius: "10px",
-                      padding: "10px 14px",
-                      boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-                    }}
-                    itemStyle={{ fontSize: "12px", color: "#fff" }}
-                    formatter={(value: number, name: string) => {
-                      const total = driverBarData.reduce((s, d) => s + d.active + d.inactive, 0);
-                      const pct = ((value / total) * 100).toFixed(1);
-                      const item = driverBarData.find((d) => d.code === name);
-                      return [`${value} drivers (${pct}%)`, item ? `${name} — ${item.label}` : name];
-                    }}
-                  />
-              </PieChart>
-              {/* Center label */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="text-center">
-                  <div className="text-[20px] text-[#0f172a] font-bold">{driverBarData.reduce((s, d) => s + d.active + d.inactive, 0)}</div>
-                  <div className="text-[10px] text-[#94a3b8] uppercase tracking-wider">Drivers</div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Legend with driver counts */}
-            <div className="w-full grid grid-cols-2 gap-x-3 gap-y-1 mt-4 pt-4 border-t border-[#f1f5f9]">
-              {driverBarData.map((d) => {
-                const total = d.active + d.inactive;
-                const grandTotal = driverBarData.reduce((s, item) => s + item.active + item.inactive, 0);
-                const pct = ((total / grandTotal) * 100).toFixed(1);
-                return (
-                  <div key={`legend-${d.code}`} className="flex items-center gap-2 py-1 px-1.5 rounded-md hover:bg-[#f8fafc] transition-colors">
-                    <div className="w-2.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ backgroundColor: d.color }} />
-                    <span className="text-[11px] text-[#0f172a] font-medium truncate" title={`${d.code} — ${d.label}`}>{d.code} — {d.label}</span>
-                    <span className="text-[10px] text-[#94a3b8] ml-auto">{total}</span>
-                    <span className="text-[10px] text-[#94a3b8] font-mono w-[36px] text-right">{pct}%</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Pie Code Preview Dialog */}
-          <Dialog
-            visible={pieCodePreviewOpen}
-            onHide={() => { setPieCodePreviewOpen(false); setPieCodeCopied(false); setPieCodeCategory("frontend"); setPieBackendLang("nestjs"); setPieBackendLangOpen(false); }}
-            modal
-            dismissableMask
-            draggable={false}
-            resizable={false}
-            className="!border-none !shadow-none"
-            contentClassName="!p-0 !bg-transparent"
-            headerClassName="!hidden"
-            maskClassName="!bg-black/50 !backdrop-blur-sm"
-            style={{ width: "780px", maxWidth: "92vw" }}
-            pt={{ root: { className: "!bg-transparent !border-none !shadow-none" } }}
-          >
-            <div className="bg-white rounded-2xl overflow-hidden shadow-2xl border border-[#e2e8f0]">
-              {/* Dialog Header */}
-              <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-[#f8fafc] to-[#f1f5f9] border-b border-[#e2e8f0]">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-[#eef2ff] flex items-center justify-center">
-                    <Code2 className="w-3.5 h-3.5 text-[#4f46e5]" />
-                  </div>
-                  <div>
-                    <h3 className="text-[13px] text-[#0f172a] font-semibold">Chart Code Preview</h3>
-                    <p className="text-[10px] text-[#94a3b8]">Driver Distribution — Donut Chart</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => { setPieCodePreviewOpen(false); setPieCodeCopied(false); setPieCodeCategory("frontend"); setPieBackendLang("nestjs"); setPieBackendLangOpen(false); }}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[#94a3b8] hover:bg-[#fee2e2] hover:text-[#ef4444] transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Category Tabs */}
-              <div className="flex items-center gap-0 px-5 pt-3 pb-0 bg-white border-b border-[#e2e8f0]">
-                {([
-                  { key: "frontend" as const, label: "Frontend", icon: "\uD83D\uDDA5\uFE0F", color: "#6366f1" },
-                  { key: "backend" as const, label: "Backend", icon: "\u2699\uFE0F", color: "#f59e0b" },
-                ]).map((cat) => (
-                  <button
-                    key={cat.key}
-                    onClick={() => { setPieCodeCategory(cat.key); setPieCodeCopied(false); }}
-                    className={`flex items-center gap-1.5 px-3.5 py-2.5 text-[11px] transition-all cursor-pointer relative ${
-                      pieCodeCategory === cat.key
-                        ? "text-[#0f172a] font-semibold"
-                        : "text-[#94a3b8] hover:text-[#64748b]"
-                    }`}
-                  >
-                    <span className="text-[12px]">{cat.icon}</span>
-                    {cat.label}
-                    {pieCodeCategory === cat.key && (
-                      <div className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full" style={{ backgroundColor: cat.color }} />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {/* Sub-tabs (Framework tabs for Frontend / Backend lang dropdown) & Copy Button */}
-              <div className="flex items-center justify-between px-5 py-2.5 border-b border-[#e2e8f0] bg-[#fafbfc]">
-                <div className="flex items-center gap-1">
-                  {pieCodeCategory === "frontend" ? (
-                    <div className="flex items-center gap-1 bg-[#f1f5f9] rounded-lg p-0.5">
-                      {(["react", "vue", "angular"] as const).map((fw) => {
-                        const fwConfig: Record<string, { label: string; icon: React.ReactNode }> = {
-                          react: { label: "PrimeReact", icon: <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="3" fill="#61DAFB"/><ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#61DAFB" strokeWidth="1.5" fill="none"/><ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#61DAFB" strokeWidth="1.5" fill="none" transform="rotate(60 16 16)"/><ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#61DAFB" strokeWidth="1.5" fill="none" transform="rotate(120 16 16)"/></svg> },
-                          vue: { label: "PrimeVue", icon: <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><path d="M2 4h5.6L16 18.4 24.4 4H30L16 28 2 4z" fill="#41B883"/><path d="M6.8 4H12l4 7.2L20 4h5.2L16 20 6.8 4z" fill="#34495E"/></svg> },
-                          angular: { label: "PrimeAngular", icon: <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><path d="M16 2L3 7l2 18L16 30l11-5 2-18L16 2z" fill="#DD0031"/><path d="M16 2v28l11-5 2-18L16 2z" fill="#C3002F"/><path d="M16 5.7L8.8 22h2.7l1.4-3.6h6.2L20.5 22h2.7L16 5.7zm2.2 10.7h-4.4L16 11l2.2 5.4z" fill="#fff"/></svg> },
-                        };
-                        const cfg = fwConfig[fw];
-                        return (
-                          <button
-                            key={fw}
-                            onClick={() => { setPieCodeFramework(fw); setPieCodeCopied(false); }}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] transition-all cursor-pointer ${
-                              pieCodeFramework === fw
-                                ? "bg-white text-[#0f172a] shadow-sm font-medium"
-                                : "text-[#64748b] hover:text-[#334155]"
-                            }`}
-                          >
-                            <span className="flex items-center">{cfg.icon}</span>
-                            {cfg.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <div className="relative" ref={pieBackendLangRef}>
-                        <button
-                          onClick={() => setPieBackendLangOpen(!pieBackendLangOpen)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-medium bg-[#fef3c7] text-[#92400e] hover:bg-[#fde68a] transition-colors cursor-pointer"
-                        >
-                          <span>{backendLangConfig[pieBackendLang].icon}</span>
-                          {backendLangConfig[pieBackendLang].label}
-                          <ChevronDown className={`w-3 h-3 transition-transform ${pieBackendLangOpen ? "rotate-180" : ""}`} />
-                        </button>
-                        {pieBackendLangOpen && (
-                          <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-[#e2e8f0] py-1 z-50 min-w-[180px]">
-                            {backendLangOptions.map((lang) => {
-                              const cfg = backendLangConfig[lang];
-                              return (
-                                <button
-                                  key={lang}
-                                  onClick={() => { setPieBackendLang(lang); setPieBackendLangOpen(false); setPieCodeCopied(false); }}
-                                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-[11px] transition-colors cursor-pointer ${
-                                    pieBackendLang === lang
-                                      ? "bg-[#fef3c7] text-[#92400e] font-medium"
-                                      : "text-[#475569] hover:bg-[#f8fafc]"
-                                  }`}
-                                >
-                                  <span className="text-[12px]">{cfg.icon}</span>
-                                  {cfg.label}
-                                  {pieBackendLang === lang && <Check className="w-3 h-3 ml-auto text-[#92400e]" />}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={() => {
-                    let text = "";
-                    if (pieCodeCategory === "frontend") {
-                      const codeMap: Record<string, string> = { react: pieReactCode, vue: pieVueCode, angular: pieAngularCode };
-                      text = codeMap[pieCodeFramework];
-                    } else {
-                      text = getPieBackendCode(pieBackendLang, pieBackendCode);
-                    }
-                    const fallbackCopy = (t: string) => {
-                      const textarea = document.createElement("textarea");
-                      textarea.value = t;
-                      textarea.style.position = "fixed";
-                      textarea.style.opacity = "0";
-                      document.body.appendChild(textarea);
-                      textarea.select();
-                      document.execCommand("copy");
-                      document.body.removeChild(textarea);
-                    };
-                    try {
-                      if (navigator.clipboard && window.isSecureContext) {
-                        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
-                      } else {
-                        fallbackCopy(text);
-                      }
-                    } catch { fallbackCopy(text); }
-                    setPieCodeCopied(true);
-                    setTimeout(() => setPieCodeCopied(false), 2000);
-                  }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] transition-colors cursor-pointer border ${
-                    pieCodeCopied
-                      ? "bg-[#f0fdf4] text-[#16a34a] border-[#bbf7d0]"
-                      : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] border-[#e2e8f0]"
-                  }`}
-                >
-                  {pieCodeCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  {pieCodeCopied ? "Copied!" : "Copy Code"}
-                </button>
-              </div>
-
-              {/* Code Block */}
-              <div className="overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-2.5 bg-[#0f172a] border-b border-[#1e293b]">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#f87171]" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#34d399]" />
-                  </div>
-                  <span className="text-[10px] text-[#64748b] ml-2">
-                    {pieCodeCategory === "frontend"
-                      ? (pieCodeFramework === "react" ? "DriverDistribution.tsx" : pieCodeFramework === "vue" ? "DriverDistribution.vue" : "driver-distribution.component.ts")
-                      : backendLangConfig[pieBackendLang].file}
-                  </span>
-                </div>
-                <Highlight
-                  theme={pieCodeCategory === "frontend" ? themes.nightOwl : themes.vsDark}
-                  code={
-                    pieCodeCategory === "frontend"
-                      ? (pieCodeFramework === "react" ? pieReactCode : pieCodeFramework === "vue" ? pieVueCode : pieAngularCode)
-                      : getPieBackendCode(pieBackendLang, pieBackendCode)
-                  }
-                  language={
-                    pieCodeCategory === "frontend"
-                      ? (pieCodeFramework === "angular" ? "typescript" : pieCodeFramework === "vue" ? "markup" : "tsx")
-                      : "typescript"
-                  }
-                >
-                  {({ style, tokens, getLineProps, getTokenProps }) => (
-                    <pre
-                      style={{ ...style, margin: 0, padding: "16px", fontSize: "12px", lineHeight: "1.6", maxHeight: "460px", overflow: "auto" }}
-                    >
-                      {tokens.map((line, i) => (
-                        <div key={i} {...getLineProps({ line })}>
-                          <span className="inline-block w-8 text-right mr-4 text-[#475569] select-none text-[11px]">
-                            {i + 1}
-                          </span>
-                          {line.map((token, key) => (
-                            <span key={key} {...getTokenProps({ token })} />
-                          ))}
-                        </div>
-                      ))}
-                    </pre>
-                  )}
-                </Highlight>
-              </div>
-            </div>
-          </Dialog>
-        </motion.div>
+        
       </div>
 
       {/* Toolbar */}
@@ -2834,7 +2139,14 @@ export function LicenseTypeList() {
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         >
           {visibleColumns.includes("code") && (
-            <Column field="code" header="Code" body={codeBodyTemplate} sortable style={{ minWidth: "130px" }} />
+            <Column field="code" header="Code" sortable style={{ minWidth: "130px" }} body={(rowData: LicenseType) => (
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-[#eef2ff] flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-3 h-3 text-[#6366f1]" />
+                </div>
+                <span className="text-[12px] text-[#0f172a] font-semibold">{rowData.code}</span>
+              </div>
+            )} />
           )}
           {visibleColumns.includes("name") && (
             <Column field="name" header="License Name" sortable style={{ minWidth: "180px" }} body={(rowData: LicenseType) => (
@@ -2851,6 +2163,16 @@ export function LicenseTypeList() {
           )}
           {visibleColumns.includes("validityYears") && (
             <Column field="validityYears" header="Validity" body={validityBodyTemplate} sortable style={{ minWidth: "85px" }} />
+          )}
+          {visibleColumns.includes("policyType") && (
+            <Column field="policyType" header="Policy Type" sortable style={{ minWidth: "160px" }} body={(rowData: LicenseType) => {
+              const policy = licensePolicyMockData.find(p => p.policyType === rowData.policyType);
+              return (
+                <span className="text-[12px] text-[#334155]">
+                  {policy ? policy.label : rowData.policyType}
+                </span>
+              );
+            }} />
           )}
           {visibleColumns.includes("description") && (
             <Column field="description" header="Description" body={descriptionBodyTemplate} sortable style={{ minWidth: "200px" }} />

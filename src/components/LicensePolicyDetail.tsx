@@ -97,9 +97,9 @@ export function LicensePolicyDetail() {
   return (
     <div className="min-h-full">
       <button onClick={() => navigate(-1)}>
-        <ArrowLeft /> Back to License Policy
+        <ArrowLeft /> Back to Policies
       </button>
-      <h1>License Policy Detail</h1>
+      <h1>Policies Detail</h1>
       <div className="bg-white rounded-xl border p-6">
         <input value={formLabel} onChange={(e) => setFormLabel(e.target.value)} />
         <select value={formPolicyType} onChange={(e) => setFormPolicyType(e.target.value)}>
@@ -122,9 +122,9 @@ export const detailVueCode = `<!-- LicensePolicyDetail.vue — PrimeVue + Vue Ro
 <template>
   <div class="min-h-full">
     <button @click="router.back()">
-      Back to License Policy
+      Back to Policies
     </button>
-    <h1>License Policy Detail</h1>
+    <h1>Policies Detail</h1>
     <div class="bg-white rounded-xl border p-6" v-if="item">
       <InputText v-model="formLabel" placeholder="Label" />
       <Dropdown
@@ -208,8 +208,8 @@ interface PolicyTypeOption {
   selector: 'app-license-policy-detail',
   template: \`
     <div class="min-h-full" *ngIf="item">
-      <button (click)="goBack()">Back to License Policy</button>
-      <h1>License Policy Detail</h1>
+      <button (click)="goBack()">Back to Policies</button>
+      <h1>Policies Detail</h1>
       <div class="bg-white rounded-xl border p-6">
         <input pInputText [(ngModel)]="formLabel" placeholder="Label" />
         <p-dropdown
@@ -282,7 +282,7 @@ export class LicensePolicyDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/dashboard'], {
-      state: { activeItem: 'License Policy' },
+      state: { activeItem: 'Policies' },
     });
   }
 }`;
@@ -382,10 +382,10 @@ export function LicensePolicyDetail() {
           <div className="w-14 h-14 rounded-2xl bg-[#fef2f2] flex items-center justify-center mx-auto mb-4">
             <ScrollText className="w-6 h-6 text-[#e53935]" />
           </div>
-          <h2 className="text-[18px] text-[#0f172a] font-semibold mb-1.5">License Policy Not Found</h2>
+          <h2 className="text-[18px] text-[#0f172a] font-semibold mb-1.5">Policies Not Found</h2>
           <p className="text-[13px] text-[#94a3b8] mb-5">The requested license policy does not exist or has been deleted.</p>
           <button
-            onClick={() => navigate("/dashboard", { state: { activeItem: "License Policy" } })}
+            onClick={() => navigate("/dashboard", { state: { activeItem: "Policies" } })}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] text-[#64748b] hover:text-[#0f172a] bg-white hover:bg-[#f8fafc] border border-[#e2e8f0] hover:border-[#cbd5e1] transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -428,7 +428,7 @@ export function LicensePolicyDetail() {
       return { react: "LicensePolicyDetail.tsx", vue: "LicensePolicyDetail.vue", angular: "license-policy-detail.component.ts" }[codeFramework];
     }
     if (codeCategory === "database") {
-      return "license_policies.sql";
+      return "policies.sql";
     }
     return licensePolicyBackendFileConfig[backendLang];
   };
@@ -465,23 +465,25 @@ export function LicensePolicyDetail() {
     <div>
       {/* ═══ Page Header ═══ */}
       <div className="mb-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#fef2f2] flex items-center justify-center">
-              <ScrollText className="w-4 h-4 text-[#e53935]" />
-            </div>
-            <div>
-              <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">
-                License Policy Detail
-              </h1>
-              <p className="text-[12px] text-[#94a3b8]">
-                <span className="text-[12px]">Master Data Setup</span>
-                <span className="mx-0.5">&rsaquo;</span>
-                <button onClick={() => { sessionStorage.setItem("innotaxi_active_item", "License Policy"); navigate("/dashboard"); }} className="text-[12px] font-inherit hover:text-[#64748b] transition-colors cursor-pointer">License Policy</button>
-                <span className="mx-0.5">&rsaquo;</span>
-                <span className="text-[#64748b] font-medium">#{item.id}</span>
-              </p>
-            </div>
+        <button
+          onClick={() => { sessionStorage.setItem("innotaxi_active_item", "Policies"); navigate("/dashboard"); }}
+          className="flex items-center gap-1.5 text-[13px] text-[#64748b] hover:text-[#0f172a] transition-colors cursor-pointer mb-4"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Policies
+        </button>
+
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[10px] bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center">
+            <ScrollText className="w-5 h-5 text-[#e53935]" />
+          </div>
+          <div>
+            <h1 className="text-[20px] text-[#0f172a] font-semibold">
+              Policies Detail
+            </h1>
+            <p className="text-[12px] text-[#94a3b8]">
+              View and update policy record <span className="text-[#64748b] font-medium">#{item.id}</span>
+            </p>
           </div>
         </div>
       </div>
@@ -639,7 +641,13 @@ export function LicensePolicyDetail() {
           {/* Update Button */}
           <div className="flex justify-end mt-5 pt-4 border-t border-[#f1f5f9]">
             <button
-              onClick={handleUpdate}
+              onClick={() => {
+                handleUpdate();
+                setTimeout(() => {
+                  sessionStorage.setItem("innotaxi_active_item", "Policies");
+                  navigate("/dashboard");
+                }, 1500);
+              }}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-medium text-white bg-[#e53935] hover:bg-[#d32f2f] active:bg-[#c62828] transition-all cursor-pointer shadow-[0_1px_3px_rgba(229,57,53,0.3)] hover:shadow-[0_4px_12px_rgba(229,57,53,0.35)]"
             >
               <Pencil className="w-3.5 h-3.5" />
@@ -675,7 +683,7 @@ export function LicensePolicyDetail() {
                 <Code2 className="w-3.5 h-3.5 text-[#4f46e5]" />
               </div>
               <div>
-                <h3 className="text-[13px] text-[#0f172a] font-semibold">License Policy Detail Code Preview</h3>
+                <h3 className="text-[13px] text-[#0f172a] font-semibold">Policies Detail Code Preview</h3>
                 <p className="text-[10px] text-[#94a3b8]">GET|PUT /api/v1/license-policies/:id</p>
               </div>
             </div>
