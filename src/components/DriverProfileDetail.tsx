@@ -442,9 +442,7 @@ export function DriverProfileDetail() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {infoRows.map((row, idx) => (
               <div key={idx} className="flex items-start gap-3 p-3 rounded-[8px] bg-[#f8fafc] border border-[#f1f5f9]">
-                <div className="w-7 h-7 rounded-md bg-white border border-[#e2e8f0] flex items-center justify-center text-[#64748b] shrink-0">
-                  {row.icon}
-                </div>
+                
                 <div className="min-w-0">
                   <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.5px] font-medium">{row.label}</p>
                   <p className={`text-[13px] text-[#0f172a] mt-0.5 ${row.mono ? "font-mono" : ""}`}>{row.value}</p>

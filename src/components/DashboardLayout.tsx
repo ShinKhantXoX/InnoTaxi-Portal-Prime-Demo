@@ -46,6 +46,8 @@ import { LicensePolicyList } from "./LicensePolicyList";
 import { DriverList } from "./DriverList";
 import { DriverProfileList } from "./DriverProfileList";
 import { SystemFlow } from "./SystemFlow";
+import { MobileApp } from "./MobileApp";
+import { DriverLicenseProfile } from "./DriverLicenseProfile";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface UserProfile {
@@ -61,6 +63,7 @@ const sidebarItems = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
   { icon: Users, label: "Drivers", active: false },
   { icon: User, label: "Driver Profile", active: false },
+  { icon: IdCard, label: "Driver License Profile", active: false },
 ];
 
 export function DashboardLayout() {
@@ -80,7 +83,7 @@ export function DashboardLayout() {
     if (stored === "Diagram and Schema" || stored === "Schema" || stored === "Migration") {
       result.database = true;
     }
-    if (stored === "Frontend" || stored === "Backend") {
+    if (stored === "Frontend" || stored === "Backend" || stored === "Mobile App") {
       result.code = true;
     }
     return result;
@@ -215,6 +218,9 @@ export function DashboardLayout() {
     }
     if (location.pathname.startsWith("/dashboard/license-policies/")) {
       setActiveItem("Policies");
+    }
+    if (location.pathname.startsWith("/dashboard/license-profiles/")) {
+      setActiveItem("Driver License Profile");
     }
     // Handle navigation state (e.g. returning from add page)
     if (location.state?.activeItem) {
@@ -555,7 +561,7 @@ export function DashboardLayout() {
                 flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
                 ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
                 ${
-                  activeItem === "Frontend" || activeItem === "Backend"
+                  activeItem === "Frontend" || activeItem === "Backend" || activeItem === "Mobile App"
                     ? "bg-[#fef2f2] text-[#e53935]"
                     : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
                 }
@@ -563,12 +569,12 @@ export function DashboardLayout() {
               title={!sidebarOpen ? "Code" : undefined}
             >
               <Code className={`w-[18px] h-[18px] shrink-0 ${
-                activeItem === "Frontend" || activeItem === "Backend" ? "text-[#e53935]" : ""
+                activeItem === "Frontend" || activeItem === "Backend" || activeItem === "Mobile App" ? "text-[#e53935]" : ""
               }`} />
               {sidebarOpen && (
                 <span className="contents">
                   <span className={`text-[13px] flex-1 text-left ${
-                    activeItem === "Frontend" || activeItem === "Backend" ? "font-semibold" : "font-medium"
+                    activeItem === "Frontend" || activeItem === "Backend" || activeItem === "Mobile App" ? "font-semibold" : "font-medium"
                   }`}>
                     Code
                   </span>
@@ -587,6 +593,7 @@ export function DashboardLayout() {
                 {[
                   { icon: Code, label: "Frontend", key: "Frontend" },
                   { icon: Server, label: "Backend", key: "Backend" },
+                  { icon: Smartphone, label: "Mobile App", key: "Mobile App" },
                 ].map((sub) => {
                   const isSubActive = activeItem === sub.key;
                   return (
@@ -821,8 +828,12 @@ export function DashboardLayout() {
               <DriverList />
             ) : activeItem === "Driver Profile" ? (
               <DriverProfileList />
+            ) : activeItem === "Driver License Profile" ? (
+              <DriverLicenseProfile />
             ) : activeItem === "System Flow" ? (
               <SystemFlow />
+            ) : activeItem === "Mobile App" ? (
+              <MobileApp />
             ) : (
               <div>
                 {/* Welcome Section */}
@@ -934,8 +945,8 @@ export function DashboardLayout() {
                           }}
                           cursor={{ fill: "rgba(229, 57, 53, 0.04)" }}
                         />
-                        <Bar dataKey="active" name="Active" fill="#e53935" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                        <Bar dataKey="inactive" name="Inactive" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                        <Bar key="active" dataKey="active" name="Active" fill="#e53935" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                        <Bar key="inactive" dataKey="inactive" name="Inactive" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={32} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

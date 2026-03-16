@@ -10,7 +10,7 @@ import { Toolbar } from "primereact/toolbar";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Menu } from "primereact/menu";
 import { Checkbox } from "primereact/checkbox";
-import { Users, Pencil, Trash2, Download, RefreshCw, Search, EllipsisVertical, Check, X, ChevronDown, Columns3, Eye, EyeOff, UserCircle, Filter, Bell, FileSpreadsheet, FileText, Plus } from "lucide-react";
+import { Users, Pencil, Trash2, Download, RefreshCw, Search, EllipsisVertical, Check, X, ChevronDown, Columns3, Eye, EyeOff, UserCircle, Filter, Bell, FileSpreadsheet, FileText, Plus, Hash, Mail, Send, Smartphone } from "lucide-react";
 import { motion } from "motion/react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -102,6 +102,15 @@ const genderStyles: Record<Gender, { text: string; bg: string }> = {
   FEMALE: { text: "#db2777", bg: "#fdf2f8" },
 };
 
+type NotificationType = "push" | "email";
+
+const statusNotificationMessages: Record<DriverStatus, (name: string) => string> = {
+  ACTIVE: (name) => `Dear ${name},\n\nYour InnoTaxi driver account is active and in good standing. You are cleared to accept ride requests. Drive safely and maintain your excellent service rating!\n\nBest regards,\nInnoTaxi Admin Team`,
+  PENDING: (name) => `Dear ${name},\n\nYour InnoTaxi driver registration is currently under review. Please ensure all required documents (license, vehicle registration, insurance) have been submitted. We will notify you once your account is approved.\n\nBest regards,\nInnoTaxi Admin Team`,
+  INACTIVE: (name) => `Dear ${name},\n\nYour InnoTaxi driver account is currently inactive. If you wish to resume driving, please log in to the driver app and update your availability status. We'd love to have you back on the road!\n\nBest regards,\nInnoTaxi Admin Team`,
+  SUSPENDED: (name) => `Dear ${name},\n\nYour InnoTaxi driver account has been temporarily suspended due to a policy review. Please contact our support team at support@innotaxi.com or visit the nearest InnoTaxi office to resolve this matter.\n\nBest regards,\nInnoTaxi Admin Team`,
+};
+
 // ── Helper: validate DOB ──
 function isAbove18(dob: string): boolean {
   if (!dob) return false;
@@ -148,6 +157,36 @@ export function DriverList() {
   const [statusFilterOpen, setStatusFilterOpen] = useState(false);
   const statusFilterRef = useRef<HTMLDivElement>(null);
 
+  // Notification dialog state
+  const [notifDialogVisible, setNotifDialogVisible] = useState(false);
+  const [notifDriver, setNotifDriver] = useState<Driver | null>(null);
+  const [notifTypes, setNotifTypes] = useState<NotificationType[]>(["push"]);
+  const [notifMessage, setNotifMessage] = useState("");
+
+  const toggleNotifType = (type: NotificationType) => {
+    setNotifTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const openNotifDialog = (driver: Driver) => {
+    setNotifDriver(driver);
+    setNotifTypes(["push"]);
+    setNotifMessage(statusNotificationMessages[driver.status](driver.fullName));
+    setNotifDialogVisible(true);
+  };
+
+  const handleSendNotification = () => {
+    if (!notifDriver || !notifMessage.trim() || notifTypes.length === 0) return;
+    const channels = notifTypes.map((t) => t === "push" ? "Push notification" : "Email");
+    const channelLabel = channels.join(" & ");
+    showSuccessToast(
+      "Notification Sent",
+      `${channelLabel} has been sent to ${notifDriver.fullName}.`
+    );
+    setNotifDialogVisible(false);
+  };
+
   // Animated toast state
   const [successToasts, setSuccessToasts] = useState<{ id: number; title: string; description: string }[]>([]);
 
@@ -158,6 +197,7 @@ export function DriverList() {
   };
 
   const exportColumns = [
+    { field: "id" as keyof Driver, label: "Driver ID" },
     { field: "fullName" as keyof Driver, label: "Full Name" },
     { field: "gender" as keyof Driver, label: "Gender" },
     { field: "dob" as keyof Driver, label: "Date of Birth" },
@@ -174,6 +214,7 @@ export function DriverList() {
   );
 
   const tableColumns = [
+    { field: "id", label: "Driver ID", default: true },
     { field: "fullName", label: "Full Name", default: true },
     { field: "gender", label: "Gender", default: true },
     { field: "dob", label: "Date of Birth", default: true },
@@ -433,7 +474,7 @@ export function DriverList() {
         title="Send Notification"
         onClick={(e) => {
           e.stopPropagation();
-          showSuccessToast("Notification Sent", `Notification has been sent to ${rowData.fullName}.`);
+          openNotifDialog(rowData);
         }}
       >
         <Bell className="w-3.5 h-3.5" />
@@ -692,6 +733,14 @@ export function DriverList() {
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         >
+          {visibleColumns.includes("id") && (
+            <Column field="id" header="Driver ID" sortable style={{ minWidth: "120px" }} body={(rowData: Driver) => (
+              <span className="inline-flex items-center gap-1.5 text-[12px] text-[#6366f1] font-mono font-medium px-2 py-0.5 rounded-md bg-[#eef2ff]">
+                <Hash className="w-3 h-3" />
+                {`DRV-${String(rowData.id).padStart(3, "0")}`}
+              </span>
+            )} />
+          )}
           {visibleColumns.includes("fullName") && (
             <Column field="fullName" header="Full Name" body={fullNameBodyTemplate} sortable style={{ minWidth: "200px" }} />
           )}
@@ -996,6 +1045,228 @@ export function DriverList() {
           </div>
         </div>
       </Dialog>
+
+      {/* Send Notification Dialog */}
+      {(() => {
+        const sColor = notifDriver ? statusStyles[notifDriver.status] : { text: "#d97706", bg: "#fffbeb", dot: "#f59e0b" };
+        return (
+      <Dialog
+        visible={notifDialogVisible}
+        onHide={() => setNotifDialogVisible(false)}
+        header={
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: sColor.bg }}
+            >
+              <Bell className="w-4.5 h-4.5" style={{ color: sColor.text }} />
+            </div>
+            <div>
+              <span className="text-[15px] text-[#0f172a] font-semibold">Send Notification</span>
+              {notifDriver && (
+                <p className="text-[11px] text-[#64748b] font-normal mt-0.5">
+                  To: <span className="text-[#334155] font-medium">{notifDriver.fullName}</span>
+                  <span className="mx-1.5 text-[#e2e8f0]">•</span>
+                  <span
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium"
+                    style={{
+                      color: sColor.text,
+                      backgroundColor: sColor.bg,
+                    }}
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: sColor.dot }}
+                    />
+                    {notifDriver.status}
+                  </span>
+                </p>
+              )}
+            </div>
+          </div>
+        }
+        modal
+        dismissableMask
+        draggable={false}
+        className="!w-[520px] !rounded-[12px] overflow-hidden"
+        contentClassName="!px-6 !py-5"
+        headerClassName="!px-6 !py-4 !border-b-2"
+        pt={{ headerActions: { style: { alignSelf: "flex-start", paddingTop: 4 } } }}
+      >
+        {/* Status-colored top accent bar */}
+        <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ backgroundColor: sColor.dot }} />
+
+        <div className="flex flex-col gap-5">
+          {/* Notification Type Toggle */}
+          <div>
+            <label className="block text-[12px] text-[#64748b] font-medium mb-2">Notification Channel</label>
+            <div className="grid grid-cols-2 gap-2.5">
+              {([
+                { key: "push" as NotificationType, label: "Push Notification", desc: "Send to driver app", icon: <Smartphone className="w-4 h-4" />, color: "#d97706" },
+                { key: "email" as NotificationType, label: "Email", desc: "Send to inbox", icon: <Mail className="w-4 h-4" />, color: "#6366f1" },
+              ]).map((ch) => {
+                const isSelected = notifTypes.includes(ch.key);
+                return (
+                  <button
+                    key={ch.key}
+                    type="button"
+                    onClick={() => toggleNotifType(ch.key)}
+                    className={`relative flex items-center gap-3 px-4 py-3 rounded-[10px] border-2 transition-all cursor-pointer text-left ${
+                      isSelected
+                        ? ""
+                        : "border-[#e2e8f0] bg-white hover:border-[#cbd5e1] hover:bg-[#f8fafc]"
+                    }`}
+                    style={{
+                      borderColor: isSelected ? ch.color : undefined,
+                      backgroundColor: isSelected ? ch.color + "08" : undefined,
+                    }}
+                  >
+                    {/* Checkmark badge */}
+                    {isSelected && (
+                      <div
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: ch.color }}
+                      >
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    <div
+                      className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                      style={{
+                        backgroundColor: isSelected ? ch.color + "18" : "#f1f5f9",
+                        color: isSelected ? ch.color : "#94a3b8",
+                      }}
+                    >
+                      {ch.icon}
+                    </div>
+                    <div>
+                      <span className={`block text-[13px] font-medium ${isSelected ? "text-[#0f172a]" : "text-[#64748b]"}`}>
+                        {ch.label}
+                      </span>
+                      <span className="block text-[10px] text-[#94a3b8] mt-0.5">{ch.desc}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Message Textarea */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[12px] text-[#64748b] font-medium">Message</label>
+              <span className="text-[10px] text-[#94a3b8]">{notifMessage.length} characters</span>
+            </div>
+            <textarea
+              value={notifMessage}
+              onChange={(e) => setNotifMessage(e.target.value)}
+              rows={8}
+              className="w-full text-[13px] text-[#334155] py-3 px-3.5 rounded-[10px] border border-[#e2e8f0] resize-none focus:outline-none transition-all placeholder:text-[#cbd5e1]"
+              onFocus={(e) => {
+                e.target.style.borderColor = sColor.text;
+                e.target.style.boxShadow = `0 0 0 3px ${sColor.text}20`;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#e2e8f0";
+                e.target.style.boxShadow = "none";
+              }}
+              placeholder="Type your notification message..."
+            />
+            {notifDriver && (
+              <button
+                type="button"
+                onClick={() => setNotifMessage(statusNotificationMessages[notifDriver.status](notifDriver.fullName))}
+                className="mt-1.5 text-[11px] font-medium px-2 py-1 rounded transition-colors cursor-pointer"
+                style={{ color: sColor.text }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = sColor.bg; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+              >
+                Reset to default message
+              </button>
+            )}
+          </div>
+
+          {/* Preview Info */}
+          {notifDriver && notifTypes.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {notifTypes.includes("push") && (
+                <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-[10px] border border-[#fde68a] bg-[#fffbeb]">
+                  <div className="shrink-0 mt-0.5">
+                    <Smartphone className="w-3.5 h-3.5 text-[#d97706]" />
+                  </div>
+                  <div className="text-[11px]">
+                    <p className="text-[#475569] font-medium">Push notification will be sent to:</p>
+                    <p className="text-[#64748b] mt-0.5">{notifDriver.fullName}'s InnoTaxi Driver App</p>
+                  </div>
+                </div>
+              )}
+              {notifTypes.includes("email") && (
+                <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-[10px] border border-[#c7d2fe] bg-[#eef2ff]">
+                  <div className="shrink-0 mt-0.5">
+                    <Mail className="w-3.5 h-3.5 text-[#6366f1]" />
+                  </div>
+                  <div className="text-[11px]">
+                    <p className="text-[#475569] font-medium">Email will be sent to:</p>
+                    <p className="text-[#64748b] mt-0.5">{notifDriver.email}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {notifTypes.length === 0 && (
+            <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-[10px] border border-[#fecaca] bg-[#fef2f2]">
+              <div className="shrink-0">
+                <X className="w-3.5 h-3.5 text-[#e53935]" />
+              </div>
+              <p className="text-[11px] text-[#e53935] font-medium">Please select at least one notification channel.</p>
+            </div>
+          )}
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: sColor.bg }}>
+            <p className="text-[11px] text-[#94a3b8]">
+              {notifTypes.length === 0
+                ? "No channel selected"
+                : `Channel: ${notifTypes.map((t) => t === "push" ? "Push Notification" : "Email").join(" & ")}`}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setNotifDialogVisible(false)}
+                className="px-4 py-2 border border-[#e2e8f0] text-[#475569] rounded-[8px] text-[13px] font-medium hover:bg-[#f8fafc] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSendNotification}
+                disabled={!notifMessage.trim() || notifTypes.length === 0}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-[8px] text-[13px] font-medium transition-colors ${
+                  !notifMessage.trim() || notifTypes.length === 0
+                    ? "bg-[#e2e8f0] text-[#94a3b8] cursor-not-allowed"
+                    : "text-white cursor-pointer"
+                }`}
+                style={{
+                  backgroundColor: (!notifMessage.trim() || notifTypes.length === 0)
+                    ? undefined
+                    : sColor.text,
+                }}
+              >
+                <Send className="w-3.5 h-3.5" />
+                {notifTypes.length === 2
+                  ? "Send Both"
+                  : notifTypes.includes("push")
+                    ? "Send Push"
+                    : notifTypes.includes("email")
+                      ? "Send Email"
+                      : "Send"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Dialog>
+        );
+      })()}
 
       {/* Animated Success Toast Notifications */}
       <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none">
