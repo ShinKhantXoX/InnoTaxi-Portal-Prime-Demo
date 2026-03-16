@@ -10,6 +10,7 @@ import { DriverDetail } from "./components/DriverDetail";
 import { DriverAdd } from "./components/DriverAdd";
 import { DriverProfileDetail } from "./components/DriverProfileDetail";
 import { DriverProfileAdd } from "./components/DriverProfileAdd";
+import { DriverLicenseProfileDetail } from "./components/DriverLicenseProfileDetail";
 
 export const router = createBrowserRouter([
   {
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
       {
         path: "driver-profiles/:id",
         Component: DriverProfileDetail,
+      },
+      {
+        path: "license-profiles/:id",
+        Component: DriverLicenseProfileDetail,
       },
     ],
   },

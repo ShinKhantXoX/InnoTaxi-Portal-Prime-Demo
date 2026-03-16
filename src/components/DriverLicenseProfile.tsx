@@ -9,57 +9,63 @@ import { Toolbar } from "primereact/toolbar";
 import { Checkbox } from "primereact/checkbox";
 import { Menu } from "primereact/menu";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-import { User, Download, RefreshCw, Search, Check, X, ChevronDown, Columns3, Eye, EyeOff, Filter, FileSpreadsheet, FileText, Pencil, Trash2, EllipsisVertical, MapPin, Hash, ImageIcon, Plus } from "lucide-react";
+import { IdCard, Download, RefreshCw, Search, Check, X, ChevronDown, Columns3, Eye, EyeOff, Filter, FileSpreadsheet, FileText, Pencil, Trash2, EllipsisVertical, Hash, ImageIcon, Plus, Droplets, Calendar, ScrollText } from "lucide-react";
 import { motion } from "motion/react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 // ── Types ──
-export type ProfileStatus = "UNDER_REVIEW" | "REJECT" | "APPROVE";
+export type LicenseProfileStatus = "UNDER_REVIEW" | "REJECT" | "APPROVE";
 
-export interface DriverProfile {
+export interface DriverLicenseProfileData {
   id: number;
   driverId: string;
-  profileImage: string;
   name: string;
-  currentAddress: string;
-  regionAndState: string;
-  city: string;
-  township: string;
-  postalCode: string;
-  status: ProfileStatus;
+  gender: "MALE" | "FEMALE";
+  profileImage: string;
+  licenseType: string;
+  licenseNumber: string;
+  dateOfBirth: string;
+  nrc: string;
+  bloodType: string;
+  licenseTerms: string;
+  issueDate: string;
+  expiredAt: string;
+  licenseFrontImage: string;
+  licenseBackImage: string;
+  status: LicenseProfileStatus;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
 }
 
 // ── Mock Data ──
-const mockData: DriverProfile[] = [
-  { id: 1, driverId: "DRV-001", profileImage: "https://images.unsplash.com/photo-1551917594-c1080fdeceae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Aung Min Htut", currentAddress: "No. 45, Pyay Road, Kamayut", regionAndState: "Yangon Region", city: "Yangon", township: "Kamayut", postalCode: "11041", status: "APPROVE", createdAt: "2024-01-15", updatedAt: "2026-02-20", deletedAt: null },
-  { id: 2, driverId: "DRV-002", profileImage: "https://images.unsplash.com/photo-1768017092992-4c2045cd668b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Thida Myint", currentAddress: "No. 12, Bo Aung Kyaw St", regionAndState: "Yangon Region", city: "Yangon", township: "Botahtaung", postalCode: "11161", status: "APPROVE", createdAt: "2024-02-10", updatedAt: "2026-01-18", deletedAt: null },
-  { id: 3, driverId: "DRV-003", profileImage: "https://images.unsplash.com/photo-1749003659356-1d1a4451a49d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Kyaw Zin Htet", currentAddress: "No. 78, 66th Street", regionAndState: "Mandalay Region", city: "Mandalay", township: "Chan Aye Thar Zan", postalCode: "05011", status: "UNDER_REVIEW", createdAt: "2024-03-05", updatedAt: "2026-03-01", deletedAt: null },
-  { id: 4, driverId: "DRV-004", profileImage: "https://images.unsplash.com/photo-1770576934845-759db89fcd3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Su Su Lwin", currentAddress: "No. 23, Strand Road", regionAndState: "Yangon Region", city: "Yangon", township: "Kyauktada", postalCode: "11182", status: "APPROVE", createdAt: "2024-04-18", updatedAt: "2026-02-14", deletedAt: null },
-  { id: 5, driverId: "DRV-005", profileImage: "https://images.unsplash.com/photo-1771924369256-fdd856822db3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Min Thu Aung", currentAddress: "No. 56, Bogyoke Aung San Road", regionAndState: "Yangon Region", city: "Yangon", township: "Pabedan", postalCode: "11143", status: "REJECT", createdAt: "2024-05-22", updatedAt: "2026-01-30", deletedAt: null },
-  { id: 6, driverId: "DRV-006", profileImage: "https://images.unsplash.com/photo-1625900172227-99d357eea494?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Hnin Ei Phyu", currentAddress: "No. 9, University Avenue", regionAndState: "Yangon Region", city: "Yangon", township: "Bahan", postalCode: "11201", status: "APPROVE", createdAt: "2024-06-08", updatedAt: "2026-02-28", deletedAt: null },
-  { id: 7, driverId: "DRV-007", profileImage: "https://images.unsplash.com/photo-1751842839301-8a57a05f9904?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Ye Yint Aung", currentAddress: "No. 34, Anawrahta Road", regionAndState: "Yangon Region", city: "Yangon", township: "Lanmadaw", postalCode: "11131", status: "REJECT", createdAt: "2024-07-14", updatedAt: "2026-01-10", deletedAt: "2026-01-10" },
-  { id: 8, driverId: "DRV-008", profileImage: "https://images.unsplash.com/photo-1708491191986-f7a710ee4675?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Thin Thin Aye", currentAddress: "No. 67, Bayint Naung Road", regionAndState: "Yangon Region", city: "Yangon", township: "Hlaing", postalCode: "11051", status: "APPROVE", createdAt: "2024-08-20", updatedAt: "2026-03-05", deletedAt: null },
-  { id: 9, driverId: "DRV-009", profileImage: "https://images.unsplash.com/photo-1745240261519-0b988d54d098?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Hla Myo Win", currentAddress: "No. 15, 78th Street", regionAndState: "Mandalay Region", city: "Mandalay", township: "Maha Aung Myay", postalCode: "05012", status: "UNDER_REVIEW", createdAt: "2024-09-01", updatedAt: "2026-02-22", deletedAt: null },
-  { id: 10, driverId: "DRV-010", profileImage: "https://images.unsplash.com/photo-1695800998493-ccff5ea292ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Wai Yan Phyo", currentAddress: "No. 88, Kaba Aye Pagoda Road", regionAndState: "Yangon Region", city: "Yangon", township: "Mayangone", postalCode: "11061", status: "APPROVE", createdAt: "2024-10-12", updatedAt: "2026-03-10", deletedAt: null },
-  { id: 11, driverId: "DRV-011", profileImage: "https://images.unsplash.com/photo-1770364017468-e755d33941e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Nwe Nwe Htun", currentAddress: "No. 42, Merchant Street", regionAndState: "Yangon Region", city: "Yangon", township: "Pabedan", postalCode: "11143", status: "APPROVE", createdAt: "2024-11-05", updatedAt: "2026-02-15", deletedAt: null },
-  { id: 12, driverId: "DRV-012", profileImage: "https://images.unsplash.com/photo-1770392988936-dc3d8581e0c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Zaw Min Oo", currentAddress: "No. 31, Sagaing-Mandalay Road", regionAndState: "Sagaing Region", city: "Sagaing", township: "Sagaing", postalCode: "02011", status: "REJECT", createdAt: "2024-12-01", updatedAt: "2026-01-25", deletedAt: null },
-  { id: 13, driverId: "DRV-013", profileImage: "https://images.unsplash.com/photo-1745869482293-902065d1ad5a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "May Thu Zar", currentAddress: "No. 19, Lower Pazundaung Road", regionAndState: "Yangon Region", city: "Yangon", township: "Pazundaung", postalCode: "11171", status: "UNDER_REVIEW", createdAt: "2025-01-08", updatedAt: "2026-03-08", deletedAt: null },
-  { id: 14, driverId: "DRV-014", profileImage: "https://images.unsplash.com/photo-1535213679542-f42b6f164647?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Kaung Myat Thu", currentAddress: "No. 55, Naypyidaw-Mandalay Road", regionAndState: "Naypyidaw Union Territory", city: "Naypyidaw", township: "Zabuthiri", postalCode: "15011", status: "APPROVE", createdAt: "2025-02-14", updatedAt: "2026-02-10", deletedAt: null },
-  { id: 15, driverId: "DRV-015", profileImage: "https://images.unsplash.com/photo-1619671030981-df6d493354bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", name: "Ei Mon Kyaw", currentAddress: "No. 7, Thanlwin Road", regionAndState: "Yangon Region", city: "Yangon", township: "Bahan", postalCode: "11201", status: "APPROVE", createdAt: "2025-03-20", updatedAt: "2026-03-12", deletedAt: null },
+const mockData: DriverLicenseProfileData[] = [
+  { id: 1, driverId: "DRV-001", name: "Aung Min Htut", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "THA", licenseNumber: "DL-2024-001", dateOfBirth: "1990-05-12", nrc: "12/ThaGaKa(N)000001", bloodType: "O+", licenseTerms: "5 Years", issueDate: "2024-01-15", expiredAt: "2029-01-15", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "REJECT", createdAt: "2024-01-10", updatedAt: "2024-06-15", deletedAt: null },
+  { id: 2, driverId: "DRV-002", name: "Kyaw Zin Oo", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "KA", licenseNumber: "DL-2024-002", dateOfBirth: "1988-11-23", nrc: "5/MaRaNa(N)098765", bloodType: "A+", licenseTerms: "5 Years", issueDate: "2023-06-20", expiredAt: "2028-06-20", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2023-06-15", updatedAt: "2024-03-20", deletedAt: null },
+  { id: 3, driverId: "DRV-003", name: "Thiha Zaw", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "KHA", licenseNumber: "DL-2024-003", dateOfBirth: "1995-03-08", nrc: "12/BaHaNa(N)567890", bloodType: "B+", licenseTerms: "3 Years", issueDate: "2022-03-10", expiredAt: "2025-03-10", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "UNDER_REVIEW", createdAt: "2022-03-01", updatedAt: "2025-03-11", deletedAt: null },
+  { id: 4, driverId: "DRV-004", name: "Myo Win Aung", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "GA", licenseNumber: "DL-2024-004", dateOfBirth: "1992-07-19", nrc: "9/NaPaTa(N)345678", bloodType: "AB+", licenseTerms: "5 Years", issueDate: "2021-11-05", expiredAt: "2026-11-05", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2021-10-28", updatedAt: "2024-08-10", deletedAt: null },
+  { id: 5, driverId: "DRV-005", name: "Htet Aung Shine", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "GHA", licenseNumber: "DL-2024-005", dateOfBirth: "1997-01-30", nrc: "12/AuZaNa(N)123789", bloodType: "O-", licenseTerms: "5 Years", issueDate: "2024-02-28", expiredAt: "2029-02-28", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-02-20", updatedAt: "2024-02-28", deletedAt: null },
+  { id: 6, driverId: "DRV-006", name: "Zaw Min Tun", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "NGA", licenseNumber: "DL-2024-006", dateOfBirth: "1991-09-14", nrc: "5/KaBaLa(N)456123", bloodType: "A-", licenseTerms: "3 Years", issueDate: "2023-09-12", expiredAt: "2026-09-12", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2023-09-05", updatedAt: "2024-01-18", deletedAt: null },
+  { id: 7, driverId: "DRV-007", name: "Naing Lin Aung", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "ZA", licenseNumber: "DL-2024-007", dateOfBirth: "1993-12-02", nrc: "12/TaMaNa(N)789456", bloodType: "B-", licenseTerms: "5 Years", issueDate: "2022-07-01", expiredAt: "2027-07-01", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "REJECT", createdAt: "2022-06-25", updatedAt: "2024-07-01", deletedAt: "2024-08-15" },
+  { id: 8, driverId: "DRV-008", name: "Phyo Wai Lin", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "INT", licenseNumber: "DL-2024-008", dateOfBirth: "1994-06-25", nrc: "12/LaThaNa(N)321654", bloodType: "O+", licenseTerms: "3 Years", issueDate: "2024-04-10", expiredAt: "2027-04-10", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-04-01", updatedAt: "2024-04-10", deletedAt: null },
+  { id: 9, driverId: "DRV-009", name: "Than Htun Oo", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "TMP", licenseNumber: "DL-2024-009", dateOfBirth: "1989-04-17", nrc: "9/MaKhaNa(N)654987", bloodType: "AB-", licenseTerms: "1 Year", issueDate: "2024-05-01", expiredAt: "2025-05-01", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "REJECT", createdAt: "2024-04-28", updatedAt: "2024-06-01", deletedAt: "2024-07-15" },
+  { id: 10, driverId: "DRV-010", name: "Wai Yan Hein", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "HA", licenseNumber: "DL-2024-010", dateOfBirth: "1996-10-05", nrc: "5/SaKhaNa(N)987321", bloodType: "A+", licenseTerms: "5 Years", issueDate: "2023-12-15", expiredAt: "2028-12-15", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2023-12-10", updatedAt: "2024-05-22", deletedAt: null },
+  { id: 11, driverId: "DRV-011", name: "Su Su Lwin", gender: "FEMALE", profileImage: "https://images.unsplash.com/photo-1622757678076-b926a4295f29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "SA", licenseNumber: "DL-2024-011", dateOfBirth: "1987-02-14", nrc: "12/MaBaNa(N)112233", bloodType: "B+", licenseTerms: "5 Years", issueDate: "2024-06-01", expiredAt: "2029-06-01", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "UNDER_REVIEW", createdAt: "2024-05-28", updatedAt: "2024-06-01", deletedAt: null },
+  { id: 12, driverId: "DRV-012", name: "Ye Yint Aung", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "KA", licenseNumber: "DL-2024-012", dateOfBirth: "1998-08-30", nrc: "7/PaKhaNa(N)998877", bloodType: "O+", licenseTerms: "3 Years", issueDate: "2024-07-20", expiredAt: "2027-07-20", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-07-15", updatedAt: "2024-07-20", deletedAt: null },
+  { id: 13, driverId: "DRV-013", name: "May Thu Zar", gender: "FEMALE", profileImage: "https://images.unsplash.com/photo-1697510364485-e900c2fe7524?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "THA", licenseNumber: "DL-2024-013", dateOfBirth: "1993-11-18", nrc: "12/DaGaMa(N)445566", bloodType: "A-", licenseTerms: "5 Years", issueDate: "2024-08-05", expiredAt: "2029-08-05", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-08-01", updatedAt: "2024-08-05", deletedAt: null },
+  { id: 14, driverId: "DRV-014", name: "Kaung Myat Thu", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "GHA", licenseNumber: "DL-2024-014", dateOfBirth: "1990-04-22", nrc: "14/MaMaNa(N)667788", bloodType: "AB+", licenseTerms: "5 Years", issueDate: "2024-09-10", expiredAt: "2029-09-10", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "UNDER_REVIEW", createdAt: "2024-09-05", updatedAt: "2024-09-10", deletedAt: null },
+  { id: 15, driverId: "DRV-015", name: "Ei Mon Kyaw", gender: "FEMALE", profileImage: "https://images.unsplash.com/photo-1627839134971-162a787bf754?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "INT", licenseNumber: "DL-2024-015", dateOfBirth: "1995-07-07", nrc: "12/ThaLaNa(N)223344", bloodType: "B-", licenseTerms: "3 Years", issueDate: "2024-10-01", expiredAt: "2027-10-01", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-09-28", updatedAt: "2024-10-01", deletedAt: null },
 ];
 
-const statusStyles: Record<ProfileStatus, { text: string; bg: string; dot: string }> = {
+const statusStyles: Record<LicenseProfileStatus, { text: string; bg: string; dot: string }> = {
   UNDER_REVIEW: { text: "#d97706", bg: "#fffbeb", dot: "#f59e0b" },
   REJECT: { text: "#e53935", bg: "#fef2f2", dot: "#ef4444" },
   APPROVE: { text: "#16a34a", bg: "#f0fdf4", dot: "#22c55e" },
 };
 
-const statusLabels: Record<ProfileStatus, string> = {
+const statusLabels: Record<LicenseProfileStatus, string> = {
   UNDER_REVIEW: "Under Review",
   REJECT: "Rejected",
   APPROVE: "Approved",
@@ -71,42 +77,27 @@ function formatDate(dateStr: string) {
   return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 }
 
-export function DriverProfileList() {
+export function DriverLicenseProfile() {
   const toast = useRef<Toast>(null);
   const navigate = useNavigate();
-  const [data, setData] = useState<DriverProfile[]>(mockData);
+  const [data, setData] = useState<DriverLicenseProfileData[]>(mockData);
   const [globalFilter, setGlobalFilter] = useState("");
   const [exportDialogVisible, setExportDialogVisible] = useState(false);
   const [exportFormat, setExportFormat] = useState<"csv" | "excel" | "pdf">("csv");
   const [columnsDropdownOpen, setColumnsDropdownOpen] = useState(false);
   const columnsDropdownRef = useRef<HTMLDivElement>(null);
-  const [statusFilter, setStatusFilter] = useState<"ALL" | ProfileStatus>("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | LicenseProfileStatus>("ALL");
   const [statusFilterOpen, setStatusFilterOpen] = useState(false);
   const statusFilterRef = useRef<HTMLDivElement>(null);
   const actionMenuRef = useRef<Menu>(null);
-  const activeRowRef = useRef<DriverProfile | null>(null);
-  const [regionFilter, setRegionFilter] = useState<string>("ALL");
-  const [regionFilterOpen, setRegionFilterOpen] = useState(false);
-  const regionFilterRef = useRef<HTMLDivElement>(null);
+  const activeRowRef = useRef<DriverLicenseProfileData | null>(null);
+  const [licenseTypeFilter, setLicenseTypeFilter] = useState<string>("ALL");
+  const [licenseTypeFilterOpen, setLicenseTypeFilterOpen] = useState(false);
+  const licenseTypeFilterRef = useRef<HTMLDivElement>(null);
 
-  // Pick up new profiles from session storage
-  useEffect(() => {
-    const stored = sessionStorage.getItem("newDriverProfile");
-    if (stored) {
-      try {
-        const newProfiles: DriverProfile[] = JSON.parse(stored);
-        if (newProfiles.length > 0) {
-          setData((prev) => [...newProfiles, ...prev]);
-          sessionStorage.removeItem("newDriverProfile");
-        }
-      } catch { /* ignore */ }
-    }
-  }, []);
-
-  // Get unique regions from data
-  const uniqueRegions = useMemo(() => {
-    const regions = [...new Set(data.map((d) => d.regionAndState))];
-    return regions.sort();
+  const uniqueLicenseTypes = useMemo(() => {
+    const types = [...new Set(data.map((d) => d.licenseType))];
+    return types.sort();
   }, [data]);
 
   // Animated toast state
@@ -119,17 +110,20 @@ export function DriverProfileList() {
   };
 
   const exportColumns = [
-    { field: "driverId" as keyof DriverProfile, label: "Driver ID" },
-    { field: "name" as keyof DriverProfile, label: "Name" },
-    { field: "currentAddress" as keyof DriverProfile, label: "Current Address" },
-    { field: "regionAndState" as keyof DriverProfile, label: "Region & State" },
-    { field: "city" as keyof DriverProfile, label: "City" },
-    { field: "township" as keyof DriverProfile, label: "Township" },
-    { field: "postalCode" as keyof DriverProfile, label: "Postal Code" },
-    { field: "status" as keyof DriverProfile, label: "Status" },
-    { field: "createdAt" as keyof DriverProfile, label: "Created At" },
-    { field: "updatedAt" as keyof DriverProfile, label: "Updated At" },
-    { field: "deletedAt" as keyof DriverProfile, label: "Deleted At" },
+    { field: "driverId" as keyof DriverLicenseProfileData, label: "Driver ID" },
+    { field: "name" as keyof DriverLicenseProfileData, label: "Name" },
+    { field: "licenseType" as keyof DriverLicenseProfileData, label: "License Type" },
+    { field: "licenseNumber" as keyof DriverLicenseProfileData, label: "License Number" },
+    { field: "dateOfBirth" as keyof DriverLicenseProfileData, label: "Date of Birth" },
+    { field: "nrc" as keyof DriverLicenseProfileData, label: "NRC" },
+    { field: "bloodType" as keyof DriverLicenseProfileData, label: "Blood Type" },
+    { field: "licenseTerms" as keyof DriverLicenseProfileData, label: "License Terms" },
+    { field: "issueDate" as keyof DriverLicenseProfileData, label: "Issue Date" },
+    { field: "expiredAt" as keyof DriverLicenseProfileData, label: "Expired At" },
+    { field: "status" as keyof DriverLicenseProfileData, label: "Status" },
+    { field: "createdAt" as keyof DriverLicenseProfileData, label: "Created At" },
+    { field: "updatedAt" as keyof DriverLicenseProfileData, label: "Updated At" },
+    { field: "deletedAt" as keyof DriverLicenseProfileData, label: "Deleted At" },
   ];
 
   const [selectedExportColumns, setSelectedExportColumns] = useState<string[]>(
@@ -139,11 +133,14 @@ export function DriverProfileList() {
   const tableColumns = [
     { field: "driverId", label: "Driver ID", default: true },
     { field: "name", label: "Name", default: true },
-    { field: "currentAddress", label: "Current Address", default: true },
-    { field: "regionAndState", label: "Region & State", default: true },
-    { field: "city", label: "City", default: true },
-    { field: "township", label: "Township", default: true },
-    { field: "postalCode", label: "Postal Code", default: true },
+    { field: "licenseType", label: "License Type", default: true },
+    { field: "licenseNumber", label: "License Number", default: true },
+    { field: "dateOfBirth", label: "Date of Birth", default: true },
+    { field: "nrc", label: "NRC", default: true },
+    { field: "bloodType", label: "Blood Type", default: true },
+    { field: "licenseTerms", label: "License Terms", default: true },
+    { field: "issueDate", label: "Issue Date", default: true },
+    { field: "expiredAt", label: "Expired At", default: true },
     { field: "status", label: "Status", default: true },
     { field: "createdAt", label: "Created At", default: false },
     { field: "updatedAt", label: "Updated", default: true },
@@ -167,17 +164,17 @@ export function DriverProfileList() {
     if (statusFilter !== "ALL") {
       result = result.filter((d) => d.status === statusFilter);
     }
-    if (regionFilter !== "ALL") {
-      result = result.filter((d) => d.regionAndState === regionFilter);
+    if (licenseTypeFilter !== "ALL") {
+      result = result.filter((d) => d.licenseType === licenseTypeFilter);
     }
     return result;
-  }, [data, globalFilter, statusFilter, regionFilter]);
+  }, [data, globalFilter, statusFilter, licenseTypeFilter]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (columnsDropdownRef.current && !columnsDropdownRef.current.contains(e.target as Node)) setColumnsDropdownOpen(false);
       if (statusFilterRef.current && !statusFilterRef.current.contains(e.target as Node)) setStatusFilterOpen(false);
-      if (regionFilterRef.current && !regionFilterRef.current.contains(e.target as Node)) setRegionFilterOpen(false);
+      if (licenseTypeFilterRef.current && !licenseTypeFilterRef.current.contains(e.target as Node)) setLicenseTypeFilterOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -196,7 +193,7 @@ export function DriverProfileList() {
       ),
       command: () => {
         if (activeRowRef.current) {
-          navigate(`/dashboard/driver-profiles/${activeRowRef.current.id}`);
+          navigate(`/dashboard/license-profiles/${activeRowRef.current.id}`);
         }
       },
     },
@@ -212,7 +209,7 @@ export function DriverProfileList() {
       ),
       command: () => {
         if (activeRowRef.current) {
-          showSuccessToast("Edit Profile", `Editing profile for ${activeRowRef.current.name}`);
+          showSuccessToast("Edit License Profile", `Editing license profile for ${activeRowRef.current.name}`);
         }
       },
     },
@@ -233,15 +230,15 @@ export function DriverProfileList() {
     },
   ];
 
-  const confirmDelete = (item: DriverProfile) => {
+  const confirmDelete = (item: DriverLicenseProfileData) => {
     confirmDialog({
-      message: `Are you sure you want to delete the profile for "${item.name}"?`,
+      message: `Are you sure you want to delete the license profile for "${item.name}"?`,
       header: "Delete Confirmation",
       icon: "pi pi-exclamation-triangle",
       acceptClassName: "p-button-danger",
       accept: () => {
         setData((prev) => prev.filter((d) => d.id !== item.id));
-        toast.current?.show({ severity: "warn", summary: "Deleted", detail: `${item.name} profile has been removed`, life: 3000 });
+        toast.current?.show({ severity: "warn", summary: "Deleted", detail: `${item.name} license profile has been removed`, life: 3000 });
       },
     });
   };
@@ -260,7 +257,7 @@ export function DriverProfileList() {
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = "driver_profiles.csv"; a.click();
+    a.href = url; a.download = "driver_license_profiles.csv"; a.click();
     URL.revokeObjectURL(url);
     setExportDialogVisible(false);
     toast.current?.show({ severity: "info", summary: "Exported", detail: `${filteredData.length} row(s) exported`, life: 3000 });
@@ -273,8 +270,8 @@ export function DriverProfileList() {
     const worksheetData = [headers, ...filteredData.map((d) => cols.map((c) => String(d[c.field])))];
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Driver Profiles");
-    XLSX.writeFile(workbook, "driver_profiles.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "License Profiles");
+    XLSX.writeFile(workbook, "driver_license_profiles.xlsx");
     setExportDialogVisible(false);
     toast.current?.show({ severity: "info", summary: "Exported", detail: `${filteredData.length} row(s) exported`, life: 3000 });
   };
@@ -283,39 +280,47 @@ export function DriverProfileList() {
     const cols = exportColumns.filter((c) => selectedExportColumns.includes(c.field));
     if (cols.length === 0) { toast.current?.show({ severity: "warn", summary: "No Columns", detail: "Please select at least one column", life: 3000 }); return; }
     const headers = cols.map((c) => c.label);
-    const doc = new jsPDF();
+    const doc = new jsPDF({ orientation: "landscape" });
     autoTable(doc, {
       head: [headers],
       body: filteredData.map((d) => cols.map((c) => String(d[c.field]))),
       startY: 20,
-      headStyles: { fillColor: [239, 246, 255], textColor: [37, 99, 235], fontSize: 10 },
-      bodyStyles: { fontSize: 10 },
+      headStyles: { fillColor: [239, 246, 255], textColor: [37, 99, 235], fontSize: 8 },
+      bodyStyles: { fontSize: 8 },
     });
-    doc.save("driver_profiles.pdf");
+    doc.save("driver_license_profiles.pdf");
     setExportDialogVisible(false);
     toast.current?.show({ severity: "info", summary: "Exported", detail: `${filteredData.length} row(s) exported`, life: 3000 });
   };
 
   // ── Body Templates ──
-  const profileBodyTemplate = (rowData: DriverProfile) => (
+  const nameBodyTemplate = (rowData: DriverLicenseProfileData) => (
     <div className="flex items-center gap-2">
       <img
         src={rowData.profileImage}
         alt={rowData.name}
-        className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+        className="w-7 h-7 rounded-full object-cover shrink-0 border border-[#e2e8f0]"
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = "none";
+          const fallback = (e.target as HTMLImageElement).nextElementSibling;
+          if (fallback) (fallback as HTMLElement).style.display = "flex";
+        }}
       />
+      <div
+        className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0"
+        style={{
+          display: "none",
+          background: rowData.gender === "FEMALE" ? "linear-gradient(135deg, #fce7f3, #fdf2f8)" : "linear-gradient(135deg, #dbeafe, #eff6ff)",
+          color: rowData.gender === "FEMALE" ? "#db2777" : "#2563eb",
+        }}
+      >
+        {rowData.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+      </div>
       <span className="text-[12px] text-[#0f172a] font-semibold">{rowData.name}</span>
     </div>
   );
 
-  const addressBodyTemplate = (rowData: DriverProfile) => (
-    <div className="flex items-center gap-1.5">
-      <MapPin className="w-3 h-3 text-[#94a3b8] shrink-0" />
-      <span className="text-[12px] text-[#334155] truncate max-w-[200px]" title={rowData.currentAddress}>{rowData.currentAddress}</span>
-    </div>
-  );
-
-  const statusBodyTemplate = (rowData: DriverProfile) => {
+  const statusBodyTemplate = (rowData: DriverLicenseProfileData) => {
     const s = statusStyles[rowData.status];
     return (
       <span
@@ -328,7 +333,7 @@ export function DriverProfileList() {
     );
   };
 
-  const actionBodyTemplate = (rowData: DriverProfile) => (
+  const actionBodyTemplate = (rowData: DriverLicenseProfileData) => (
     <div className="flex items-center justify-center gap-1">
       <button
         type="button"
@@ -336,7 +341,7 @@ export function DriverProfileList() {
         title="View"
         onClick={(e) => {
           e.stopPropagation();
-          navigate(`/dashboard/driver-profiles/${rowData.id}`);
+          navigate(`/dashboard/license-profiles/${rowData.id}`);
         }}
       >
         <Eye className="w-3.5 h-3.5" />
@@ -442,7 +447,7 @@ export function DriverProfileList() {
               { key: "UNDER_REVIEW" as const, label: "Under Review", count: data.filter((d) => d.status === "UNDER_REVIEW").length },
               { key: "APPROVE" as const, label: "Approved", count: data.filter((d) => d.status === "APPROVE").length },
               { key: "REJECT" as const, label: "Rejected", count: data.filter((d) => d.status === "REJECT").length },
-            ] as { key: "ALL" | ProfileStatus; label: string; count: number }[]).map((opt) => (
+            ] as { key: "ALL" | LicenseProfileStatus; label: string; count: number }[]).map((opt) => (
               <button
                 key={opt.key}
                 onClick={() => {
@@ -471,33 +476,44 @@ export function DriverProfileList() {
           </div>
         )}
       </div>
-      {/* Region Filter */}
-      <div className="relative" ref={regionFilterRef}>
-        
-        {regionFilterOpen && (
-          <div className="absolute right-0 top-full mt-1.5 bg-white border border-[#e2e8f0] rounded-[10px] shadow-lg z-50 min-w-[160px] py-1.5 overflow-hidden">
+      {/* License Type Filter */}
+      <div className="relative" ref={licenseTypeFilterRef}>
+        <button
+          onClick={() => setLicenseTypeFilterOpen((prev) => !prev)}
+          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer border ${
+            licenseTypeFilter !== "ALL"
+              ? "border-[#6366f1] bg-[#eef2ff] text-[#6366f1]"
+              : "border-[#e2e8f0] text-[#475569] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+          }`}
+        >
+          <IdCard className="w-4 h-4" />
+          {licenseTypeFilter === "ALL" ? "License Type" : licenseTypeFilter}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${licenseTypeFilterOpen ? "rotate-180" : ""}`} />
+        </button>
+        {licenseTypeFilterOpen && (
+          <div className="absolute right-0 top-full mt-1.5 bg-white border border-[#e2e8f0] rounded-[10px] shadow-lg z-50 min-w-[160px] py-1.5 overflow-hidden max-h-[300px] overflow-y-auto">
             {([
-              { key: "ALL" as const, label: "All Regions", count: data.length },
-              ...uniqueRegions.map((region) => ({ key: region, label: region, count: data.filter((d) => d.regionAndState === region).length })),
-            ] as { key: "ALL" | string; label: string; count: number }[]).map((opt) => (
+              { key: "ALL" as const, label: "All Types", count: data.length },
+              ...uniqueLicenseTypes.map((type) => ({ key: type, label: type, count: data.filter((d) => d.licenseType === type).length })),
+            ] as { key: string; label: string; count: number }[]).map((opt) => (
               <button
                 key={opt.key}
                 onClick={() => {
-                  setRegionFilter(opt.key);
-                  setRegionFilterOpen(false);
+                  setLicenseTypeFilter(opt.key);
+                  setLicenseTypeFilterOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-3.5 py-2 text-[12px] transition-colors cursor-pointer ${
-                  regionFilter === opt.key
+                  licenseTypeFilter === opt.key
                     ? "bg-[#eef2ff] text-[#6366f1] font-medium"
                     : "text-[#475569] hover:bg-[#f8fafc]"
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {regionFilter === opt.key && <Check className="w-3.5 h-3.5" />}
-                  <span className={regionFilter === opt.key ? "" : "ml-5.5"}>{opt.label}</span>
+                  {licenseTypeFilter === opt.key && <Check className="w-3.5 h-3.5" />}
+                  <span className={licenseTypeFilter === opt.key ? "" : "ml-5.5"}>{opt.label}</span>
                 </div>
                 <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${
-                  regionFilter === opt.key
+                  licenseTypeFilter === opt.key
                     ? "bg-[#6366f1] text-white"
                     : "bg-[#f1f5f9] text-[#94a3b8]"
                 }`}>
@@ -514,8 +530,8 @@ export function DriverProfileList() {
   const header = (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
-        <h2 className="text-[15px] text-[#0f172a] font-semibold m-0">Driver Profiles</h2>
-        <span className="text-[11px] text-[#94a3b8]">{filteredData.length} total profiles</span>
+        <h2 className="text-[15px] text-[#0f172a] font-semibold m-0">License Profiles</h2>
+        <span className="text-[11px] text-[#94a3b8]">{filteredData.length} total license profiles</span>
       </div>
       <div className="flex items-center gap-2">
         <div className="relative">
@@ -523,7 +539,7 @@ export function DriverProfileList() {
           <InputText
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Search profiles..."
+            placeholder="Search license profiles..."
             className="!text-[13px] !py-2.5 !pl-10 !pr-4 !rounded-[10px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none !bg-[#f8fafc] !w-[280px]"
           />
           {globalFilter && (
@@ -564,15 +580,15 @@ export function DriverProfileList() {
       <div className="mb-5">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#eff6ff] flex items-center justify-center">
-              <User className="w-4 h-4 text-[#2563eb]" />
+            <div className="w-8 h-8 rounded-lg bg-[#fef2f2] flex items-center justify-center">
+              <IdCard className="w-4 h-4 text-[#e53935]" />
             </div>
             <div>
               <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">
-                Driver Profile
+                Driver License Profile
               </h1>
               <p className="text-[12px] text-[#94a3b8]">
-                Manage driver address and location profiles
+                Manage driver license information and verification
               </p>
             </div>
           </div>
@@ -595,7 +611,7 @@ export function DriverProfileList() {
           rowsPerPageOptions={[10, 50, 100]}
           globalFilter={globalFilter}
           header={header}
-          emptyMessage="No driver profiles found."
+          emptyMessage="No license profiles found."
           stripedRows
           removableSort
           scrollable
@@ -607,55 +623,74 @@ export function DriverProfileList() {
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         >
           {visibleColumns.includes("driverId") && (
-            <Column field="driverId" header="Driver ID" sortable style={{ minWidth: "120px" }} body={(rowData: DriverProfile) => (
+            <Column field="driverId" header="Driver ID" sortable style={{ minWidth: "120px" }} body={(rowData: DriverLicenseProfileData) => (
               <span className="inline-flex items-center gap-1.5 text-[12px] text-[#6366f1] font-mono font-medium px-2 py-0.5 rounded-md bg-[#eef2ff]">
                 <Hash className="w-3 h-3" />
                 {rowData.driverId}
               </span>
             )} />
           )}
-          {/* Remove profileImage column */}
           {visibleColumns.includes("name") && (
-            <Column field="name" header="Name" body={profileBodyTemplate} sortable style={{ minWidth: "180px" }} />
+            <Column field="name" header="Name" body={nameBodyTemplate} sortable style={{ minWidth: "180px" }} />
           )}
-          {visibleColumns.includes("currentAddress") && (
-            <Column field="currentAddress" header="Current Address" body={addressBodyTemplate} sortable style={{ minWidth: "220px" }} />
-          )}
-          {visibleColumns.includes("regionAndState") && (
-            <Column field="regionAndState" header="Region & State" sortable style={{ minWidth: "170px" }} body={(rowData: DriverProfile) => (
-              <span className="text-[12px] text-[#334155]">{rowData.regionAndState}</span>
+          {visibleColumns.includes("licenseType") && (
+            <Column field="licenseType" header="License Type" sortable style={{ minWidth: "120px" }} body={(rowData: DriverLicenseProfileData) => (
+              <span className="px-2 py-0.5 rounded bg-[#f1f5f9] text-[11px] text-[#475569] font-mono font-semibold">{rowData.licenseType}</span>
             )} />
           )}
-          {visibleColumns.includes("city") && (
-            <Column field="city" header="City" sortable style={{ minWidth: "120px" }} body={(rowData: DriverProfile) => (
-              <span className="text-[12px] text-[#334155]">{rowData.city}</span>
+          {visibleColumns.includes("licenseNumber") && (
+            <Column field="licenseNumber" header="License Number" sortable style={{ minWidth: "140px" }} body={(rowData: DriverLicenseProfileData) => (
+              <span className="text-[12px] text-[#0f172a] font-mono font-medium">{rowData.licenseNumber}</span>
             )} />
           )}
-          {visibleColumns.includes("township") && (
-            <Column field="township" header="Township" sortable style={{ minWidth: "160px" }} body={(rowData: DriverProfile) => (
-              <span className="text-[12px] text-[#64748b]">{rowData.township}</span>
+          {visibleColumns.includes("dateOfBirth") && (
+            <Column field="dateOfBirth" header="Date of Birth" sortable style={{ minWidth: "130px" }} body={(rowData: DriverLicenseProfileData) => (
+              <span className="text-[12px] text-[#334155]">{formatDate(rowData.dateOfBirth)}</span>
             )} />
           )}
-          {visibleColumns.includes("postalCode") && (
-            <Column field="postalCode" header="Postal Code" sortable style={{ minWidth: "120px" }} body={(rowData: DriverProfile) => (
-              <span className="text-[12px] text-[#334155] font-mono">{rowData.postalCode}</span>
+          {visibleColumns.includes("nrc") && (
+            <Column field="nrc" header="NRC" sortable style={{ minWidth: "180px" }} body={(rowData: DriverLicenseProfileData) => (
+              <span className="text-[12px] text-[#334155] font-mono">{rowData.nrc}</span>
+            )} />
+          )}
+          {visibleColumns.includes("bloodType") && (
+            <Column field="bloodType" header="Blood Type" sortable style={{ minWidth: "100px" }} body={(rowData: DriverLicenseProfileData) => (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fef2f2] text-[11px] text-[#e53935] font-semibold">
+                <Droplets className="w-3 h-3" />
+                {rowData.bloodType}
+              </span>
+            )} />
+          )}
+          {visibleColumns.includes("licenseTerms") && (
+            <Column field="licenseTerms" header="License Terms" sortable style={{ minWidth: "120px" }} body={(rowData: DriverLicenseProfileData) => (
+              <span className="text-[12px] text-[#64748b]">{rowData.licenseTerms}</span>
+            )} />
+          )}
+          {visibleColumns.includes("issueDate") && (
+            <Column field="issueDate" header="Issue Date" sortable style={{ minWidth: "130px" }} body={(rowData: DriverLicenseProfileData) => (
+              <span className="text-[12px] text-[#64748b]">{formatDate(rowData.issueDate)}</span>
+            )} />
+          )}
+          {visibleColumns.includes("expiredAt") && (
+            <Column field="expiredAt" header="Expired At" sortable style={{ minWidth: "130px" }} body={(rowData: DriverLicenseProfileData) => (
+              <span className="text-[12px] text-[#64748b]">{formatDate(rowData.expiredAt)}</span>
             )} />
           )}
           {visibleColumns.includes("status") && (
             <Column field="status" header="Status" body={statusBodyTemplate} sortable style={{ minWidth: "130px" }} />
           )}
           {visibleColumns.includes("createdAt") && (
-            <Column field="createdAt" header="Created At" sortable style={{ minWidth: "130px" }} body={(rowData: DriverProfile) => (
+            <Column field="createdAt" header="Created At" sortable style={{ minWidth: "130px" }} body={(rowData: DriverLicenseProfileData) => (
               <span className="text-[12px] text-[#64748b]">{formatDate(rowData.createdAt)}</span>
             )} />
           )}
           {visibleColumns.includes("updatedAt") && (
-            <Column field="updatedAt" header="Updated" sortable style={{ minWidth: "130px" }} body={(rowData: DriverProfile) => (
+            <Column field="updatedAt" header="Updated" sortable style={{ minWidth: "130px" }} body={(rowData: DriverLicenseProfileData) => (
               <span className="text-[12px] text-[#64748b]">{formatDate(rowData.updatedAt)}</span>
             )} />
           )}
           {visibleColumns.includes("deletedAt") && (
-            <Column field="deletedAt" header="Deleted At" sortable style={{ minWidth: "130px" }} body={(rowData: DriverProfile) => (
+            <Column field="deletedAt" header="Deleted At" sortable style={{ minWidth: "130px" }} body={(rowData: DriverLicenseProfileData) => (
               <span className={`text-[12px] ${rowData.deletedAt ? "text-[#e53935]" : "text-[#cbd5e1]"}`}>
                 {rowData.deletedAt ? formatDate(rowData.deletedAt) : "\u2014"}
               </span>
