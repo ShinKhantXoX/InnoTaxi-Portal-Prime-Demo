@@ -11,63 +11,67 @@ import { Toolbar } from "primereact/toolbar";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Menu } from "primereact/menu";
 import { Checkbox } from "primereact/checkbox";
-import { Droplets, Plus, Pencil, Trash2, Download, RefreshCw, Search, EllipsisVertical, Check, X, ChevronDown, Columns3, Eye, EyeOff, Code2, Copy } from "lucide-react";
+import { Fuel, Plus, Pencil, Trash2, Download, RefreshCw, Search, EllipsisVertical, Check, X, ChevronDown, Columns3, Eye, EyeOff, Code2, Copy, MapPin, Filter } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export interface BloodType {
+export interface FuelStation {
   id: number;
-  code: string;
-  name: string;
-  group: string;
-  rhFactor: "Positive" | "Negative";
-  drivers: number;
-  customers: number;
-  status: "ACTIVE" | "INACTIVE";
+  label: string;
+  brand: string;
+  availableFuelType: string[];
+  stationType: "GAS" | "PETROL" | "EV" | "GAS_PETROL" | "GAS_EV" | "PETROL_EV" | "GAS_PETROL_EV";
+  city: string;
+  township: string;
+  latitude: number;
+  longitude: number;
   description: string;
+  status: "ACTIVE" | "INACTIVE";
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
 }
 
-const emptyBloodType: BloodType = {
+const emptyFuelStation: FuelStation = {
   id: 0,
-  code: "",
-  name: "",
-  group: "",
-  rhFactor: "Positive",
-  drivers: 0,
-  customers: 0,
-  status: "ACTIVE",
+  label: "",
+  brand: "",
+  availableFuelType: [],
+  stationType: "PETROL",
+  city: "",
+  township: "",
+  latitude: 0,
+  longitude: 0,
   description: "",
+  status: "ACTIVE",
   createdAt: "",
   updatedAt: "",
   deletedAt: null,
 };
 
-export const bloodTypeMockData: BloodType[] = [
-  { id: 1, code: "A+", name: "A Positive", group: "A", rhFactor: "Positive", drivers: 87, customers: 1243, status: "ACTIVE", description: "Most common blood type with Rh positive antigen on red blood cells", createdAt: "2024-01-15", updatedAt: "2026-01-15", deletedAt: null },
-  { id: 2, code: "A-", name: "A Negative", group: "A", rhFactor: "Negative", drivers: 18, customers: 256, status: "ACTIVE", description: "Type A without Rh factor, compatible with A and AB recipients", createdAt: "2024-01-15", updatedAt: "2026-02-08", deletedAt: null },
-  { id: 3, code: "B+", name: "B Positive", group: "B", rhFactor: "Positive", drivers: 72, customers: 1028, status: "ACTIVE", description: "Contains B antigens with Rh positive factor on red blood cells", createdAt: "2024-02-10", updatedAt: "2026-01-22", deletedAt: null },
-  { id: 4, code: "B-", name: "B Negative", group: "B", rhFactor: "Negative", drivers: 15, customers: 198, status: "ACTIVE", description: "Rare blood type with B antigens and no Rh factor present", createdAt: "2024-02-10", updatedAt: "2026-02-14", deletedAt: null },
-  { id: 5, code: "AB+", name: "AB Positive", group: "AB", rhFactor: "Positive", drivers: 28, customers: 412, status: "ACTIVE", description: "Universal plasma donor with both A and B antigens present", createdAt: "2024-03-01", updatedAt: "2026-01-30", deletedAt: null },
-  { id: 6, code: "AB-", name: "AB Negative", group: "AB", rhFactor: "Negative", drivers: 5, customers: 67, status: "ACTIVE", description: "Rarest blood type, universal plasma donor without Rh factor", createdAt: "2024-03-01", updatedAt: "2026-02-05", deletedAt: null },
-  { id: 7, code: "O+", name: "O Positive", group: "O", rhFactor: "Positive", drivers: 98, customers: 1456, status: "ACTIVE", description: "Most common type globally, universal red cell donor for Rh+ recipients", createdAt: "2024-04-12", updatedAt: "2026-02-18", deletedAt: null },
-  { id: 8, code: "O-", name: "O Negative", group: "O", rhFactor: "Negative", drivers: 19, customers: 274, status: "ACTIVE", description: "Universal red cell donor, compatible with all blood types", createdAt: "2024-04-12", updatedAt: "2026-03-01", deletedAt: null },
+export const fuelStationMockData: FuelStation[] = [
+  { id: 1, label: "Shwe Taung Fuel Hub", brand: "PTTEP", availableFuelType: ["Octane 92", "Octane 95", "Standard Diesel"], stationType: "PETROL", city: "Yangon", township: "Hlaing", latitude: 16.84527, longitude: 96.12348, description: "Main petrol fuel hub on Pyay Road serving Hlaing township with 24/7 operations", status: "ACTIVE", createdAt: "2024-01-10", updatedAt: "2026-01-15", deletedAt: null },
+  { id: 2, label: "Golden Eagle EV Station", brand: "Tesla Supercharger", availableFuelType: ["EV DC Fast 150kW", "EV DC Ultra 350kW", "EV AC Level 2"], stationType: "EV", city: "Yangon", township: "Bahan", latitude: 16.82714, longitude: 96.14893, description: "Premium EV charging station near Inya Lake with fast charging capabilities", status: "ACTIVE", createdAt: "2024-02-05", updatedAt: "2026-02-10", deletedAt: null },
+  { id: 3, label: "Mingalar Fuel Point", brand: "PTTEP", availableFuelType: ["Octane 92", "Octane 95", "Octane 97", "Standard Diesel", "Premium Diesel", "CNG Type 1"], stationType: "GAS_PETROL", city: "Mandalay", township: "Chanayethazan", latitude: 21.95624, longitude: 96.08352, description: "Gas and petrol station on 78th Street near Mandalay Palace with CNG and petrol availability", status: "ACTIVE", createdAt: "2024-02-20", updatedAt: "2026-01-28", deletedAt: null },
+  { id: 4, label: "Star Energy Complex", brand: "Shell", availableFuelType: ["Octane 92", "Octane 95", "Premium Diesel", "EV DC Fast 50kW", "EV AC Level 2"], stationType: "PETROL_EV", city: "Yangon", township: "Mayangone", latitude: 16.85198, longitude: 96.13072, description: "Petrol and EV station on Pyay Road near Hledan Junction offering fuel and EV charging", status: "ACTIVE", createdAt: "2024-03-15", updatedAt: "2026-02-14", deletedAt: null },
+  { id: 5, label: "Aung Yadana Gas Stop", brand: "Max Energy", availableFuelType: ["CNG Type 1", "CNG Type 2", "LPG Autogas"], stationType: "GAS", city: "Naypyidaw", township: "Zabuthiri", latitude: 19.76831, longitude: 96.07215, description: "Government district gas station on Taw Win Yadanar Road serving Naypyidaw with CNG and LPG", status: "ACTIVE", createdAt: "2024-04-01", updatedAt: "2026-01-20", deletedAt: null },
+  { id: 6, label: "Green Power Charge Point", brand: "ChargePoint", availableFuelType: ["EV DC Fast 50kW", "EV DC Fast 150kW", "EV AC Level 2"], stationType: "EV", city: "Yangon", township: "Kamayut", latitude: 16.83124, longitude: 96.12916, description: "EV charging point near Hledan Junction and Yangon University area with student discounts", status: "ACTIVE", createdAt: "2024-04-18", updatedAt: "2026-02-22", deletedAt: null },
+  { id: 7, label: "Pyay Road Fuel Center", brand: "Total Energies", availableFuelType: ["Octane 92", "Octane 95", "Octane 97", "Standard Diesel", "LPG Autogas", "EV DC Fast 50kW", "EV AC Level 2"], stationType: "GAS_PETROL_EV", city: "Yangon", township: "Insein", latitude: 16.90482, longitude: 96.09537, description: "Full-service fuel center on Pyay Road near Insein with petrol, gas and EV charging", status: "ACTIVE", createdAt: "2024-05-10", updatedAt: "2026-03-01", deletedAt: null },
+  { id: 8, label: "Diamond Petrol Station", brand: "PTTEP", availableFuelType: ["Octane 92", "Octane 95", "Standard Diesel", "Premium Diesel"], stationType: "PETROL", city: "Mandalay", township: "Aungmyethazan", latitude: 21.97461, longitude: 96.10028, description: "Premium petrol station on 62nd Street near Mandalay Hill with car wash services", status: "INACTIVE", createdAt: "2024-06-01", updatedAt: "2026-02-05", deletedAt: null },
+  { id: 9, label: "SunCharge Multi Hub", brand: "BP", availableFuelType: ["Octane 92", "Octane 95", "Standard Diesel", "CNG Type 1", "CNG Type 2", "EV DC Fast 150kW", "EV AC Level 2"], stationType: "GAS_PETROL_EV", city: "Yangon", township: "Thingangyun", latitude: 16.83975, longitude: 96.18462, description: "Full-service multi-fuel station on Waizayantar Road with petrol, gas and solar-powered EV chargers", status: "ACTIVE", createdAt: "2024-06-20", updatedAt: "2026-03-05", deletedAt: null },
+  { id: 10, label: "Bay View Gas & EV Depot", brand: "Max Energy", availableFuelType: ["CNG Type 1", "LPG Autogas", "EV AC Level 2"], stationType: "GAS_EV", city: "Pathein", township: "Pathein", latitude: 16.78136, longitude: 94.73284, description: "Coastal gas and EV depot on Strand Road serving Ayeyarwady region with CNG and charging", status: "INACTIVE", createdAt: "2024-07-15", updatedAt: "2026-01-30", deletedAt: null },
 ];
 
-const groupOptions = [
-  { label: "A", value: "A" },
-  { label: "B", value: "B" },
-  { label: "AB", value: "AB" },
-  { label: "O", value: "O" },
-];
-
-const rhOptions = [
-  { label: "Positive", value: "Positive" },
-  { label: "Negative", value: "Negative" },
+const stationTypeOptions = [
+  { label: "Gas", value: "GAS" },
+  { label: "Petrol", value: "PETROL" },
+  { label: "EV", value: "EV" },
+  { label: "Gas + Petrol", value: "GAS_PETROL" },
+  { label: "Gas + EV", value: "GAS_EV" },
+  { label: "Petrol + EV", value: "PETROL_EV" },
+  { label: "Gas + Petrol + EV", value: "GAS_PETROL_EV" },
 ];
 
 const statusOptions = [
@@ -75,8 +79,18 @@ const statusOptions = [
   { label: "Inactive", value: "INACTIVE" },
 ];
 
+const stationTypeLabels: Record<string, string> = {
+  GAS: "Gas",
+  PETROL: "Petrol",
+  EV: "EV",
+  GAS_PETROL: "Gas + Petrol",
+  GAS_EV: "Gas + EV",
+  PETROL_EV: "Petrol + EV",
+  GAS_PETROL_EV: "Gas + Petrol + EV",
+};
+
 // ── Table Code Strings ──
-export const bloodTypeReactTableCode = `import { useState, useRef, useMemo } from 'react';
+export const fuelStationReactTableCode = `import { useState, useRef, useMemo } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
@@ -84,27 +98,22 @@ import { Toolbar } from 'primereact/toolbar';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 
-const bloodTypes = [
-  { id: 1, code: 'A+', name: 'A Positive', group: 'A', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', status: 'ACTIVE' },
-  { id: 2, code: 'A-', name: 'A Negative', group: 'A', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', status: 'ACTIVE' },
-  { id: 3, code: 'B+', name: 'B Positive', group: 'B', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', status: 'ACTIVE' },
-  { id: 4, code: 'B-', name: 'B Negative', group: 'B', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', status: 'ACTIVE' },
-  { id: 5, code: 'AB+', name: 'AB Positive', group: 'AB', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', status: 'ACTIVE' },
-  { id: 6, code: 'AB-', name: 'AB Negative', group: 'AB', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', status: 'ACTIVE' },
-  { id: 7, code: 'O+', name: 'O Positive', group: 'O', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', status: 'ACTIVE' },
-  { id: 8, code: 'O-', name: 'O Negative', group: 'O', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', status: 'ACTIVE' },
+const fuelStations = [
+  { id: 1, label: 'Shwe Taung Fuel Hub', brand: 'PTTEP', availableFuelType: ['Octane 92', 'Octane 95', 'Standard Diesel'], stationType: 'PETROL', city: 'Yangon', township: 'Hlaing', latitude: 16.84527, longitude: 96.12348, description: 'Main petrol fuel hub', status: 'ACTIVE' },
+  { id: 2, label: 'Golden Eagle EV Station', brand: 'Tesla Supercharger', availableFuelType: ['EV DC Fast 150kW', 'EV DC Ultra 350kW', 'EV AC Level 2'], stationType: 'EV', city: 'Yangon', township: 'Bahan', latitude: 16.82714, longitude: 96.14893, description: 'Premium EV charging', status: 'ACTIVE' },
+  { id: 3, label: 'Star Energy Complex', brand: 'Shell', availableFuelType: ['Octane 92', 'Octane 95', 'Premium Diesel', 'EV DC Fast 50kW', 'EV AC Level 2'], stationType: 'PETROL_EV', city: 'Yangon', township: 'Mayangone', latitude: 16.85198, longitude: 96.13072, description: 'Petrol and EV station', status: 'ACTIVE' },
 ];
 
-export default function BloodTypeList() {
+export default function FuelStationList() {
   const toast = useRef(null);
   const [globalFilter, setGlobalFilter] = useState('');
-  const [data] = useState(bloodTypes);
+  const [data] = useState(fuelStations);
 
   const filteredData = useMemo(() => {
     if (!globalFilter.trim()) return data;
     const lower = globalFilter.toLowerCase();
-    return data.filter(bt =>
-      Object.values(bt).some(val =>
+    return data.filter(fs =>
+      Object.values(fs).some(val =>
         String(val).toLowerCase().includes(lower)
       )
     );
@@ -114,22 +123,22 @@ export default function BloodTypeList() {
     <span className={\`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full \${
       rowData.status === 'ACTIVE' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-400'
     }\`}>
-      {rowData.status === 'ACTIVE' ? '✓' : '✕'} {rowData.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+      {rowData.status === 'ACTIVE' ? 'Active' : 'Inactive'}
     </span>
   );
 
-  const rhTemplate = (rowData) => (
-    <span className={\`text-xs font-medium px-2.5 py-1 rounded-full \${
-      rowData.rhFactor === 'Positive' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'
-    }\`}>
-      {rowData.rhFactor}
-    </span>
+  const fuelTypeTemplate = (rowData) => (
+    <div className="flex flex-wrap gap-1">
+      {rowData.availableFuelType.map(ft => (
+        <span key={ft} className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{ft}</span>
+      ))}
+    </div>
   );
 
   return (
     <div>
       <Toast ref={toast} />
-      <Toolbar left={() => <h3>Blood Types</h3>} />
+      <Toolbar left={() => <h3>Fuel Stations</h3>} />
       <DataTable
         value={filteredData}
         dataKey="id"
@@ -137,7 +146,7 @@ export default function BloodTypeList() {
         rows={10}
         rowsPerPageOptions={[10, 50, 100]}
         globalFilter={globalFilter}
-        emptyMessage="No blood types found."
+        emptyMessage="No fuel stations found."
         stripedRows
         removableSort
         rowHover
@@ -145,23 +154,25 @@ export default function BloodTypeList() {
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
       >
-        <Column field="code" header="Code" sortable />
-        <Column field="name" header="Label" sortable />
-        <Column field="rhFactor" header="Rh Factor" body={rhTemplate} sortable />
+        <Column field="label" header="Label" sortable />
+        <Column field="brand" header="Brand" sortable />
+        <Column field="availableFuelType" header="Fuel Types" body={fuelTypeTemplate} />
+        <Column field="stationType" header="Station Type" sortable />
+        <Column field="city" header="City" sortable />
+        <Column field="township" header="Township" sortable />
         <Column field="description" header="Description" sortable />
-        <Column field="drivers" header="Drivers" sortable />
         <Column field="status" header="Status" body={statusTemplate} sortable />
       </DataTable>
     </div>
   );
 }`;
 
-export const bloodTypeVueTableCode = `<template>
+export const fuelStationVueTableCode = `<template>
   <div>
     <Toast ref="toast" />
     <Toolbar>
       <template #start>
-        <h3>Blood Types</h3>
+        <h3>Fuel Stations</h3>
       </template>
     </Toolbar>
     <DataTable
@@ -170,25 +181,24 @@ export const bloodTypeVueTableCode = `<template>
       :paginator="true"
       :rows="10"
       :rowsPerPageOptions="[10, 50, 100]"
-      :globalFilterFields="['code', 'name', 'group', 'rhFactor', 'status']"
       stripedRows
       removableSort
       rowHover
       size="small"
-      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     >
-      <Column field="code" header="Code" sortable />
-      <Column field="name" header="Label" sortable />
-      <Column field="rhFactor" header="Rh Factor" sortable>
+      <Column field="label" header="Label" sortable />
+      <Column field="brand" header="Brand" sortable />
+      <Column field="availableFuelType" header="Fuel Types">
         <template #body="{ data }">
-          <Tag :value="data.rhFactor"
-            :severity="data.rhFactor === 'Positive' ? 'success' : 'danger'"
-            rounded />
+          <div class="flex flex-wrap gap-1">
+            <Tag v-for="ft in data.availableFuelType" :key="ft" :value="ft" severity="info" rounded />
+          </div>
         </template>
       </Column>
+      <Column field="stationType" header="Station Type" sortable />
+      <Column field="city" header="City" sortable />
+      <Column field="township" header="Township" sortable />
       <Column field="description" header="Description" sortable />
-      <Column field="drivers" header="Drivers" sortable />
       <Column field="status" header="Status" sortable>
         <template #body="{ data }">
           <Tag :value="data.status === 'ACTIVE' ? 'Active' : 'Inactive'"
@@ -208,57 +218,52 @@ import Tag from 'primevue/tag';
 import Toast from 'primevue/toast';
 import Toolbar from 'primevue/toolbar';
 
-const bloodTypes = ref([
-  { id: 1, code: 'A+', name: 'A Positive', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', status: 'ACTIVE' },
-  { id: 2, code: 'A-', name: 'A Negative', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', status: 'ACTIVE' },
-  { id: 3, code: 'B+', name: 'B Positive', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', status: 'ACTIVE' },
-  { id: 4, code: 'B-', name: 'B Negative', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', status: 'ACTIVE' },
-  { id: 5, code: 'AB+', name: 'AB Positive', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', status: 'ACTIVE' },
-  { id: 6, code: 'AB-', name: 'AB Negative', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', status: 'ACTIVE' },
-  { id: 7, code: 'O+', name: 'O Positive', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', status: 'ACTIVE' },
-  { id: 8, code: 'O-', name: 'O Negative', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', status: 'ACTIVE' },
+const fuelStations = ref([
+  { id: 1, label: 'Shwe Taung Fuel Hub', brand: 'PTTEP', availableFuelType: ['Octane 92', 'Octane 95', 'Standard Diesel'], stationType: 'PETROL', city: 'Yangon', township: 'Hlaing', description: 'Main petrol fuel hub', status: 'ACTIVE' },
+  { id: 2, label: 'Golden Eagle EV Station', brand: 'Tesla Supercharger', availableFuelType: ['EV DC Fast 150kW', 'EV DC Ultra 350kW', 'EV AC Level 2'], stationType: 'EV', city: 'Yangon', township: 'Bahan', description: 'Premium EV charging', status: 'ACTIVE' },
+  { id: 3, label: 'Star Energy Complex', brand: 'Shell', availableFuelType: ['Octane 92', 'Octane 95', 'Premium Diesel', 'EV DC Fast 50kW', 'EV AC Level 2'], stationType: 'PETROL_EV', city: 'Yangon', township: 'Mayangone', description: 'Petrol and EV station', status: 'ACTIVE' },
 ]);
 
 const globalFilter = ref('');
 
 const filteredData = computed(() => {
-  if (!globalFilter.value.trim()) return bloodTypes.value;
+  if (!globalFilter.value.trim()) return fuelStations.value;
   const lower = globalFilter.value.toLowerCase();
-  return bloodTypes.value.filter(bt =>
-    Object.values(bt).some(val =>
+  return fuelStations.value.filter(fs =>
+    Object.values(fs).some(val =>
       String(val).toLowerCase().includes(lower)
     )
   );
 });
 </script>`;
 
-export const bloodTypeAngularTableCode = `import { Component, OnInit, ViewChild } from '@angular/core';
-import { Table, TableModule } from 'primeng/table';
+export const fuelStationAngularTableCode = `import { Component, OnInit } from '@angular/core';
+import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 
-interface BloodType {
+interface FuelStation {
   id: number;
-  code: string;
-  name: string;
-  rhFactor: string;
+  label: string;
+  brand: string;
+  availableFuelType: string[];
+  stationType: string;
+  city: string;
+  township: string;
   description: string;
-  drivers: number;
   status: string;
 }
 
 @Component({
-  selector: 'app-blood-type-list',
+  selector: 'app-fuel-station-list',
   standalone: true,
-  imports: [TableModule, TagModule, ToolbarModule, ToastModule, DatePipe],
-  providers: [MessageService],
+  imports: [TableModule, TagModule, ToolbarModule, ToastModule],
   template: \`
     <p-toast />
     <p-toolbar>
       <ng-template pTemplate="left">
-        <h3>Blood Types</h3>
+        <h3>Fuel Stations</h3>
       </ng-template>
     </p-toolbar>
     <p-table
@@ -267,63 +272,62 @@ interface BloodType {
       [paginator]="true"
       [rows]="10"
       [rowsPerPageOptions]="[10, 50, 100]"
-      [globalFilterFields]="['code','name','rhFactor','description','status']"
       stripedRows
       [rowHover]="true"
       size="small"
-      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     >
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="code">Code <p-sortIcon field="code" /></th>
-          <th pSortableColumn="name">Label <p-sortIcon field="name" /></th>
-          <th pSortableColumn="rhFactor">Rh Factor <p-sortIcon field="rhFactor" /></th>
+          <th pSortableColumn="label">Label <p-sortIcon field="label" /></th>
+          <th pSortableColumn="brand">Brand <p-sortIcon field="brand" /></th>
+          <th>Fuel Types</th>
+          <th pSortableColumn="stationType">Station Type <p-sortIcon field="stationType" /></th>
+          <th pSortableColumn="city">City <p-sortIcon field="city" /></th>
+          <th pSortableColumn="township">Township <p-sortIcon field="township" /></th>
           <th pSortableColumn="description">Description <p-sortIcon field="description" /></th>
-          <th pSortableColumn="drivers">Drivers <p-sortIcon field="drivers" /></th>
           <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-bt>
+      <ng-template pTemplate="body" let-fs>
         <tr>
-          <td>{{ bt.code }}</td>
-          <td>{{ bt.name }}</td>
-          <td><p-tag [value]="bt.rhFactor" [severity]="bt.rhFactor === 'Positive' ? 'success' : 'danger'" [rounded]="true" /></td>
-          <td>{{ bt.description }}</td>
-          <td>{{ bt.drivers }}</td>
-          <td><p-tag [value]="bt.status === 'ACTIVE' ? 'Active' : 'Inactive'" [severity]="bt.status === 'ACTIVE' ? 'success' : 'danger'" [rounded]="true" /></td>
+          <td>{{ fs.label }}</td>
+          <td>{{ fs.brand }}</td>
+          <td>
+            <p-tag *ngFor="let ft of fs.availableFuelType" [value]="ft" severity="info" [rounded]="true" />
+          </td>
+          <td>{{ fs.stationType }}</td>
+          <td>{{ fs.city }}</td>
+          <td>{{ fs.township }}</td>
+          <td>{{ fs.description }}</td>
+          <td><p-tag [value]="fs.status === 'ACTIVE' ? 'Active' : 'Inactive'"
+            [severity]="fs.status === 'ACTIVE' ? 'success' : 'danger'" [rounded]="true" /></td>
         </tr>
       </ng-template>
     </p-table>
   \`
 })
-export class BloodTypeListComponent implements OnInit {
-  bloodTypes: BloodType[] = [
-    { id: 1, code: 'A+', name: 'A Positive', rhFactor: 'Positive', drivers: 87, description: 'Most common blood type with Rh positive antigen', status: 'ACTIVE' },
-    { id: 2, code: 'A-', name: 'A Negative', rhFactor: 'Negative', drivers: 18, description: 'Type A without Rh factor, compatible with A and AB', status: 'ACTIVE' },
-    { id: 3, code: 'B+', name: 'B Positive', rhFactor: 'Positive', drivers: 72, description: 'Contains B antigens with Rh positive factor', status: 'ACTIVE' },
-    { id: 4, code: 'B-', name: 'B Negative', rhFactor: 'Negative', drivers: 15, description: 'Rare blood type with B antigens and no Rh factor', status: 'ACTIVE' },
-    { id: 5, code: 'AB+', name: 'AB Positive', rhFactor: 'Positive', drivers: 28, description: 'Universal plasma donor with both A and B antigens', status: 'ACTIVE' },
-    { id: 6, code: 'AB-', name: 'AB Negative', rhFactor: 'Negative', drivers: 5, description: 'Rarest blood type, universal plasma donor', status: 'ACTIVE' },
-    { id: 7, code: 'O+', name: 'O Positive', rhFactor: 'Positive', drivers: 98, description: 'Most common type globally, universal red cell donor', status: 'ACTIVE' },
-    { id: 8, code: 'O-', name: 'O Negative', rhFactor: 'Negative', drivers: 19, description: 'Universal red cell donor, compatible with all types', status: 'ACTIVE' },
+export class FuelStationListComponent implements OnInit {
+  fuelStations: FuelStation[] = [
+    { id: 1, label: 'Shwe Taung Fuel Hub', brand: 'PTTEP', availableFuelType: ['Octane 92', 'Octane 95', 'Standard Diesel'], stationType: 'PETROL', city: 'Yangon', township: 'Hlaing', description: 'Main petrol fuel hub', status: 'ACTIVE' },
+    { id: 2, label: 'Golden Eagle EV Station', brand: 'Tesla Supercharger', availableFuelType: ['EV DC Fast 150kW', 'EV DC Ultra 350kW', 'EV AC Level 2'], stationType: 'EV', city: 'Yangon', township: 'Bahan', description: 'Premium EV charging', status: 'ACTIVE' },
+    { id: 3, label: 'Star Energy Complex', brand: 'Shell', availableFuelType: ['Octane 92', 'Octane 95', 'Premium Diesel', 'EV DC Fast 50kW', 'EV AC Level 2'], stationType: 'PETROL_EV', city: 'Yangon', township: 'Mayangone', description: 'Petrol and EV station', status: 'ACTIVE' },
   ];
   globalFilter = '';
-  filteredData: BloodType[] = [];
+  filteredData: FuelStation[] = [];
 
   ngOnInit() {
-    this.filteredData = [...this.bloodTypes];
+    this.filteredData = [...this.fuelStations];
   }
 }`;
 
-export const bloodTypeBackendCode = `// blood-type.controller.ts
+export const fuelStationBackendCode = `// fuel-station.controller.ts
 import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
-import { BloodTypeService } from './blood-type.service';
-import { CreateBloodTypeDto, UpdateBloodTypeDto } from './blood-type.dto';
+import { FuelStationService } from './fuel-station.service';
+import { CreateFuelStationDto, UpdateFuelStationDto } from './fuel-station.dto';
 
-@Controller('api/v1/blood-types')
-export class BloodTypeController {
-  constructor(private readonly bloodTypeService: BloodTypeService) {}
+@Controller('api/v1/fuel-stations')
+export class FuelStationController {
+  constructor(private readonly fuelStationService: FuelStationService) {}
 
   @Get()
   async findAll(
@@ -331,65 +335,68 @@ export class BloodTypeController {
     @Query('limit') limit = 10,
     @Query('search') search?: string,
     @Query('status') status?: string,
-    @Query('group') group?: string,
+    @Query('stationType') stationType?: string,
+    @Query('city') city?: string,
     @Query('sortBy') sortBy = 'id',
     @Query('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
   ) {
-    return this.bloodTypeService.findAll({
-      page, limit, search, status, group, sortBy, sortOrder,
+    return this.fuelStationService.findAll({
+      page, limit, search, status, stationType, city, sortBy, sortOrder,
     });
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.bloodTypeService.findOne(id);
+    return this.fuelStationService.findOne(id);
   }
 
   @Post()
-  async create(@Body() dto: CreateBloodTypeDto) {
-    return this.bloodTypeService.create(dto);
+  async create(@Body() dto: CreateFuelStationDto) {
+    return this.fuelStationService.create(dto);
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() dto: UpdateBloodTypeDto) {
-    return this.bloodTypeService.update(id, dto);
+  async update(@Param('id') id: number, @Body() dto: UpdateFuelStationDto) {
+    return this.fuelStationService.update(id, dto);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    return this.bloodTypeService.remove(id);
+    return this.fuelStationService.remove(id);
   }
 }
 
-// blood-type.service.ts
+// fuel-station.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere } from 'typeorm';
-import { BloodType } from './entities/blood-type.entity';
+import { FuelStation } from './entities/fuel-station.entity';
 
 @Injectable()
-export class BloodTypeService {
+export class FuelStationService {
   constructor(
-    @InjectRepository(BloodType)
-    private repo: Repository<BloodType>,
+    @InjectRepository(FuelStation)
+    private repo: Repository<FuelStation>,
   ) {}
 
   async findAll(params: {
     page: number; limit: number; search?: string;
-    status?: string; group?: string;
+    status?: string; stationType?: string; city?: string;
     sortBy: string; sortOrder: 'ASC' | 'DESC';
   }) {
-    const { page, limit, search, status, group, sortBy, sortOrder } = params;
-    const where: FindOptionsWhere<BloodType>[] = [];
+    const { page, limit, search, status, stationType, city, sortBy, sortOrder } = params;
+    const where: FindOptionsWhere<FuelStation>[] = [];
     const baseWhere: any = { deletedAt: null };
 
     if (status) baseWhere.status = status;
-    if (group) baseWhere.group = group;
+    if (stationType) baseWhere.stationType = stationType;
+    if (city) baseWhere.city = city;
 
     if (search) {
       where.push(
-        { ...baseWhere, name: Like(\`%\${search}%\`) },
-        { ...baseWhere, code: Like(\`%\${search}%\`) },
+        { ...baseWhere, label: Like(\`%\${search}%\`) },
+        { ...baseWhere, brand: Like(\`%\${search}%\`) },
+        { ...baseWhere, city: Like(\`%\${search}%\`) },
       );
     } else {
       where.push(baseWhere);
@@ -418,7 +425,7 @@ export class BloodTypeService {
     const item = await this.repo.findOne({
       where: { id, deletedAt: null },
     });
-    if (!item) throw new NotFoundException('Blood type not found');
+    if (!item) throw new NotFoundException('Fuel station not found');
     return { success: true, data: item };
   }
 
@@ -438,21 +445,21 @@ export class BloodTypeService {
   async remove(id: number) {
     await this.findOne(id);
     await this.repo.update(id, { deletedAt: new Date() });
-    return { success: true, message: 'Blood type soft-deleted' };
+    return { success: true, message: 'Fuel station soft-deleted' };
   }
 }`;
 
-export function BloodTypeList() {
+export function FuelStationList() {
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
-  const [bloodTypes, setBloodTypes] = useState<BloodType[]>(bloodTypeMockData);
+  const [fuelStations, setFuelStations] = useState<FuelStation[]>(fuelStationMockData);
   const [globalFilter, setGlobalFilter] = useState("");
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState<BloodType>(emptyBloodType);
+  const [formData, setFormData] = useState<FuelStation>(emptyFuelStation);
   const [submitted, setSubmitted] = useState(false);
   const actionMenuRef = useRef<Menu>(null);
-  const activeRowRef = useRef<BloodType | null>(null);
+  const activeRowRef = useRef<FuelStation | null>(null);
   const [exportDialogVisible, setExportDialogVisible] = useState(false);
   const [columnsDropdownOpen, setColumnsDropdownOpen] = useState(false);
   const columnsDropdownRef = useRef<HTMLDivElement>(null);
@@ -460,15 +467,20 @@ export function BloodTypeList() {
   const [tableCodeCategory, setTableCodeCategory] = useState<"frontend" | "backend">("frontend");
   const [tableCodeFramework, setTableCodeFramework] = useState<"react" | "vue" | "angular">("react");
   const [tableCodeCopied, setTableCodeCopied] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL");
+  const [statusFilterOpen, setStatusFilterOpen] = useState(false);
+  const statusFilterRef = useRef<HTMLDivElement>(null);
 
   const exportColumns = [
-    { field: "code" as keyof BloodType, label: "Code" },
-    { field: "name" as keyof BloodType, label: "Label" },
-    { field: "group" as keyof BloodType, label: "Group" },
-    { field: "rhFactor" as keyof BloodType, label: "Rh Factor" },
-    { field: "description" as keyof BloodType, label: "Description" },
-    { field: "drivers" as keyof BloodType, label: "Drivers" },
-    { field: "customers" as keyof BloodType, label: "Customers" },
+    { field: "label" as keyof FuelStation, label: "Label" },
+    { field: "brand" as keyof FuelStation, label: "Brand" },
+    { field: "availableFuelType" as keyof FuelStation, label: "Fuel Types" },
+    { field: "stationType" as keyof FuelStation, label: "Station Type" },
+    { field: "city" as keyof FuelStation, label: "City" },
+    { field: "township" as keyof FuelStation, label: "Township" },
+    { field: "latitude" as keyof FuelStation, label: "Latitude" },
+    { field: "longitude" as keyof FuelStation, label: "Longitude" },
+    { field: "description" as keyof FuelStation, label: "Description" },
   ];
 
   const [selectedExportColumns, setSelectedExportColumns] = useState<string[]>(
@@ -476,13 +488,15 @@ export function BloodTypeList() {
   );
 
   const tableColumns = [
-    { field: "code", label: "Code", default: true },
-    { field: "name", label: "Label", default: true },
-    { field: "group", label: "Group", default: false },
-    { field: "rhFactor", label: "Rh Factor", default: true },
+    { field: "label", label: "Label", default: true },
+    { field: "brand", label: "Brand", default: true },
+    { field: "availableFuelType", label: "Fuel Types", default: true },
+    { field: "stationType", label: "Station Type", default: true },
+    { field: "city", label: "City", default: true },
+    { field: "township", label: "Township", default: true },
+    { field: "geolocation", label: "Geolocation", default: false },
     { field: "description", label: "Description", default: true },
-    { field: "drivers", label: "Drivers", default: true },
-    { field: "customers", label: "Customers", default: true },
+    { field: "status", label: "Status", default: true },
   ];
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
@@ -490,22 +504,25 @@ export function BloodTypeList() {
   );
 
   const filteredData = useMemo(() => {
-    let data = bloodTypes;
+    let data = fuelStations;
+    if (statusFilter !== "ALL") {
+      data = data.filter((fs) => fs.status === statusFilter);
+    }
     if (globalFilter.trim()) {
       const lower = globalFilter.toLowerCase();
-      data = data.filter((bt) =>
-        Object.values(bt).some((val) =>
+      data = data.filter((fs) =>
+        Object.values(fs).some((val) =>
           String(val).toLowerCase().includes(lower)
         )
       );
     }
     return data;
-  }, [bloodTypes, globalFilter]);
+  }, [fuelStations, globalFilter, statusFilter]);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (columnsDropdownRef.current && !columnsDropdownRef.current.contains(e.target as Node)) setColumnsDropdownOpen(false);
+      if (statusFilterRef.current && !statusFilterRef.current.contains(e.target as Node)) setStatusFilterOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -524,7 +541,7 @@ export function BloodTypeList() {
       ),
       command: () => {
         if (activeRowRef.current) {
-          toast.current?.show({ severity: "info", summary: "View", detail: `Viewing ${activeRowRef.current.name}`, life: 2000 });
+          navigate(`/dashboard/fuel-stations/${activeRowRef.current.id}`);
         }
       },
     },
@@ -542,9 +559,7 @@ export function BloodTypeList() {
         if (activeRowRef.current) openEdit(activeRowRef.current);
       },
     },
-    {
-      separator: true,
-    },
+    { separator: true },
     {
       template: (_item: any, options: any) => (
         <button
@@ -562,13 +577,13 @@ export function BloodTypeList() {
   ];
 
   const openNew = () => {
-    setFormData({ ...emptyBloodType, id: Date.now(), createdAt: new Date().toISOString().split("T")[0], updatedAt: new Date().toISOString().split("T")[0] });
+    setFormData({ ...emptyFuelStation, id: Date.now(), createdAt: new Date().toISOString().split("T")[0], updatedAt: new Date().toISOString().split("T")[0] });
     setEditMode(false);
     setSubmitted(false);
     setDialogVisible(true);
   };
 
-  const openEdit = (item: BloodType) => {
+  const openEdit = (item: FuelStation) => {
     setFormData({ ...item });
     setEditMode(true);
     setSubmitted(false);
@@ -577,30 +592,30 @@ export function BloodTypeList() {
 
   const saveItem = () => {
     setSubmitted(true);
-    if (!formData.code.trim() || !formData.name.trim() || !formData.group) return;
+    if (!formData.label.trim() || !formData.brand.trim()) return;
 
     const updated = { ...formData, updatedAt: new Date().toISOString().split("T")[0] };
 
     if (editMode) {
-      setBloodTypes((prev) => prev.map((bt) => (bt.id === updated.id ? updated : bt)));
-      toast.current?.show({ severity: "success", summary: "Updated", detail: `${updated.name} has been updated`, life: 3000 });
+      setFuelStations((prev) => prev.map((fs) => (fs.id === updated.id ? updated : fs)));
+      toast.current?.show({ severity: "success", summary: "Updated", detail: `${updated.label} has been updated`, life: 3000 });
     } else {
-      setBloodTypes((prev) => [...prev, updated]);
-      toast.current?.show({ severity: "success", summary: "Created", detail: `${updated.name} has been created`, life: 3000 });
+      setFuelStations((prev) => [...prev, updated]);
+      toast.current?.show({ severity: "success", summary: "Created", detail: `${updated.label} has been created`, life: 3000 });
     }
     setDialogVisible(false);
-    setFormData(emptyBloodType);
+    setFormData(emptyFuelStation);
   };
 
-  const confirmDelete = (item: BloodType) => {
+  const confirmDelete = (item: FuelStation) => {
     confirmDialog({
-      message: `Are you sure you want to delete "${item.name}"?`,
+      message: `Are you sure you want to delete "${item.label}"?`,
       header: "Delete Confirmation",
       icon: "pi pi-exclamation-triangle",
       acceptClassName: "p-button-danger",
       accept: () => {
-        setBloodTypes((prev) => prev.filter((bt) => bt.id !== item.id));
-        toast.current?.show({ severity: "warn", summary: "Deleted", detail: `${item.name} has been removed`, life: 3000 });
+        setFuelStations((prev) => prev.filter((fs) => fs.id !== item.id));
+        toast.current?.show({ severity: "warn", summary: "Deleted", detail: `${item.label} has been removed`, life: 3000 });
       },
     });
   };
@@ -616,13 +631,13 @@ export function BloodTypeList() {
       if (val.includes(",") || val.includes('"') || val.includes("\n")) return `"${val.replace(/"/g, '""')}"`;
       return val;
     };
-    const rows = filteredData.map((bt) => cols.map((c) => escapeCSV(String(bt[c.field]))));
+    const rows = filteredData.map((fs) => cols.map((c) => escapeCSV(String(fs[c.field]))));
     const csv = [headers.map(escapeCSV).join(","), ...rows.map((r) => r.join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "blood_types.csv";
+    a.download = "fuel_stations.csv";
     a.click();
     URL.revokeObjectURL(url);
     setExportDialogVisible(false);
@@ -636,11 +651,11 @@ export function BloodTypeList() {
       return;
     }
     const headers = cols.map((c) => c.label);
-    const worksheetData = [headers, ...filteredData.map((bt) => cols.map((c) => String(bt[c.field])))];
+    const worksheetData = [headers, ...filteredData.map((fs) => cols.map((c) => String(fs[c.field])))];
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Blood Types");
-    XLSX.writeFile(workbook, "blood_types.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Fuel Stations");
+    XLSX.writeFile(workbook, "fuel_stations.xlsx");
     setExportDialogVisible(false);
     toast.current?.show({ severity: "info", summary: "Exported", detail: `${filteredData.length} row(s) exported`, life: 3000 });
   };
@@ -655,75 +670,179 @@ export function BloodTypeList() {
     const doc = new jsPDF();
     autoTable(doc, {
       head: [headers],
-      body: filteredData.map((bt) => cols.map((c) => String(bt[c.field]))),
+      body: filteredData.map((fs) => cols.map((c) => String(fs[c.field]))),
       startY: 20,
       headStyles: { fillColor: [240, 249, 255], textColor: [59, 130, 246], fontSize: 10 },
       bodyStyles: { fontSize: 10 },
     });
-    doc.save("blood_types.pdf");
+    doc.save("fuel_stations.pdf");
     setExportDialogVisible(false);
     toast.current?.show({ severity: "info", summary: "Exported", detail: `${filteredData.length} row(s) exported`, life: 3000 });
   };
 
-  const rhBodyTemplate = (rowData: BloodType) => (
-    <span className={`inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full ${
-      rowData.rhFactor === "Positive" ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-[#fef2f2] text-[#e53935]"
-    }`}>
-      {rowData.rhFactor}
-    </span>
-  );
-
-  const codeBodyTemplate = (rowData: BloodType) => (
+  // ── Column Templates ──
+  const labelBodyTemplate = (rowData: FuelStation) => (
     <div className="flex items-center gap-2">
-      <div className="w-7 h-7 rounded-full bg-[#fef2f2] flex items-center justify-center flex-shrink-0">
-        <Droplets className="w-3.5 h-3.5 text-[#e53935]" />
+      <div className="w-7 h-7 rounded-full bg-[#ecfdf5] flex items-center justify-center flex-shrink-0">
+        <Fuel className="w-3.5 h-3.5 text-[#10b981]" />
       </div>
-      <span className="text-[12px] text-[#0f172a] font-semibold">{rowData.code}</span>
+      <span className="text-[12px] text-[#0f172a] font-semibold">{rowData.label}</span>
     </div>
   );
 
-  const nameBodyTemplate = (rowData: BloodType) => (
-    <span className="text-[12px] text-[#334155]">{rowData.name}</span>
+  const brandBodyTemplate = (rowData: FuelStation) => (
+    <span className="text-[12px] text-[#334155] font-medium">{rowData.brand}</span>
   );
 
-  const descriptionBodyTemplate = (rowData: BloodType) => (
+  const fuelTypeBodyTemplate = (rowData: FuelStation) => (
+    <div className="flex flex-wrap gap-1">
+      {rowData.availableFuelType.map((ft) => (
+        <span key={ft} className="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#eff6ff] text-[#3b82f6]">
+          {ft}
+        </span>
+      ))}
+    </div>
+  );
+
+  const stationTypeBodyTemplate = (rowData: FuelStation) => {
+    const colorMap: Record<string, { bg: string; text: string }> = {
+      GAS: { bg: "bg-[#fff7ed]", text: "text-[#c2410c]" },
+      PETROL: { bg: "bg-[#fef3c7]", text: "text-[#92400e]" },
+      EV: { bg: "bg-[#ecfdf5]", text: "text-[#065f46]" },
+      GAS_PETROL: { bg: "bg-[#eff6ff]", text: "text-[#1e40af]" },
+      GAS_EV: { bg: "bg-[#f0fdfa]", text: "text-[#115e59]" },
+      PETROL_EV: { bg: "bg-[#eef2ff]", text: "text-[#3730a3]" },
+      GAS_PETROL_EV: { bg: "bg-[#faf5ff]", text: "text-[#6b21a8]" },
+    };
+    const color = colorMap[rowData.stationType] || colorMap.PETROL;
+    return (
+      <span className={`inline-flex items-center text-[10px] font-medium px-2.5 py-1 rounded-full ${color.bg} ${color.text}`}>
+        {stationTypeLabels[rowData.stationType]}
+      </span>
+    );
+  };
+
+  const cityBodyTemplate = (rowData: FuelStation) => (
+    <span className="text-[12px] text-[#334155]">{rowData.city}</span>
+  );
+
+  const townshipBodyTemplate = (rowData: FuelStation) => (
+    <span className="text-[12px] text-[#64748b]">{rowData.township}</span>
+  );
+
+  const geoBodyTemplate = (rowData: FuelStation) => (
+    <div className="flex items-center gap-1.5">
+      <MapPin className="w-3 h-3 text-[#e53935]" />
+      <span className="text-[11px] text-[#64748b] font-mono">{rowData.latitude.toFixed(4)}, {rowData.longitude.toFixed(4)}</span>
+    </div>
+  );
+
+  const descriptionBodyTemplate = (rowData: FuelStation) => (
     <span className="text-[12px] text-[#64748b] line-clamp-1 max-w-[220px]" title={rowData.description}>
       {rowData.description}
     </span>
   );
 
-  const driversBodyTemplate = (rowData: BloodType) => (
-    <span className="text-[12px] text-[#0f172a] font-medium">{rowData.drivers}</span>
+  const statusBodyTemplate = (rowData: FuelStation) => (
+    <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full ${
+      rowData.status === "ACTIVE" ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-[#f1f5f9] text-[#94a3b8]"
+    }`}>
+      {rowData.status === "ACTIVE" ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+      {rowData.status === "ACTIVE" ? "Active" : "Inactive"}
+    </span>
   );
 
-  const customersBodyTemplate = (rowData: BloodType) => (
-    <span className="text-[12px] text-[#0f172a] font-medium">{rowData.customers.toLocaleString()}</span>
-  );
-
-  const actionBodyTemplate = (rowData: BloodType) => (
-    <div className="flex justify-center">
+  const actionBodyTemplate = (rowData: FuelStation) => (
+    <div className="flex justify-center gap-1.5">
       <button
         type="button"
         className="w-7 h-7 flex items-center justify-center rounded-full bg-[#eef2ff] transition-colors cursor-pointer text-[#6366f1] hover:bg-[#e0e7ff]"
         title="View"
         onClick={(e) => {
           e.stopPropagation();
-          navigate(`/dashboard/blood-types/${rowData.id}`);
+          navigate(`/dashboard/fuel-stations/${rowData.id}`);
         }}
       >
         <Eye className="w-3.5 h-3.5" />
+      </button>
+      <button
+        type="button"
+        className="w-7 h-7 flex items-center justify-center rounded-full bg-[#fff7ed] transition-colors cursor-pointer text-[#f59e0b] hover:bg-[#ffedd5]"
+        title="Edit"
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/dashboard/fuel-stations/${rowData.id}/edit`);
+        }}
+      >
+        <Pencil className="w-3.5 h-3.5" />
       </button>
     </div>
   );
 
   const leftToolbarTemplate = () => (
     <div className="flex items-center gap-2">
-      
+      <button
+        onClick={() => navigate("/dashboard/fuel-stations/add")}
+        className="flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] text-[13px] font-medium text-white bg-[#e53935] hover:bg-[#d32f2f] active:bg-[#c62828] transition-all cursor-pointer shadow-[0_1px_3px_rgba(229,57,53,0.3)] hover:shadow-[0_4px_12px_rgba(229,57,53,0.35)]"
+      >
+        <Plus className="w-4 h-4" />
+        Add Fuel Station
+      </button>
     </div>
   );
 
   const rightToolbarTemplate = () => (
     <div className="flex items-center gap-2">
+      {/* Status Filter Dropdown */}
+      <div className="relative" ref={statusFilterRef}>
+        <button
+          onClick={() => setStatusFilterOpen((prev) => !prev)}
+          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer border ${
+            statusFilter !== "ALL"
+              ? "border-[#e53935] bg-[#fef2f2] text-[#e53935]"
+              : "border-[#e2e8f0] text-[#475569] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+          }`}
+        >
+          <Filter className="w-4 h-4" />
+          {statusFilter === "ALL" ? "Status" : statusFilter === "ACTIVE" ? "Active" : "Inactive"}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${statusFilterOpen ? "rotate-180" : ""}`} />
+        </button>
+        {statusFilterOpen && (
+          <div className="absolute right-0 top-full mt-1.5 bg-white border border-[#e2e8f0] rounded-[10px] shadow-lg z-50 min-w-[160px] py-1.5 overflow-hidden">
+            {([
+              { key: "ALL" as const, label: "All Statuses", count: fuelStations.length },
+              { key: "ACTIVE" as const, label: "Active", count: fuelStations.filter((fs) => fs.status === "ACTIVE").length },
+              { key: "INACTIVE" as const, label: "Inactive", count: fuelStations.filter((fs) => fs.status === "INACTIVE").length },
+            ]).map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => {
+                  setStatusFilter(opt.key);
+                  setStatusFilterOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2 text-[12px] transition-colors cursor-pointer ${
+                  statusFilter === opt.key
+                    ? "bg-[#fef2f2] text-[#e53935] font-medium"
+                    : "text-[#475569] hover:bg-[#f8fafc]"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {statusFilter === opt.key && <Check className="w-3.5 h-3.5" />}
+                  <span className={statusFilter === opt.key ? "" : "ml-5.5"}>{opt.label}</span>
+                </div>
+                <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${
+                  statusFilter === opt.key
+                    ? "bg-[#e53935] text-white"
+                    : "bg-[#f1f5f9] text-[#94a3b8]"
+                }`}>
+                  {opt.count}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="w-px h-6 bg-[#e2e8f0]" />
       {/* Export */}
       <button
         onClick={() => setExportDialogVisible(true)}
@@ -807,7 +926,7 @@ export function BloodTypeList() {
   const header = (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
-        <h2 className="text-[15px] text-[#0f172a] font-semibold m-0">Blood Types</h2>
+        <h2 className="text-[15px] text-[#0f172a] font-semibold m-0">Fuel Stations</h2>
       </div>
       <div className="flex items-center gap-2">
         <div className="relative">
@@ -815,7 +934,7 @@ export function BloodTypeList() {
           <InputText
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Search blood types..."
+            placeholder="Search fuel stations..."
             className="!text-[13px] !py-2.5 !pl-10 !pr-4 !rounded-[10px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none !bg-[#f8fafc] !w-[280px]"
           />
           {globalFilter && (
@@ -823,7 +942,7 @@ export function BloodTypeList() {
               onClick={() => setGlobalFilter("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#475569] cursor-pointer"
             >
-              <span className="text-[14px]">×</span>
+              <span className="text-[14px]">&times;</span>
             </button>
           )}
         </div>
@@ -831,7 +950,8 @@ export function BloodTypeList() {
           className="flex items-center justify-center w-9 h-9 border border-[#e2e8f0] rounded-[8px] text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a] transition-colors cursor-pointer"
           title="Refresh"
           onClick={() => {
-            setBloodTypes([...bloodTypeMockData]);
+            setFuelStations([...fuelStationMockData]);
+            setStatusFilter("ALL");
             toast.current?.show({ severity: "info", summary: "Refreshed", detail: "Data has been reset", life: 2000 });
           }}
         >
@@ -860,10 +980,10 @@ export function BloodTypeList() {
 
   const getCodeText = () => {
     if (tableCodeCategory === "frontend") {
-      const codeMap: Record<string, string> = { react: bloodTypeReactTableCode, vue: bloodTypeVueTableCode, angular: bloodTypeAngularTableCode };
+      const codeMap: Record<string, string> = { react: fuelStationReactTableCode, vue: fuelStationVueTableCode, angular: fuelStationAngularTableCode };
       return codeMap[tableCodeFramework];
     }
-    return bloodTypeBackendCode;
+    return fuelStationBackendCode;
   };
 
   const getCodeLang = () => {
@@ -877,11 +997,11 @@ export function BloodTypeList() {
 
   const getFileName = () => {
     if (tableCodeCategory === "frontend") {
-      if (tableCodeFramework === "react") return "BloodTypeList.tsx";
-      if (tableCodeFramework === "vue") return "BloodTypeList.vue";
-      return "blood-type-list.component.ts";
+      if (tableCodeFramework === "react") return "FuelStationList.tsx";
+      if (tableCodeFramework === "vue") return "FuelStationList.vue";
+      return "fuel-station-list.component.ts";
     }
-    return "blood-type.controller.ts";
+    return "fuel-station.controller.ts";
   };
 
   return (
@@ -898,14 +1018,12 @@ export function BloodTypeList() {
       {/* Page Header */}
       <div className="mb-5">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-[#fef2f2] flex items-center justify-center">
-            <Droplets className="w-4 h-4 text-[#e53935]" />
+          <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] flex items-center justify-center">
+            <Fuel className="w-4 h-4 text-[#10b981]" />
           </div>
           <div>
-            <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">Blood Management</h1>
-            <p className="text-[12px] text-[#94a3b8]">
-              Master Data and Setup &rsaquo; Blood Type &rsaquo; List
-            </p>
+            <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">Station Management</h1>
+            <p className="text-[12px] text-[#94a3b8]">Master Data and Setup › Fuel Station › List</p>
           </div>
         </div>
       </div>
@@ -925,7 +1043,7 @@ export function BloodTypeList() {
           rowsPerPageOptions={[10, 50, 100]}
           globalFilter={globalFilter}
           header={header}
-          emptyMessage="No blood types found."
+          emptyMessage="No fuel stations found."
           stripedRows
           removableSort
           scrollable
@@ -936,28 +1054,34 @@ export function BloodTypeList() {
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         >
-          {visibleColumns.includes("code") && (
-            <Column field="code" header="Code" body={codeBodyTemplate} sortable style={{ minWidth: "130px" }} />
+          {visibleColumns.includes("label") && (
+            <Column field="label" header="Label" body={labelBodyTemplate} sortable style={{ minWidth: "200px" }} />
           )}
-          {visibleColumns.includes("name") && (
-            <Column field="name" header="Label" body={nameBodyTemplate} sortable style={{ minWidth: "120px" }} />
+          {visibleColumns.includes("brand") && (
+            <Column field="brand" header="Brand" body={brandBodyTemplate} sortable style={{ minWidth: "150px" }} />
           )}
-          {visibleColumns.includes("group") && (
-            <Column field="group" header="Group" sortable style={{ minWidth: "90px" }} />
+          {visibleColumns.includes("availableFuelType") && (
+            <Column field="availableFuelType" header="Fuel Types" body={fuelTypeBodyTemplate} style={{ minWidth: "200px" }} />
           )}
-          {visibleColumns.includes("rhFactor") && (
-            <Column field="rhFactor" header="Rh Factor" body={rhBodyTemplate} sortable style={{ minWidth: "110px" }} />
+          {visibleColumns.includes("stationType") && (
+            <Column field="stationType" header="Station Type" body={stationTypeBodyTemplate} sortable style={{ minWidth: "140px" }} />
+          )}
+          {visibleColumns.includes("city") && (
+            <Column field="city" header="City" body={cityBodyTemplate} sortable style={{ minWidth: "110px" }} />
+          )}
+          {visibleColumns.includes("township") && (
+            <Column field="township" header="Township" body={townshipBodyTemplate} sortable style={{ minWidth: "130px" }} />
+          )}
+          {visibleColumns.includes("geolocation") && (
+            <Column header="Geolocation" body={geoBodyTemplate} style={{ minWidth: "180px" }} />
           )}
           {visibleColumns.includes("description") && (
             <Column field="description" header="Description" body={descriptionBodyTemplate} sortable style={{ minWidth: "200px" }} />
           )}
-          {visibleColumns.includes("drivers") && (
-            <Column field="drivers" header="Drivers" body={driversBodyTemplate} sortable style={{ minWidth: "90px" }} />
+          {visibleColumns.includes("status") && (
+            <Column field="status" header="Status" body={statusBodyTemplate} sortable style={{ minWidth: "110px" }} />
           )}
-          {visibleColumns.includes("customers") && (
-            <Column field="customers" header="Customers" body={customersBodyTemplate} sortable style={{ minWidth: "110px" }} />
-          )}
-          <Column header="Actions" body={actionBodyTemplate} style={{ minWidth: "60px" }} frozen alignFrozen="right" />
+          <Column header="Actions" body={actionBodyTemplate} style={{ minWidth: "90px" }} frozen alignFrozen="right" />
         </DataTable>
       </div>
 
@@ -965,65 +1089,95 @@ export function BloodTypeList() {
       <Dialog
         visible={dialogVisible}
         onHide={() => setDialogVisible(false)}
-        header={editMode ? "Edit Blood Type" : "New Blood Type"}
+        header={editMode ? "Edit Fuel Station" : "New Fuel Station"}
         footer={dialogFooter}
         modal
         dismissableMask
         draggable={false}
-        className="!w-[500px] !rounded-[12px]"
+        className="!w-[560px] !rounded-[12px]"
         contentClassName="!px-6 !py-4"
         headerClassName="!px-6 !py-4 !border-b !border-[#e2e8f0]"
       >
         <div className="flex flex-col gap-4">
           <div>
-            <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Code *</label>
+            <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Label *</label>
             <InputText
-              value={formData.code}
-              onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-              className={`!w-full !text-[13px] !py-2.5 !px-3 !rounded-[8px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none ${submitted && !formData.code.trim() ? "!border-[#e53935]" : ""}`}
-              placeholder="e.g. A_POS"
+              value={formData.label}
+              onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+              className={`!w-full !text-[13px] !py-2.5 !px-3 !rounded-[8px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none ${submitted && !formData.label.trim() ? "!border-[#e53935]" : ""}`}
+              placeholder="e.g. Shwe Taung Fuel Hub"
             />
-            {submitted && !formData.code.trim() && <small className="text-[11px] text-[#e53935] mt-1">Code is required</small>}
+            {submitted && !formData.label.trim() && <small className="text-[11px] text-[#e53935] mt-1">Label is required</small>}
           </div>
           <div>
-            <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Name *</label>
+            <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Brand *</label>
             <InputText
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className={`!w-full !text-[13px] !py-2.5 !px-3 !rounded-[8px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none ${submitted && !formData.name.trim() ? "!border-[#e53935]" : ""}`}
-              placeholder="e.g. A+"
+              value={formData.brand}
+              onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+              className={`!w-full !text-[13px] !py-2.5 !px-3 !rounded-[8px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none ${submitted && !formData.brand.trim() ? "!border-[#e53935]" : ""}`}
+              placeholder="e.g. PTTEP"
             />
-            {submitted && !formData.name.trim() && <small className="text-[11px] text-[#e53935] mt-1">Name is required</small>}
+            {submitted && !formData.brand.trim() && <small className="text-[11px] text-[#e53935] mt-1">Brand is required</small>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Group *</label>
+              <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Station Type</label>
               <Dropdown
-                value={formData.group}
-                options={groupOptions}
-                onChange={(e) => setFormData({ ...formData, group: e.value })}
-                placeholder="Select group"
-                className={`!w-full !text-[13px] !rounded-[8px] !border-[#e2e8f0] ${submitted && !formData.group ? "!border-[#e53935]" : ""}`}
+                value={formData.stationType}
+                options={stationTypeOptions}
+                onChange={(e) => setFormData({ ...formData, stationType: e.value })}
+                className="!w-full !text-[13px] !rounded-[8px] !border-[#e2e8f0]"
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Rh Factor</label>
+              <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Status</label>
               <Dropdown
-                value={formData.rhFactor}
-                options={rhOptions}
-                onChange={(e) => setFormData({ ...formData, rhFactor: e.value })}
+                value={formData.status}
+                options={statusOptions}
+                onChange={(e) => setFormData({ ...formData, status: e.value })}
                 className="!w-full !text-[13px] !rounded-[8px] !border-[#e2e8f0]"
               />
             </div>
           </div>
-          <div>
-            <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Status</label>
-            <Dropdown
-              value={formData.status}
-              options={statusOptions}
-              onChange={(e) => setFormData({ ...formData, status: e.value })}
-              className="!w-full !text-[13px] !rounded-[8px] !border-[#e2e8f0]"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">City</label>
+              <InputText
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className="!w-full !text-[13px] !py-2.5 !px-3 !rounded-[8px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none"
+                placeholder="e.g. Yangon"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Township</label>
+              <InputText
+                value={formData.township}
+                onChange={(e) => setFormData({ ...formData, township: e.target.value })}
+                className="!w-full !text-[13px] !py-2.5 !px-3 !rounded-[8px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none"
+                placeholder="e.g. Hlaing"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Latitude</label>
+              <InputText
+                value={String(formData.latitude)}
+                onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) || 0 })}
+                className="!w-full !text-[13px] !py-2.5 !px-3 !rounded-[8px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none"
+                placeholder="e.g. 16.8409"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Longitude</label>
+              <InputText
+                value={String(formData.longitude)}
+                onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) || 0 })}
+                className="!w-full !text-[13px] !py-2.5 !px-3 !rounded-[8px] !border-[#e2e8f0] focus:!border-[#e53935] focus:!shadow-none"
+                placeholder="e.g. 96.1285"
+              />
+            </div>
           </div>
           <div>
             <label className="block text-[12px] text-[#64748b] font-medium mb-1.5">Description</label>
@@ -1041,7 +1195,7 @@ export function BloodTypeList() {
       <Dialog
         visible={exportDialogVisible}
         onHide={() => setExportDialogVisible(false)}
-        header="Export Blood Types"
+        header="Export Fuel Stations"
         modal
         dismissableMask
         draggable={false}
@@ -1070,7 +1224,7 @@ export function BloodTypeList() {
             </div>
           </div>
           <div className="flex items-center justify-between pt-2 border-t border-[#f1f5f9]">
-            <span className="text-[11px] text-[#94a3b8]">{filteredData.length} rows · {selectedExportColumns.length} columns</span>
+            <span className="text-[11px] text-[#94a3b8]">{filteredData.length} rows &middot; {selectedExportColumns.length} columns</span>
             <div className="flex items-center gap-2">
               <button onClick={exportCSV} className="flex items-center gap-1.5 px-3 py-1.5 border border-[#e2e8f0] rounded-[8px] text-[12px] text-[#475569] hover:bg-[#f8fafc] transition-colors cursor-pointer">
                 CSV
@@ -1122,7 +1276,6 @@ export function BloodTypeList() {
           {/* Category + Framework Tabs + Copy */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-[#f1f5f9] bg-[#fafbfc]">
             <div className="flex items-center gap-3">
-              {/* Category Tabs */}
               <div className="flex items-center bg-[#f1f5f9] rounded-lg p-0.5">
                 {(["frontend", "backend"] as const).map((cat) => (
                   <button
@@ -1136,11 +1289,10 @@ export function BloodTypeList() {
                   </button>
                 ))}
               </div>
-              {/* Framework Tabs (frontend only) */}
               {tableCodeCategory === "frontend" && (
                 <div className="flex items-center gap-1">
                   {(["react", "vue", "angular"] as const).map((fw) => {
-                    const icons: Record<string, string> = { react: "⚛️", vue: "💚", angular: "🅰️" };
+                    const icons: Record<string, string> = { react: "\u269B\uFE0F", vue: "\uD83D\uDC9A", angular: "\uD83C\uDD70\uFE0F" };
                     const labels: Record<string, string> = { react: "React", vue: "Vue", angular: "Angular" };
                     return (
                       <button
