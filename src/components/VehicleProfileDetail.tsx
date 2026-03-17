@@ -2,34 +2,34 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Dialog } from "primereact/dialog";
 import { Highlight, themes } from "prism-react-renderer";
-import { IdCard, ArrowLeft, Code2, Copy, Check, X, ChevronDown, Database, Hash, Clock, FileText, AlertCircle, CheckCircle, XCircle, AlertTriangle, Calendar, Droplets, ScrollText, MapPin, Send, Smartphone, Mail } from "lucide-react";
+import { Car, ArrowLeft, Code2, Copy, Check, X, ChevronDown, Database, Hash, Clock, FileText, CheckCircle, XCircle, AlertTriangle, Send, Smartphone, Mail, User, Fuel, Palette, CalendarDays, Camera } from "lucide-react";
 import { motion } from "motion/react";
-import { type DriverLicenseProfileData, type LicenseProfileStatus } from "./DriverLicenseProfile";
+import { type VehicleProfileData, type VehicleStatus } from "./VehicleProfile";
 import { backendLangConfig, backendLangOptions, type BackendLang } from "./chartBackendCodes";
 
-// ── Mock Data ──
-const mockData: DriverLicenseProfileData[] = [
-  { id: 1, driverId: "DRV-001", name: "Aung Min Htut", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "THA", licenseNumber: "DL-2024-001", dateOfBirth: "1990-05-12", nrc: "12/ThaGaKa(N)000001", bloodType: "O+", licenseTerms: "5 Years", issueDate: "2024-01-15", expiredAt: "2029-01-15", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "REJECT", createdAt: "2024-01-10", updatedAt: "2024-06-15", deletedAt: null },
-  { id: 2, driverId: "DRV-002", name: "Kyaw Zin Oo", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "KA", licenseNumber: "DL-2024-002", dateOfBirth: "1988-11-23", nrc: "5/MaRaNa(N)098765", bloodType: "A+", licenseTerms: "5 Years", issueDate: "2023-06-20", expiredAt: "2028-06-20", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2023-06-15", updatedAt: "2024-03-20", deletedAt: null },
-  { id: 3, driverId: "DRV-003", name: "Thiha Zaw", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "KHA", licenseNumber: "DL-2024-003", dateOfBirth: "1995-03-08", nrc: "12/BaHaNa(N)567890", bloodType: "B+", licenseTerms: "3 Years", issueDate: "2022-03-10", expiredAt: "2025-03-10", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "UNDER_REVIEW", createdAt: "2022-03-01", updatedAt: "2025-03-11", deletedAt: null },
-  { id: 4, driverId: "DRV-004", name: "Myo Win Aung", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "GA", licenseNumber: "DL-2024-004", dateOfBirth: "1992-07-19", nrc: "9/NaPaTa(N)345678", bloodType: "AB+", licenseTerms: "5 Years", issueDate: "2021-11-05", expiredAt: "2026-11-05", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2021-10-28", updatedAt: "2024-08-10", deletedAt: null },
-  { id: 5, driverId: "DRV-005", name: "Htet Aung Shine", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "GHA", licenseNumber: "DL-2024-005", dateOfBirth: "1997-01-30", nrc: "12/AuZaNa(N)123789", bloodType: "O-", licenseTerms: "5 Years", issueDate: "2024-02-28", expiredAt: "2029-02-28", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-02-20", updatedAt: "2024-02-28", deletedAt: null },
-  { id: 6, driverId: "DRV-006", name: "Zaw Min Tun", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "NGA", licenseNumber: "DL-2024-006", dateOfBirth: "1991-09-14", nrc: "5/KaBaLa(N)456123", bloodType: "A-", licenseTerms: "3 Years", issueDate: "2023-09-12", expiredAt: "2026-09-12", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2023-09-05", updatedAt: "2024-01-18", deletedAt: null },
-  { id: 7, driverId: "DRV-007", name: "Naing Lin Aung", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "ZA", licenseNumber: "DL-2024-007", dateOfBirth: "1993-12-02", nrc: "12/TaMaNa(N)789456", bloodType: "B-", licenseTerms: "5 Years", issueDate: "2022-07-01", expiredAt: "2027-07-01", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "REJECT", createdAt: "2022-06-25", updatedAt: "2024-07-01", deletedAt: "2024-08-15" },
-  { id: 8, driverId: "DRV-008", name: "Phyo Wai Lin", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "INT", licenseNumber: "DL-2024-008", dateOfBirth: "1994-06-25", nrc: "12/LaThaNa(N)321654", bloodType: "O+", licenseTerms: "3 Years", issueDate: "2024-04-10", expiredAt: "2027-04-10", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-04-01", updatedAt: "2024-04-10", deletedAt: null },
-  { id: 9, driverId: "DRV-009", name: "Than Htun Oo", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "TMP", licenseNumber: "DL-2024-009", dateOfBirth: "1989-04-17", nrc: "9/MaKhaNa(N)654987", bloodType: "AB-", licenseTerms: "1 Year", issueDate: "2024-05-01", expiredAt: "2025-05-01", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "REJECT", createdAt: "2024-04-28", updatedAt: "2024-06-01", deletedAt: "2024-07-15" },
-  { id: 10, driverId: "DRV-010", name: "Wai Yan Hein", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "HA", licenseNumber: "DL-2024-010", dateOfBirth: "1996-10-05", nrc: "5/SaKhaNa(N)987321", bloodType: "A+", licenseTerms: "5 Years", issueDate: "2023-12-15", expiredAt: "2028-12-15", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2023-12-10", updatedAt: "2024-05-22", deletedAt: null },
-  { id: 11, driverId: "DRV-011", name: "Su Su Lwin", gender: "FEMALE", profileImage: "https://images.unsplash.com/photo-1622757678076-b926a4295f29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "SA", licenseNumber: "DL-2024-011", dateOfBirth: "1987-02-14", nrc: "12/MaBaNa(N)112233", bloodType: "B+", licenseTerms: "5 Years", issueDate: "2024-06-01", expiredAt: "2029-06-01", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "UNDER_REVIEW", createdAt: "2024-05-28", updatedAt: "2024-06-01", deletedAt: null },
-  { id: 12, driverId: "DRV-012", name: "Ye Yint Aung", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "KA", licenseNumber: "DL-2024-012", dateOfBirth: "1998-08-30", nrc: "7/PaKhaNa(N)998877", bloodType: "O+", licenseTerms: "3 Years", issueDate: "2024-07-20", expiredAt: "2027-07-20", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-07-15", updatedAt: "2024-07-20", deletedAt: null },
-  { id: 13, driverId: "DRV-013", name: "May Thu Zar", gender: "FEMALE", profileImage: "https://images.unsplash.com/photo-1697510364485-e900c2fe7524?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "THA", licenseNumber: "DL-2024-013", dateOfBirth: "1993-11-18", nrc: "12/DaGaMa(N)445566", bloodType: "A-", licenseTerms: "5 Years", issueDate: "2024-08-05", expiredAt: "2029-08-05", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-08-01", updatedAt: "2024-08-05", deletedAt: null },
-  { id: 14, driverId: "DRV-014", name: "Kaung Myat Thu", gender: "MALE", profileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "GHA", licenseNumber: "DL-2024-014", dateOfBirth: "1990-04-22", nrc: "14/MaMaNa(N)667788", bloodType: "AB+", licenseTerms: "5 Years", issueDate: "2024-09-10", expiredAt: "2029-09-10", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "UNDER_REVIEW", createdAt: "2024-09-05", updatedAt: "2024-09-10", deletedAt: null },
-  { id: 15, driverId: "DRV-015", name: "Ei Mon Kyaw", gender: "FEMALE", profileImage: "https://images.unsplash.com/photo-1627839134971-162a787bf754?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", licenseType: "INT", licenseNumber: "DL-2024-015", dateOfBirth: "1995-07-07", nrc: "12/ThaLaNa(N)223344", bloodType: "B-", licenseTerms: "3 Years", issueDate: "2024-10-01", expiredAt: "2027-10-01", licenseFrontImage: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?w=400", licenseBackImage: "https://images.unsplash.com/photo-1600373633615-9b045feaa299?w=400", status: "APPROVE", createdAt: "2024-09-28", updatedAt: "2024-10-01", deletedAt: null },
+// ── Mock Data (synced with VehicleProfile list) ──
+const mockData: VehicleProfileData[] = [
+  { id: 1, driverId: "DRV-001", vehicleId: "VEH-001", driverName: "Aung Min Htut", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Sedan", vehicleBrand: "Toyota", vehicleModel: "Vios", vehicleYear: 2022, vehicleColor: "White", vehiclePlateNumber: "7G/3456", fuelType: "Petrol", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2022-03-15", vehicleRegistrationExpiryDate: "2027-03-14", status: "APPROVED", createdAt: "2024-01-10", updatedAt: "2025-01-15", deletedAt: null },
+  { id: 2, driverId: "DRV-002", vehicleId: "VEH-002", driverName: "Kyaw Zin Oo", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Sedan", vehicleBrand: "Suzuki", vehicleModel: "Ciaz", vehicleYear: 2021, vehicleColor: "Silver", vehiclePlateNumber: "5B/7891", fuelType: "Petrol", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2021-07-20", vehicleRegistrationExpiryDate: "2026-07-19", status: "APPROVED", createdAt: "2023-06-15", updatedAt: "2024-12-20", deletedAt: null },
+  { id: 3, driverId: "DRV-003", vehicleId: "VEH-003", driverName: "Thiha Zaw", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Sedan", vehicleBrand: "Honda", vehicleModel: "City", vehicleYear: 2023, vehicleColor: "Red", vehiclePlateNumber: "9A/2345", fuelType: "Petrol", isOwner: false, ownerName: "U Tin Aung", ownerContactNumber: "09-789456123", vehicleRegistrationIssueDate: "2023-02-10", vehicleRegistrationExpiryDate: "2028-02-09", status: "UNDER_REVIEW", createdAt: "2023-01-05", updatedAt: "2025-03-11", deletedAt: null },
+  { id: 4, driverId: "DRV-004", vehicleId: "VEH-004", driverName: "Myo Win Aung", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Pickup", vehicleBrand: "Toyota", vehicleModel: "Hilux", vehicleYear: 2020, vehicleColor: "Black", vehiclePlateNumber: "3D/6789", fuelType: "Diesel", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2020-11-05", vehicleRegistrationExpiryDate: "2025-11-04", status: "APPROVED", createdAt: "2020-10-28", updatedAt: "2024-08-10", deletedAt: null },
+  { id: 5, driverId: "DRV-005", vehicleId: "VEH-005", driverName: "Htet Aung Shine", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Sedan", vehicleBrand: "Hyundai", vehicleModel: "Accent", vehicleYear: 2023, vehicleColor: "Blue", vehiclePlateNumber: "7C/1122", fuelType: "CNG", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2023-04-18", vehicleRegistrationExpiryDate: "2028-04-17", status: "APPROVED", createdAt: "2023-02-20", updatedAt: "2025-02-28", deletedAt: null },
+  { id: 6, driverId: "DRV-006", vehicleId: "VEH-006", driverName: "Zaw Min Tun", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Sedan", vehicleBrand: "Nissan", vehicleModel: "Almera", vehicleYear: 2019, vehicleColor: "Gray", vehiclePlateNumber: "4A/3344", fuelType: "Petrol", isOwner: false, ownerName: "Daw Khin Mar", ownerContactNumber: "09-456789012", vehicleRegistrationIssueDate: "2019-10-12", vehicleRegistrationExpiryDate: "2024-10-11", status: "REJECT", createdAt: "2019-09-05", updatedAt: "2024-01-18", deletedAt: null },
+  { id: 7, driverId: "DRV-007", vehicleId: "VEH-007", driverName: "Naing Lin Aung", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Van", vehicleBrand: "Toyota", vehicleModel: "Probox", vehicleYear: 2018, vehicleColor: "White", vehiclePlateNumber: "8B/5566", fuelType: "Petrol", isOwner: false, ownerName: "U Kyaw Soe", ownerContactNumber: "09-112233445", vehicleRegistrationIssueDate: "2018-08-01", vehicleRegistrationExpiryDate: "2023-07-31", status: "REJECT", createdAt: "2018-06-25", updatedAt: "2024-07-01", deletedAt: "2024-08-15" },
+  { id: 8, driverId: "DRV-008", vehicleId: "VEH-008", driverName: "Phyo Wai Lin", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Hatchback", vehicleBrand: "Honda", vehicleModel: "Fit", vehicleYear: 2022, vehicleColor: "Green", vehiclePlateNumber: "6C/7788", fuelType: "Hybrid", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2022-05-22", vehicleRegistrationExpiryDate: "2027-05-21", status: "APPROVED", createdAt: "2022-04-01", updatedAt: "2025-04-10", deletedAt: null },
+  { id: 9, driverId: "DRV-009", vehicleId: "VEH-009", driverName: "Than Htun Oo", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1615524376009-e7f29add6ac5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Hatchback", vehicleBrand: "Suzuki", vehicleModel: "Swift", vehicleYear: 2021, vehicleColor: "Yellow", vehiclePlateNumber: "2A/9900", fuelType: "LPG", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2021-06-10", vehicleRegistrationExpiryDate: "2026-06-09", status: "UNDER_REVIEW", createdAt: "2021-04-28", updatedAt: "2025-06-01", deletedAt: null },
+  { id: 10, driverId: "DRV-010", vehicleId: "VEH-010", driverName: "Wai Yan Hein", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1729824186698-72333f7e92da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Hatchback", vehicleBrand: "Toyota", vehicleModel: "Aqua", vehicleYear: 2020, vehicleColor: "White", vehiclePlateNumber: "5D/1234", fuelType: "Hybrid", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2021-01-15", vehicleRegistrationExpiryDate: "2026-01-14", status: "APPROVED", createdAt: "2020-12-10", updatedAt: "2025-05-22", deletedAt: null },
+  { id: 11, driverId: "DRV-011", vehicleId: "VEH-011", driverName: "Su Su Lwin", driverGender: "FEMALE", driverProfileImage: "https://images.unsplash.com/photo-1622757678076-b926a4295f29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Hatchback", vehicleBrand: "Kia", vehicleModel: "Picanto", vehicleYear: 2023, vehicleColor: "Pink", vehiclePlateNumber: "9B/5678", fuelType: "Petrol", isOwner: false, ownerName: "U Thein Win", ownerContactNumber: "09-998877665", vehicleRegistrationIssueDate: "2023-07-01", vehicleRegistrationExpiryDate: "2028-06-30", status: "APPROVED", createdAt: "2023-05-28", updatedAt: "2025-06-01", deletedAt: null },
+  { id: 12, driverId: "DRV-012", vehicleId: "VEH-012", driverName: "Ye Yint Aung", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1488820098099-8d4a4723a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Sedan", vehicleBrand: "Mitsubishi", vehicleModel: "Attrage", vehicleYear: 2022, vehicleColor: "Brown", vehiclePlateNumber: "3C/9012", fuelType: "Petrol", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2022-08-20", vehicleRegistrationExpiryDate: "2027-08-19", status: "APPROVED", createdAt: "2022-07-15", updatedAt: "2025-07-20", deletedAt: null },
+  { id: 13, driverId: "DRV-013", vehicleId: "VEH-013", driverName: "May Thu Zar", driverGender: "FEMALE", driverProfileImage: "https://images.unsplash.com/photo-1697510364485-e900c2fe7524?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Sedan", vehicleBrand: "Toyota", vehicleModel: "Yaris", vehicleYear: 2024, vehicleColor: "Red", vehiclePlateNumber: "7A/3456", fuelType: "Petrol", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2024-09-05", vehicleRegistrationExpiryDate: "2029-09-04", status: "APPROVED", createdAt: "2024-08-01", updatedAt: "2025-08-05", deletedAt: null },
+  { id: 14, driverId: "DRV-014", vehicleId: "VEH-014", driverName: "Kaung Myat Thu", driverGender: "MALE", driverProfileImage: "https://images.unsplash.com/photo-1640658506905-351be27a1c14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Hatchback", vehicleBrand: "Nissan", vehicleModel: "March", vehicleYear: 2019, vehicleColor: "Orange", vehiclePlateNumber: "4B/7890", fuelType: "Electric", isOwner: false, ownerName: "Daw Aye Aye", ownerContactNumber: "09-334455667", vehicleRegistrationIssueDate: "2019-10-20", vehicleRegistrationExpiryDate: "2024-10-19", status: "UNDER_REVIEW", createdAt: "2019-09-05", updatedAt: "2024-09-10", deletedAt: null },
+  { id: 15, driverId: "DRV-015", vehicleId: "VEH-015", driverName: "Ei Mon Kyaw", driverGender: "FEMALE", driverProfileImage: "https://images.unsplash.com/photo-1627839134971-162a787bf754?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=150", vehicleType: "Hatchback", vehicleBrand: "Honda", vehicleModel: "Jazz", vehicleYear: 2023, vehicleColor: "White", vehiclePlateNumber: "6A/2345", fuelType: "Hybrid", isOwner: true, ownerName: null, ownerContactNumber: null, vehicleRegistrationIssueDate: "2023-11-01", vehicleRegistrationExpiryDate: "2028-10-31", status: "APPROVED", createdAt: "2023-09-28", updatedAt: "2025-10-01", deletedAt: null },
 ];
 
-const statusStyles: Record<LicenseProfileStatus, { text: string; bg: string; dot: string; label: string }> = {
+const statusStyles: Record<VehicleStatus, { text: string; bg: string; dot: string; label: string }> = {
   UNDER_REVIEW: { text: "#d97706", bg: "#fffbeb", dot: "#f59e0b", label: "Under Review" },
   REJECT: { text: "#e53935", bg: "#fef2f2", dot: "#ef4444", label: "Rejected" },
-  APPROVE: { text: "#16a34a", bg: "#f0fdf4", dot: "#22c55e", label: "Approved" },
+  APPROVED: { text: "#16a34a", bg: "#f0fdf4", dot: "#22c55e", label: "Approved" },
 };
 
 function formatDate(dateStr: string) {
@@ -39,17 +39,17 @@ function formatDate(dateStr: string) {
 }
 
 // ── Frontend code templates ──
-const detailReactCode = `// DriverLicenseProfileDetail.tsx - PrimeReact + React Router
+const detailReactCode = `// VehicleProfileDetail.tsx - PrimeReact + React Router
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 
-export function DriverLicenseProfileDetail() {
+export function VehicleProfileDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [item, setItem] = useState(null);
 
   useEffect(() => {
-    fetch(\\\`/api/v1/license-profiles/\\\${id}\\\`)
+    fetch(\\\`/api/v1/vehicle-profiles/\\\${id}\\\`)
       .then((res) => res.json())
       .then((data) => setItem(data.data));
   }, [id]);
@@ -59,28 +59,28 @@ export function DriverLicenseProfileDetail() {
   return (
     <div className="min-h-full">
       <button onClick={() => navigate(-1)}>Back</button>
-      <h1>License Profile Detail</h1>
+      <h1>Vehicle Profile Detail</h1>
       <div className="bg-white rounded-xl border p-6">
-        <div><label>Name</label><span>{item.name}</span></div>
-        <div><label>License Type</label><span>{item.licenseType}</span></div>
-        <div><label>License Number</label><span>{item.licenseNumber}</span></div>
-        <div><label>Blood Type</label><span>{item.bloodType}</span></div>
+        <div><label>Vehicle ID</label><span>{item.vehicleId}</span></div>
+        <div><label>Brand</label><span>{item.vehicleBrand}</span></div>
+        <div><label>Model</label><span>{item.vehicleModel}</span></div>
+        <div><label>Plate Number</label><span>{item.vehiclePlateNumber}</span></div>
         <div><label>Status</label><span>{item.status}</span></div>
       </div>
     </div>
   );
 }`;
 
-const detailVueCode = `<!-- DriverLicenseProfileDetail.vue - PrimeVue + Vue Router -->
+const detailVueCode = `<!-- VehicleProfileDetail.vue - PrimeVue + Vue Router -->
 <template>
   <div class="min-h-full">
     <button @click="router.back()">Back</button>
-    <h1>License Profile Detail</h1>
+    <h1>Vehicle Profile Detail</h1>
     <div class="bg-white rounded-xl border p-6" v-if="item">
-      <div><label>Name</label><span>{{ item.name }}</span></div>
-      <div><label>License Type</label><span>{{ item.licenseType }}</span></div>
-      <div><label>License Number</label><span>{{ item.licenseNumber }}</span></div>
-      <div><label>Blood Type</label><span>{{ item.bloodType }}</span></div>
+      <div><label>Vehicle ID</label><span>{{ item.vehicleId }}</span></div>
+      <div><label>Brand</label><span>{{ item.vehicleBrand }}</span></div>
+      <div><label>Model</label><span>{{ item.vehicleModel }}</span></div>
+      <div><label>Plate Number</label><span>{{ item.vehiclePlateNumber }}</span></div>
       <div><label>Status</label><span>{{ item.status }}</span></div>
     </div>
   </div>
@@ -95,33 +95,33 @@ const router = useRouter();
 const item = ref(null);
 
 onMounted(async () => {
-  const res = await fetch(\\\`/api/v1/license-profiles/\\\${route.params.id}\\\`);
+  const res = await fetch(\\\`/api/v1/vehicle-profiles/\\\${route.params.id}\\\`);
   const data = await res.json();
   item.value = data.data;
 });
 </script>`;
 
-const detailAngularCode = `// license-profile-detail.component.ts - PrimeNG + Angular
+const detailAngularCode = `// vehicle-profile-detail.component.ts - PrimeNG + Angular
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
-  selector: 'app-license-profile-detail',
+  selector: 'app-vehicle-profile-detail',
   standalone: true,
   template: \\\`
     <div class="min-h-full">
       <button (click)="goBack()">Back</button>
-      <h1>License Profile Detail</h1>
+      <h1>Vehicle Profile Detail</h1>
       <div *ngIf="item" class="bg-white rounded-xl border p-6">
-        <div><label>Name</label><span>{{ item.name }}</span></div>
-        <div><label>License Type</label><span>{{ item.licenseType }}</span></div>
-        <div><label>License Number</label><span>{{ item.licenseNumber }}</span></div>
+        <div><label>Vehicle ID</label><span>{{ item.vehicleId }}</span></div>
+        <div><label>Brand</label><span>{{ item.vehicleBrand }}</span></div>
+        <div><label>Plate Number</label><span>{{ item.vehiclePlateNumber }}</span></div>
       </div>
     </div>
   \\\`,
 })
-export class LicenseProfileDetailComponent implements OnInit {
+export class VehicleProfileDetailComponent implements OnInit {
   item: any = null;
   constructor(
     private route: ActivatedRoute,
@@ -131,7 +131,7 @@ export class LicenseProfileDetailComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.http.get(\\\`/api/v1/license-profiles/\\\${id}\\\`)
+    this.http.get(\\\`/api/v1/vehicle-profiles/\\\${id}\\\`)
       .subscribe((res: any) => this.item = res.data);
   }
 
@@ -140,56 +140,56 @@ export class LicenseProfileDetailComponent implements OnInit {
 
 // ── Backend code templates ──
 const detailBackendCode: Record<string, string> = {
-  nestjs: `// license-profiles.controller.ts - NestJS
+  nestjs: `// vehicle-profiles.controller.ts - NestJS
 @Get(':id')
 async findOne(@Param('id') id: string) {
-  const data = await this.licenseProfilesService.findOne(+id);
-  if (!data) throw new NotFoundException('License profile not found');
+  const data = await this.vehicleProfilesService.findOne(+id);
+  if (!data) throw new NotFoundException('Vehicle profile not found');
   return { success: true, data };
 }`,
-  nodejs: `// license-profiles.routes.ts - Express
-router.get('/api/v1/license-profiles/:id', async (req, res) => {
+  nodejs: `// vehicle-profiles.routes.ts - Express
+router.get('/api/v1/vehicle-profiles/:id', async (req, res) => {
   const { id } = req.params;
   const result = await pool.query(
-    'SELECT * FROM driver_license_profiles WHERE id = $1 AND deleted_at IS NULL', [id]
+    'SELECT * FROM vehicle_profiles WHERE id = $1 AND deleted_at IS NULL', [id]
   );
   if (result.rows.length === 0) {
     return res.status(404).json({ success: false, message: 'Not found' });
   }
   res.json({ success: true, data: result.rows[0] });
 });`,
-  java: `// LicenseProfileController.java - Spring Boot
+  java: `// VehicleProfileController.java - Spring Boot
 @GetMapping("/{id}")
 public ResponseEntity<Map<String, Object>> findOne(@PathVariable Long id) {
-    LicenseProfile profile = service.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("License profile not found"));
+    VehicleProfile profile = service.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Vehicle profile not found"));
     return ResponseEntity.ok(Map.of("success", true, "data", profile));
 }`,
   laravel: `<?php
 public function show($id)
 {
-    $profile = DriverLicenseProfile::findOrFail($id);
+    $profile = VehicleProfile::findOrFail($id);
     return response()->json(['success' => true, 'data' => $profile]);
 }`,
   python: `# views.py - Django REST Framework
 @api_view(['GET'])
-def license_profile_detail(request, pk):
-    profile = get_object_or_404(DriverLicenseProfile, pk=pk)
-    serializer = LicenseProfileSerializer(profile)
+def vehicle_profile_detail(request, pk):
+    profile = get_object_or_404(VehicleProfile, pk=pk)
+    serializer = VehicleProfileSerializer(profile)
     return Response({'success': True, 'data': serializer.data})`,
-  csharp: `// LicenseProfilesController.cs - ASP.NET Core
+  csharp: `// VehicleProfilesController.cs - ASP.NET Core
 [HttpGet("{id}")]
 public async Task<IActionResult> FindOne(int id)
 {
-    var profile = await _context.DriverLicenseProfiles.FindAsync(id);
+    var profile = await _context.VehicleProfiles.FindAsync(id);
     if (profile == null) return NotFound(new { success = false });
     return Ok(new { success = true, data = profile });
 }`,
-  golang: `// license_profiles_handler.go - Go + Gin
-func GetLicenseProfile(db *gorm.DB) gin.HandlerFunc {
+  golang: `// vehicle_profiles_handler.go - Go + Gin
+func GetVehicleProfile(db *gorm.DB) gin.HandlerFunc {
     return func(c *gin.Context) {
         id := c.Param("id")
-        var profile DriverLicenseProfile
+        var profile VehicleProfile
         if err := db.First(&profile, id).Error; err != nil {
             c.JSON(404, gin.H{"success": false, "message": "Not found"})
             return
@@ -197,9 +197,9 @@ func GetLicenseProfile(db *gorm.DB) gin.HandlerFunc {
         c.JSON(200, gin.H{"success": true, "data": profile})
     }
 }`,
-  ruby: `# license_profiles_controller.rb - Ruby on Rails
+  ruby: `# vehicle_profiles_controller.rb - Ruby on Rails
 def show
-  profile = DriverLicenseProfile.find(params[:id])
+  profile = VehicleProfile.find(params[:id])
   render json: { success: true, data: profile }
 rescue ActiveRecord::RecordNotFound
   render json: { success: false, message: 'Not found' }, status: :not_found
@@ -207,45 +207,47 @@ end`,
 };
 
 const detailBackendFileConfig: Record<string, string> = {
-  nestjs: "license-profiles.controller.ts",
-  nodejs: "license-profiles.routes.ts",
-  java: "LicenseProfileController.java",
-  laravel: "LicenseProfileController.php",
+  nestjs: "vehicle-profiles.controller.ts",
+  nodejs: "vehicle-profiles.routes.ts",
+  java: "VehicleProfileController.java",
+  laravel: "VehicleProfileController.php",
   python: "views.py",
-  csharp: "LicenseProfilesController.cs",
-  golang: "license_profiles_handler.go",
-  ruby: "license_profiles_controller.rb",
+  csharp: "VehicleProfilesController.cs",
+  golang: "vehicle_profiles_handler.go",
+  ruby: "vehicle_profiles_controller.rb",
 };
 
-const databaseSchema = `-- driver_license_profiles table schema (PostgreSQL)
+const databaseSchema = `-- vehicle_profiles table schema (PostgreSQL)
 -- Database: innotaxi
 
-CREATE TABLE IF NOT EXISTS driver_license_profiles (
-    id                 SERIAL PRIMARY KEY,
-    driver_id          VARCHAR(20)   NOT NULL,
-    name               VARCHAR(200)  NOT NULL,
-    gender             VARCHAR(10)   NOT NULL,
-    profile_image      VARCHAR(500),
-    license_type       VARCHAR(10)   NOT NULL,
-    license_number     VARCHAR(50)   NOT NULL UNIQUE,
-    date_of_birth      DATE          NOT NULL,
-    nrc                VARCHAR(50)   NOT NULL,
-    blood_type         VARCHAR(10)   NOT NULL,
-    license_terms      VARCHAR(20)   NOT NULL,
-    issue_date         DATE          NOT NULL,
-    expired_at         DATE          NOT NULL,
-    license_front_img  VARCHAR(500),
-    license_back_img   VARCHAR(500),
-    status             VARCHAR(20)   NOT NULL DEFAULT 'UNDER_REVIEW',
-    created_at         TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
-    updated_at         TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
-    deleted_at         TIMESTAMPTZ
+CREATE TABLE IF NOT EXISTS vehicle_profiles (
+    id                   SERIAL PRIMARY KEY,
+    driver_id            VARCHAR(20)   NOT NULL,
+    vehicle_id           VARCHAR(20)   NOT NULL UNIQUE,
+    driver_name          VARCHAR(200)  NOT NULL,
+    driver_gender        VARCHAR(10)   NOT NULL,
+    driver_profile_image VARCHAR(500),
+    vehicle_type         VARCHAR(50)   NOT NULL,
+    vehicle_brand        VARCHAR(100)  NOT NULL,
+    vehicle_model        VARCHAR(100)  NOT NULL,
+    vehicle_year         INTEGER       NOT NULL,
+    vehicle_color        VARCHAR(50)   NOT NULL,
+    vehicle_plate_number VARCHAR(30)   NOT NULL UNIQUE,
+    fuel_type            VARCHAR(20)   NOT NULL,
+    is_owner             BOOLEAN       NOT NULL DEFAULT TRUE,
+    owner_name           VARCHAR(200),
+    owner_contact_number VARCHAR(30),
+    status               VARCHAR(20)   NOT NULL DEFAULT 'UNDER_REVIEW',
+    created_at           TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    updated_at           TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    deleted_at           TIMESTAMPTZ
 );
 
 -- Indexes
-CREATE INDEX idx_license_profiles_driver_id ON driver_license_profiles(driver_id);
-CREATE INDEX idx_license_profiles_status ON driver_license_profiles(status);
-CREATE INDEX idx_license_profiles_license_type ON driver_license_profiles(license_type);`;
+CREATE INDEX idx_vehicle_profiles_driver_id ON vehicle_profiles(driver_id);
+CREATE INDEX idx_vehicle_profiles_vehicle_id ON vehicle_profiles(vehicle_id);
+CREATE INDEX idx_vehicle_profiles_status ON vehicle_profiles(status);
+CREATE INDEX idx_vehicle_profiles_plate ON vehicle_profiles(vehicle_plate_number);`;
 
 // ── Copy helper ──
 function copyToClipboard(text: string) {
@@ -270,10 +272,10 @@ function copyToClipboard(text: string) {
   }
 }
 
-export function DriverLicenseProfileDetail() {
+export function VehicleProfileDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [item, setItem] = useState<DriverLicenseProfileData | null>(null);
+  const [item, setItem] = useState<VehicleProfileData | null>(null);
 
   // Code preview state
   const [codePreviewOpen, setCodePreviewOpen] = useState(false);
@@ -290,6 +292,7 @@ export function DriverLicenseProfileDetail() {
   const [deliverViaNoti, setDeliverViaNoti] = useState(true);
   const [deliverViaEmail, setDeliverViaEmail] = useState(true);
   const [successToasts, setSuccessToasts] = useState<{ id: number; title: string; description: string; color: string; bg: string }[]>([]);
+  const [lightboxImage, setLightboxImage] = useState<{ label: string; src: string } | null>(null);
 
   useEffect(() => {
     const numId = parseInt(id || "0");
@@ -308,7 +311,7 @@ export function DriverLicenseProfileDetail() {
   }, []);
 
   const handleBack = () => {
-    sessionStorage.setItem("innotaxi_active_item", "Driver License Profile");
+    sessionStorage.setItem("innotaxi_active_item", "Vehicle Profile");
     navigate("/dashboard");
   };
 
@@ -323,9 +326,9 @@ export function DriverLicenseProfileDetail() {
 
   const getFilename = () => {
     if (codeCategory === "frontend") {
-      return { react: "DriverLicenseProfileDetail.tsx", vue: "DriverLicenseProfileDetail.vue", angular: "license-profile-detail.component.ts" }[codeFramework];
+      return { react: "VehicleProfileDetail.tsx", vue: "VehicleProfileDetail.vue", angular: "vehicle-profile-detail.component.ts" }[codeFramework];
     }
-    if (codeCategory === "database") return "driver_license_profiles.sql";
+    if (codeCategory === "database") return "vehicle_profiles.sql";
     return detailBackendFileConfig[backendLang] || detailBackendFileConfig.nestjs;
   };
 
@@ -350,13 +353,13 @@ export function DriverLicenseProfileDetail() {
           <div className="w-12 h-12 rounded-full bg-[#fef2f2] flex items-center justify-center mx-auto mb-3">
             <X className="w-6 h-6 text-[#e53935]" />
           </div>
-          <h2 className="text-[16px] text-[#0f172a] font-semibold mb-1">License Profile Not Found</h2>
-          <p className="text-[12px] text-[#94a3b8] mb-4">The driver license profile you're looking for doesn't exist.</p>
+          <h2 className="text-[16px] text-[#0f172a] font-semibold mb-1">Vehicle Profile Not Found</h2>
+          <p className="text-[12px] text-[#94a3b8] mb-4">The vehicle profile you're looking for doesn't exist.</p>
           <button
             onClick={handleBack}
             className="px-4 py-2 bg-[#e53935] hover:bg-[#c62828] text-white rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer"
           >
-            Back to License Profiles
+            Back to Vehicle Profiles
           </button>
         </div>
       </div>
@@ -366,16 +369,19 @@ export function DriverLicenseProfileDetail() {
   const s = statusStyles[item.status];
 
   const infoRows: { label: string; value: string; icon: React.ReactNode; mono?: boolean }[] = [
+    { label: "Vehicle ID", value: item.vehicleId, icon: <Hash className="w-3.5 h-3.5" />, mono: true },
     { label: "Driver ID", value: item.driverId, icon: <Hash className="w-3.5 h-3.5" />, mono: true },
-    { label: "Name", value: item.name, icon: <IdCard className="w-3.5 h-3.5" /> },
-    { label: "License Type", value: item.licenseType, icon: <FileText className="w-3.5 h-3.5" /> },
-    { label: "License Number", value: item.licenseNumber, icon: <Hash className="w-3.5 h-3.5" />, mono: true },
-    { label: "Date of Birth", value: formatDate(item.dateOfBirth), icon: <Calendar className="w-3.5 h-3.5" /> },
-    { label: "NRC", value: item.nrc, icon: <FileText className="w-3.5 h-3.5" />, mono: true },
-    { label: "Blood Type", value: item.bloodType, icon: <Droplets className="w-3.5 h-3.5" /> },
-    { label: "License Terms", value: item.licenseTerms, icon: <ScrollText className="w-3.5 h-3.5" /> },
-    { label: "Issue Date", value: formatDate(item.issueDate), icon: <Calendar className="w-3.5 h-3.5" /> },
-    { label: "Expired At", value: formatDate(item.expiredAt), icon: <Clock className="w-3.5 h-3.5" /> },
+    { label: "Driver Name", value: item.driverName, icon: <User className="w-3.5 h-3.5" /> },
+    { label: "Vehicle Type", value: item.vehicleType, icon: <Car className="w-3.5 h-3.5" /> },
+    { label: "Brand", value: item.vehicleBrand, icon: <Car className="w-3.5 h-3.5" /> },
+    { label: "Model", value: item.vehicleModel, icon: <Car className="w-3.5 h-3.5" /> },
+    { label: "Year", value: String(item.vehicleYear), icon: <CalendarDays className="w-3.5 h-3.5" /> },
+    { label: "Color", value: item.vehicleColor, icon: <Palette className="w-3.5 h-3.5" /> },
+    { label: "Plate Number", value: item.vehiclePlateNumber, icon: <FileText className="w-3.5 h-3.5" />, mono: true },
+    { label: "Fuel Type", value: item.fuelType, icon: <Fuel className="w-3.5 h-3.5" /> },
+    { label: "Is Owner", value: item.isOwner ? "Yes" : "No", icon: <User className="w-3.5 h-3.5" /> },
+    { label: "Owner Name", value: item.ownerName || "\u2014", icon: <User className="w-3.5 h-3.5" /> },
+    { label: "Owner Contact", value: item.ownerContactNumber || "\u2014", icon: <Smartphone className="w-3.5 h-3.5" /> },
     { label: "Created At", value: formatDate(item.createdAt), icon: <Clock className="w-3.5 h-3.5" /> },
     { label: "Updated At", value: formatDate(item.updatedAt), icon: <Clock className="w-3.5 h-3.5" /> },
     { label: "Deleted At", value: item.deletedAt ? formatDate(item.deletedAt) : "\u2014", icon: <Clock className="w-3.5 h-3.5" /> },
@@ -390,20 +396,20 @@ export function DriverLicenseProfileDetail() {
           className="flex items-center gap-1.5 text-[13px] text-[#64748b] hover:text-[#0f172a] transition-colors cursor-pointer mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to License Profiles
+          Back to Vehicle Profiles
         </button>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[10px] bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center">
-              <IdCard className="w-5 h-5 text-[#e53935]" />
+            <div className="w-10 h-10 rounded-[10px] bg-[#fef7ed] border border-[#fed7aa] flex items-center justify-center">
+              <Car className="w-5 h-5 text-[#ea580c]" />
             </div>
             <div>
               <h1 className="text-[20px] text-[#0f172a] font-semibold">
-                License Profile Detail
+                Vehicle Profile Detail
               </h1>
               <p className="text-[12px] text-[#94a3b8]">
-                Viewing license profile for {item.name}
+                Viewing vehicle profile for {item.driverName}
               </p>
             </div>
           </div>
@@ -422,13 +428,13 @@ export function DriverLicenseProfileDetail() {
         {/* Card Header with Avatar */}
         <div className="px-6 py-5 border-b border-[#f1f5f9] bg-gradient-to-r from-[#f8fafc] to-white flex items-center gap-4">
           <img
-            src={item.profileImage}
-            alt={item.name}
+            src={item.driverProfileImage}
+            alt={item.driverName}
             className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-md"
           />
           <div className="flex-1">
             <div className="flex items-center gap-2.5 mb-1">
-              <h2 className="text-[16px] text-[#0f172a] font-semibold">{item.name}</h2>
+              <h2 className="text-[16px] text-[#0f172a] font-semibold">{item.driverName}</h2>
               <span
                 className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
                 style={{ color: s.text, backgroundColor: s.bg }}
@@ -438,8 +444,8 @@ export function DriverLicenseProfileDetail() {
               </span>
             </div>
             <div className="flex items-center gap-3 text-[12px] text-[#64748b]">
-              <span className="font-mono text-[#6366f1] bg-[#eef2ff] px-2 py-0.5 rounded">{item.driverId}</span>
-              <span className="flex items-center gap-1"><FileText className="w-3 h-3" />{item.licenseType} &middot; {item.licenseNumber}</span>
+              <span className="font-mono text-[#6366f1] bg-[#eef2ff] px-2 py-0.5 rounded">{item.vehicleId}</span>
+              <span className="flex items-center gap-1"><Car className="w-3 h-3" />{item.vehicleBrand} {item.vehicleModel} &middot; {item.vehicleType}</span>
             </div>
           </div>
         </div>
@@ -457,18 +463,72 @@ export function DriverLicenseProfileDetail() {
             ))}
           </div>
 
-          {/* License Images */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div className="p-3 rounded-[8px] bg-[#f8fafc] border border-[#f1f5f9]">
-              <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.5px] font-medium mb-2">License Front Image</p>
-              <div className="rounded-lg border border-[#e2e8f0] overflow-hidden aspect-[16/10]">
-                <img src={item.licenseFrontImage} alt="License Front" className="w-full h-full object-cover" />
+          {/* Vehicle Images */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-md bg-[#eef2ff] flex items-center justify-center">
+                <Camera className="w-3 h-3 text-[#6366f1]" />
               </div>
+              <h4 className="text-[13px] text-[#0f172a] font-semibold">Vehicle Photos</h4>
+              <span className="text-[10px] text-[#94a3b8] ml-1">5 images</span>
             </div>
-            <div className="p-3 rounded-[8px] bg-[#f8fafc] border border-[#f1f5f9]">
-              <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.5px] font-medium mb-2">License Back Image</p>
-              <div className="rounded-lg border border-[#e2e8f0] overflow-hidden aspect-[16/10]">
-                <img src={item.licenseBackImage} alt="License Back" className="w-full h-full object-cover" />
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {[
+                { label: "Front", src: "https://images.unsplash.com/photo-1758411898245-c2edbc1a1df8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGNhciUyMGZyb250JTIwZ3JpbGxlJTIwaGVhZGxpZ2h0c3xlbnwxfHx8fDE3NzM2OTMwNjN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" },
+                { label: "Back", src: "https://images.unsplash.com/photo-1704966784696-60d8c567f731?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXIlMjByZWFyJTIwYnVtcGVyJTIwdGFpbGxpZ2h0fGVufDF8fHx8MTc3MzY5MzA2NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" },
+                { label: "Right Side", src: "https://images.unsplash.com/photo-1730302551882-99cb98b4adc4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXIlMjBzaWRlJTIwcHJvZmlsZSUyMHZpZXd8ZW58MXx8fHwxNzczNjkzMDU5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" },
+                { label: "Left Side", src: "https://images.unsplash.com/photo-1747573235085-aa6b21b92e07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXIlMjBsZWZ0JTIwc2lkZSUyMHZpZXclMjBwYXJrZWR8ZW58MXx8fHwxNzczNjkzMDU5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" },
+                { label: "Interior", src: "https://images.unsplash.com/photo-1648799834332-e8ed22e99099?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXIlMjBpbnRlcmlvciUyMGRhc2hib2FyZCUyMHN0ZWVyaW5nJTIwd2hlZWx8ZW58MXx8fHwxNzczNTk1NTkxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" },
+              ].map((photo) => (
+                <div key={photo.label} className="group relative rounded-[8px] overflow-hidden border border-[#e2e8f0] bg-[#f1f5f9] aspect-[4/3] cursor-pointer" onClick={() => setLightboxImage(photo)}>
+                  <img src={photo.src} alt={photo.label} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  <span className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] font-medium text-white bg-gradient-to-t from-black/60 to-transparent text-center uppercase tracking-[0.5px]">
+                    {photo.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vehicle Registration Dates */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-md bg-[#fef7ed] flex items-center justify-center">
+                <FileText className="w-3 h-3 text-[#ea580c]" />
+              </div>
+              <h4 className="text-[13px] text-[#0f172a] font-semibold">Vehicle Registration</h4>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3 p-3 rounded-[8px] bg-[#f8fafc] border border-[#f1f5f9]">
+                <div className="min-w-0">
+                  <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.5px] font-medium">Registration Issue Date</p>
+                  <p className="text-[13px] text-[#0f172a] mt-0.5">{formatDate(item.vehicleRegistrationIssueDate)}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-[8px] bg-[#f8fafc] border border-[#f1f5f9]">
+                <div className="min-w-0">
+                  <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.5px] font-medium">Registration Expiry Date</p>
+                  <p className="text-[13px] text-[#0f172a] mt-0.5">{formatDate(item.vehicleRegistrationExpiryDate)}</p>
+                </div>
+              </div>
+              {/* Vehicle License Front */}
+              <div className="flex flex-col gap-1.5 p-3 rounded-[8px] bg-[#f8fafc] border border-[#f1f5f9]">
+                <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.5px] font-medium">Vehicle License (Front)</p>
+                <div className="group relative rounded-[6px] overflow-hidden border border-[#e2e8f0] bg-[#f1f5f9] aspect-[4/3] cursor-pointer" onClick={() => setLightboxImage({ label: "Vehicle License (Front)", src: "https://images.unsplash.com/photo-1613826488523-b537c0cab318?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvZmZpY2lhbCUyMGRvY3VtZW50JTIwbGljZW5zZSUyMGNhcmQlMjBmcm9udHxlbnwxfHx8fDE3NzM2OTQ2NTJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" })}>
+                  <img src="https://images.unsplash.com/photo-1613826488523-b537c0cab318?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvZmZpY2lhbCUyMGRvY3VtZW50JTIwbGljZW5zZSUyMGNhcmQlMjBmcm9udHxlbnwxfHx8fDE3NzM2OTQ2NTJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" alt="Vehicle License Front" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  <span className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] font-medium text-white bg-gradient-to-t from-black/60 to-transparent text-center uppercase tracking-[0.5px]">Front</span>
+                </div>
+              </div>
+              {/* Vehicle License Back */}
+              <div className="flex flex-col gap-1.5 p-3 rounded-[8px] bg-[#f8fafc] border border-[#f1f5f9]">
+                <p className="text-[10px] text-[#94a3b8] uppercase tracking-[0.5px] font-medium">Vehicle License (Back)</p>
+                <div className="group relative rounded-[6px] overflow-hidden border border-[#e2e8f0] bg-[#f1f5f9] aspect-[4/3] cursor-pointer" onClick={() => setLightboxImage({ label: "Vehicle License (Back)", src: "https://images.unsplash.com/photo-1620887110499-d54ecf17cefb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2ZWhpY2xlJTIwcmVnaXN0cmF0aW9uJTIwY2FyZCUyMGJhY2slMjBkb2N1bWVudHxlbnwxfHx8fDE3NzM2OTQ2NDh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" })}>
+                  <img src="https://images.unsplash.com/photo-1620887110499-d54ecf17cefb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2ZWhpY2xlJTIwcmVnaXN0cmF0aW9uJTIwY2FyZCUyMGJhY2slMjBkb2N1bWVudHxlbnwxfHx8fDE3NzM2OTQ2NDh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" alt="Vehicle License Back" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  <span className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] font-medium text-white bg-gradient-to-t from-black/60 to-transparent text-center uppercase tracking-[0.5px]">Back</span>
+                </div>
               </div>
             </div>
           </div>
@@ -491,7 +551,7 @@ export function DriverLicenseProfileDetail() {
             Reject
           </button>
           <button
-            onClick={() => setConfirmDialog({ open: true, action: "APPROVE" })}
+            onClick={() => setConfirmDialog({ open: true, action: "APPROVED" })}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-medium text-white bg-[#16a34a] border border-[#15803d] hover:bg-[#15803d] transition-colors cursor-pointer"
           >
             <CheckCircle className="w-3.5 h-3.5" />
@@ -516,14 +576,13 @@ export function DriverLicenseProfileDetail() {
         pt={{ root: { className: "!bg-transparent !border-none !shadow-none" } }}
       >
         {(() => {
-          const actionConfig: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string; border: string; hoverBg: string; iconBg: string; headerBg: string }> = {
+          const actionConfig: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string; border: string; iconBg: string; headerBg: string }> = {
             UNDER_REVIEW: {
               label: "Under Review",
               icon: <Clock className="w-5 h-5 text-[#d97706]" />,
               color: "#92400e",
               bg: "#fffbeb",
               border: "#fde68a",
-              hoverBg: "#fef3c7",
               iconBg: "#fef3c7",
               headerBg: "from-[#fffbeb] to-[#fef3c7]",
             },
@@ -533,17 +592,15 @@ export function DriverLicenseProfileDetail() {
               color: "#dc2626",
               bg: "#fef2f2",
               border: "#fecaca",
-              hoverBg: "#fee2e2",
               iconBg: "#fee2e2",
               headerBg: "from-[#fef2f2] to-[#fee2e2]",
             },
-            APPROVE: {
+            APPROVED: {
               label: "Approve",
               icon: <CheckCircle className="w-5 h-5 text-[#16a34a]" />,
               color: "#16a34a",
               bg: "#f0fdf4",
               border: "#bbf7d0",
-              hoverBg: "#dcfce7",
               iconBg: "#dcfce7",
               headerBg: "from-[#f0fdf4] to-[#dcfce7]",
             },
@@ -561,7 +618,7 @@ export function DriverLicenseProfileDetail() {
                   <div>
                     <h3 className="text-[14px] text-[#0f172a] font-semibold">Confirm {cfg.label}</h3>
                     <p className="text-[11px] text-[#64748b] mt-0.5">
-                      License Profile section &middot; Driver #{item.id}
+                      Vehicle Profile section &middot; {item.vehicleBrand} {item.vehicleModel}
                     </p>
                   </div>
                 </div>
@@ -579,11 +636,11 @@ export function DriverLicenseProfileDetail() {
                 <div className="flex items-start gap-2.5 mb-4 p-3 rounded-lg" style={{ backgroundColor: cfg.bg, border: `1px solid ${cfg.border}` }}>
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: cfg.color }} />
                   <p className="text-[12px] text-[#475569]">
-                    {confirmDialog.action === "APPROVE"
-                      ? `Are you sure you want to approve the License Profile section for ${item.name}?`
+                    {confirmDialog.action === "APPROVED"
+                      ? `Are you sure you want to approve the Vehicle Profile for ${item.driverName}'s ${item.vehicleBrand} ${item.vehicleModel}?`
                       : confirmDialog.action === "REJECT"
-                      ? `Are you sure you want to reject the License Profile section for ${item.name}? The driver will be notified.`
-                      : `Are you sure you want to set the License Profile section for ${item.name} to Under Review?`}
+                      ? `Are you sure you want to reject the Vehicle Profile for ${item.driverName}'s ${item.vehicleBrand} ${item.vehicleModel}? The driver will be notified.`
+                      : `Are you sure you want to set the Vehicle Profile for ${item.driverName}'s ${item.vehicleBrand} ${item.vehicleModel} to Under Review?`}
                   </p>
                 </div>
 
@@ -597,11 +654,11 @@ export function DriverLicenseProfileDetail() {
                     value={notificationMessage}
                     onChange={(e) => setNotificationMessage(e.target.value)}
                     placeholder={
-                      confirmDialog.action === "APPROVE"
-                        ? `Dear ${item.name},\n\nYour License Profile section has been approved. You are now cleared to proceed.\n\nThank you,\nInnoTaxi Admin Team`
+                      confirmDialog.action === "APPROVED"
+                        ? `Dear ${item.driverName},\n\nYour Vehicle Profile (${item.vehicleBrand} ${item.vehicleModel}) has been approved. You are now cleared to proceed.\n\nThank you,\nInnoTaxi Admin Team`
                         : confirmDialog.action === "REJECT"
-                        ? `Dear ${item.name},\n\nYour License Profile section has been rejected. Please review the following issues and resubmit:\n\n- [Reason for rejection]\n\nPlease update your information at your earliest convenience.\n\nThank you,\nInnoTaxi Admin Team`
-                        : `Dear ${item.name},\n\nYour License Profile section is currently under review. Our team is verifying your submitted information.\n\nYou will be notified once the review is complete.\n\nThank you,\nInnoTaxi Admin Team`
+                        ? `Dear ${item.driverName},\n\nYour Vehicle Profile (${item.vehicleBrand} ${item.vehicleModel}) has been rejected. Please review the following issues and resubmit:\n\n- [Reason for rejection]\n\nPlease update your information at your earliest convenience.\n\nThank you,\nInnoTaxi Admin Team`
+                        : `Dear ${item.driverName},\n\nYour Vehicle Profile (${item.vehicleBrand} ${item.vehicleModel}) is currently under review. Our team is verifying your submitted information.\n\nYou will be notified once the review is complete.\n\nThank you,\nInnoTaxi Admin Team`
                     }
                     rows={5}
                     className="w-full px-3 py-2.5 rounded-lg text-[12px] text-[#0f172a] placeholder:text-[#94a3b8] border transition-colors resize-none focus:outline-none focus:ring-2"
@@ -671,14 +728,14 @@ export function DriverLicenseProfileDetail() {
                 <button
                   onClick={() => {
                     const action = confirmDialog.action || "UNDER_REVIEW";
-                    const actionLabels: Record<string, string> = { APPROVE: "Approved", REJECT: "Rejected", UNDER_REVIEW: "Set to Under Review" };
-                    const toastColors: Record<string, string> = { APPROVE: "#16a34a", REJECT: "#dc2626", UNDER_REVIEW: "#d97706" };
-                    const toastBgs: Record<string, string> = { APPROVE: "#f0fdf4", REJECT: "#fef2f2", UNDER_REVIEW: "#fffbeb" };
-                    setItem({ ...item, status: action as LicenseProfileStatus, updatedAt: new Date().toISOString().split("T")[0] });
+                    const actionLabels: Record<string, string> = { APPROVED: "Approved", REJECT: "Rejected", UNDER_REVIEW: "Set to Under Review" };
+                    const toastColors: Record<string, string> = { APPROVED: "#16a34a", REJECT: "#dc2626", UNDER_REVIEW: "#d97706" };
+                    const toastBgs: Record<string, string> = { APPROVED: "#f0fdf4", REJECT: "#fef2f2", UNDER_REVIEW: "#fffbeb" };
+                    setItem({ ...item, status: action as VehicleStatus, updatedAt: new Date().toISOString().split("T")[0] });
                     const newToast = {
                       id: Date.now(),
                       title: `${actionLabels[action]}`,
-                      description: `${item.name}'s License Profile has been ${actionLabels[action].toLowerCase()}.${notificationMessage ? " Notification sent." : ""}`,
+                      description: `${item.driverName}'s ${item.vehicleBrand} ${item.vehicleModel} has been ${actionLabels[action].toLowerCase()}.${notificationMessage ? " Notification sent." : ""}`,
                       color: toastColors[action],
                       bg: toastBgs[action],
                     };
@@ -689,9 +746,9 @@ export function DriverLicenseProfileDetail() {
                   }}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-medium transition-colors cursor-pointer"
                   style={{
-                    color: confirmDialog.action === "APPROVE" ? "#fff" : cfg.color,
-                    backgroundColor: confirmDialog.action === "APPROVE" ? "#16a34a" : cfg.bg,
-                    border: `1px solid ${confirmDialog.action === "APPROVE" ? "#15803d" : cfg.border}`,
+                    color: confirmDialog.action === "APPROVED" ? "#fff" : cfg.color,
+                    backgroundColor: confirmDialog.action === "APPROVED" ? "#16a34a" : cfg.bg,
+                    border: `1px solid ${confirmDialog.action === "APPROVED" ? "#15803d" : cfg.border}`,
                   }}
                 >
                   <Send className="w-3.5 h-3.5" />
@@ -869,6 +926,43 @@ export function DriverLicenseProfileDetail() {
             </Highlight>
           </div>
         </div>
+      </Dialog>
+
+      {/* Image Lightbox Dialog */}
+      <Dialog
+        visible={!!lightboxImage}
+        onHide={() => setLightboxImage(null)}
+        modal
+        dismissableMask
+        draggable={false}
+        resizable={false}
+        className="!border-none !shadow-none"
+        contentClassName="!p-0 !bg-transparent"
+        headerClassName="!hidden"
+        maskClassName="!bg-black/80 !backdrop-blur-sm"
+        style={{ width: "auto", maxWidth: "92vw" }}
+        pt={{ root: { className: "!bg-transparent !border-none !shadow-none" } }}
+      >
+        {lightboxImage && (
+          <div className="relative">
+            <img
+              src={lightboxImage.src}
+              alt={lightboxImage.label}
+              className="max-w-[80vw] max-h-[80vh] rounded-xl object-contain shadow-2xl"
+            />
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              <span className="px-3 py-1.5 rounded-lg bg-black/60 text-white text-[12px] font-medium backdrop-blur-sm">
+                {lightboxImage.label}
+              </span>
+              <button
+                onClick={() => setLightboxImage(null)}
+                className="w-8 h-8 rounded-lg bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </Dialog>
     </div>
   );

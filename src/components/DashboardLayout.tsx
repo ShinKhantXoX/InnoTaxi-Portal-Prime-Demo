@@ -26,6 +26,7 @@ import {
   GitBranch,
   ArrowRightLeft,
   Droplets,
+  Fuel,
   RefreshCw,
   CheckCircle2,
   User,
@@ -48,6 +49,8 @@ import { DriverProfileList } from "./DriverProfileList";
 import { SystemFlow } from "./SystemFlow";
 import { MobileApp } from "./MobileApp";
 import { DriverLicenseProfile } from "./DriverLicenseProfile";
+import { VehicleProfile } from "./VehicleProfile";
+import { FuelTypeList } from "./FuelTypeList";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface UserProfile {
@@ -64,6 +67,7 @@ const sidebarItems = [
   { icon: Users, label: "Drivers", active: false },
   { icon: User, label: "Driver Profile", active: false },
   { icon: IdCard, label: "Driver License Profile", active: false },
+  { icon: Car, label: "Vehicle Profile", active: false },
 ];
 
 export function DashboardLayout() {
@@ -456,6 +460,40 @@ export function DashboardLayout() {
                 </button>
               );
             })()}
+
+            {/* Fuel Type (simple item, no sub-menu) */}
+            {(() => {
+              const isActive = activeItem === "Fuel Type";
+              return (
+                <button
+                  onClick={() => {
+                    setActiveItem("Fuel Type");
+                    setMobileSidebarOpen(false);
+                    if (location.pathname !== "/dashboard") navigate("/dashboard");
+                  }}
+                  className={`
+                    flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                    ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                    ${
+                      isActive
+                        ? "bg-[#fff7ed] text-[#ea580c]"
+                        : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    }
+                  `}
+                  title={!sidebarOpen ? "Fuel Type" : undefined}
+                >
+                  <Fuel className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#ea580c]" : ""}`} />
+                  {sidebarOpen && (
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
+                      Fuel Type
+                    </span>
+                  )}
+                  {isActive && sidebarOpen && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#ea580c]" />
+                  )}
+                </button>
+              );
+            })()}
           </div>
 
           {/* Section Header: Development */}
@@ -822,6 +860,8 @@ export function DashboardLayout() {
               <DatabaseDiagramAndSchema />
             ) : activeItem === "Blood Type" ? (
               <BloodTypeList />
+            ) : activeItem === "Fuel Type" ? (
+              <FuelTypeList />
             ) : activeItem === "Policies" ? (
               <LicensePolicyList />
             ) : activeItem === "Drivers" ? (
@@ -830,6 +870,8 @@ export function DashboardLayout() {
               <DriverProfileList />
             ) : activeItem === "Driver License Profile" ? (
               <DriverLicenseProfile />
+            ) : activeItem === "Vehicle Profile" ? (
+              <VehicleProfile />
             ) : activeItem === "System Flow" ? (
               <SystemFlow />
             ) : activeItem === "Mobile App" ? (
