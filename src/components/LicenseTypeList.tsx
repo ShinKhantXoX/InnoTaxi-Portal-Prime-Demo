@@ -2082,9 +2082,7 @@ export function LicenseTypeList() {
             <FileText className="w-4 h-4 text-[#e53935]" />
           </div>
           <div>
-            <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">
-              License Type Management
-            </h1>
+            <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">Driver License Type Management</h1>
             <p className="text-[12px] text-[#94a3b8]">
               Master Data Setup › Driver License Type › List
             </p>

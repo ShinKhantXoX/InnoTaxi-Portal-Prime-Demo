@@ -13,6 +13,9 @@ import { DriverProfileAdd } from "./components/DriverProfileAdd";
 import { DriverLicenseProfileDetail } from "./components/DriverLicenseProfileDetail";
 import { VehicleProfileDetail } from "./components/VehicleProfileDetail";
 import { FuelTypeDetail } from "./components/FuelTypeDetail";
+import { FuelStationDetail } from "./components/FuelStationDetail";
+import { FuelStationEdit } from "./components/FuelStationEdit";
+import { FuelStationAdd } from "./components/FuelStationAdd";
 
 export const router = createBrowserRouter([
   {
@@ -70,6 +73,18 @@ export const router = createBrowserRouter([
       {
         path: "fuel-types/:id",
         Component: FuelTypeDetail,
+      },
+      {
+        path: "fuel-stations/add",
+        Component: FuelStationAdd,
+      },
+      {
+        path: "fuel-stations/:id",
+        Component: FuelStationDetail,
+      },
+      {
+        path: "fuel-stations/:id/edit",
+        Component: FuelStationEdit,
       },
     ],
   },

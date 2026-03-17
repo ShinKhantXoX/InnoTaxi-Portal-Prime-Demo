@@ -710,7 +710,7 @@ export function FuelTypeList() {
             <Fuel className="w-4 h-4 text-[#ea580c]" />
           </div>
           <div>
-            <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">Fuel Type Management</h1>
+            <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">Fuel Management</h1>
             <p className="text-[12px] text-[#94a3b8]">Master Data and Setup &rsaquo; Fuel Type &rsaquo; List</p>
           </div>
         </div>

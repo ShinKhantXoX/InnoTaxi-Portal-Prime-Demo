@@ -51,6 +51,7 @@ import { MobileApp } from "./MobileApp";
 import { DriverLicenseProfile } from "./DriverLicenseProfile";
 import { VehicleProfile } from "./VehicleProfile";
 import { FuelTypeList } from "./FuelTypeList";
+import { FuelStationList } from "./FuelStationList";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface UserProfile {
@@ -225,6 +226,9 @@ export function DashboardLayout() {
     }
     if (location.pathname.startsWith("/dashboard/license-profiles/")) {
       setActiveItem("Driver License Profile");
+    }
+    if (location.pathname.startsWith("/dashboard/fuel-stations/")) {
+      setActiveItem("Fuel Station");
     }
     // Handle navigation state (e.g. returning from add page)
     if (location.state?.activeItem) {
@@ -450,9 +454,7 @@ export function DashboardLayout() {
                 >
                   <Droplets className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#e53935]" : ""}`} />
                   {sidebarOpen && (
-                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
-                      Blood Type
-                    </span>
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>Blood</span>
                   )}
                   {isActive && sidebarOpen && (
                     <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#e53935]" />
@@ -484,12 +486,44 @@ export function DashboardLayout() {
                 >
                   <Fuel className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#ea580c]" : ""}`} />
                   {sidebarOpen && (
-                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
-                      Fuel Type
-                    </span>
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>Fuel</span>
                   )}
                   {isActive && sidebarOpen && (
                     <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#ea580c]" />
+                  )}
+                </button>
+              );
+            })()}
+
+            {/* Fuel Station (simple item, no sub-menu) */}
+            {(() => {
+              const isActive = activeItem === "Fuel Station";
+              return (
+                <button
+                  onClick={() => {
+                    setActiveItem("Fuel Station");
+                    setMobileSidebarOpen(false);
+                    if (location.pathname !== "/dashboard") navigate("/dashboard");
+                  }}
+                  className={`
+                    flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                    ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                    ${
+                      isActive
+                        ? "bg-[#ecfdf5] text-[#10b981]"
+                        : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    }
+                  `}
+                  title={!sidebarOpen ? "Fuel Station" : undefined}
+                >
+                  <MapPin className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#10b981]" : ""}`} />
+                  {sidebarOpen && (
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>
+                      Station
+                    </span>
+                  )}
+                  {isActive && sidebarOpen && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#10b981]" />
                   )}
                 </button>
               );
@@ -862,6 +896,8 @@ export function DashboardLayout() {
               <BloodTypeList />
             ) : activeItem === "Fuel Type" ? (
               <FuelTypeList />
+            ) : activeItem === "Fuel Station" ? (
+              <FuelStationList />
             ) : activeItem === "Policies" ? (
               <LicensePolicyList />
             ) : activeItem === "Drivers" ? (
