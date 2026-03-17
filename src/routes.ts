@@ -11,6 +11,8 @@ import { DriverAdd } from "./components/DriverAdd";
 import { DriverProfileDetail } from "./components/DriverProfileDetail";
 import { DriverProfileAdd } from "./components/DriverProfileAdd";
 import { DriverLicenseProfileDetail } from "./components/DriverLicenseProfileDetail";
+import { VehicleProfileDetail } from "./components/VehicleProfileDetail";
+import { FuelTypeDetail } from "./components/FuelTypeDetail";
 
 export const router = createBrowserRouter([
   {
@@ -60,6 +62,14 @@ export const router = createBrowserRouter([
       {
         path: "license-profiles/:id",
         Component: DriverLicenseProfileDetail,
+      },
+      {
+        path: "vehicle-profiles/:id",
+        Component: VehicleProfileDetail,
+      },
+      {
+        path: "fuel-types/:id",
+        Component: FuelTypeDetail,
       },
     ],
   },

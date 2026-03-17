@@ -119,77 +119,37 @@ const entities: TableEntity[] = [
     ],
   },
   {
-    name: "vehicles",
-    label: "Vehicles",
+    name: "vehicle_profiles",
+    label: "Vehicle Profiles",
     color: "#16a34a",
     icon: Table,
     columns: [
       { name: "id", type: "BIGINT", pk: true },
       { name: "driver_id", type: "BIGINT", fk: "drivers.id", index: true },
-      { name: "plate_number", type: "VARCHAR(20)", unique: true },
-      { name: "make", type: "VARCHAR(100)" },
-      { name: "model", type: "VARCHAR(100)" },
-      { name: "year", type: "INT" },
-      { name: "color", type: "VARCHAR(50)" },
       { name: "vehicle_type", type: "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')" },
-      { name: "status", type: "ENUM('ACTIVE','INACTIVE','MAINTENANCE')", default: "'ACTIVE'" },
+      { name: "vehicle_brand", type: "VARCHAR(100)" },
+      { name: "vehicle_model", type: "VARCHAR(100)" },
+      { name: "vehicle_year", type: "INT" },
+      { name: "vehicle_color", type: "VARCHAR(50)" },
+      { name: "vehicle_front", type: "VARCHAR(500)", nullable: true },
+      { name: "vehicle_back", type: "VARCHAR(500)", nullable: true },
+      { name: "vehicle_left_side", type: "VARCHAR(500)", nullable: true },
+      { name: "vehicle_right_side", type: "VARCHAR(500)", nullable: true },
+      { name: "vehicle_inner_photo", type: "VARCHAR(500)", nullable: true },
+      { name: "vehicle_plate_number", type: "VARCHAR(20)", unique: true },
+      { name: "vehicle_registration_issue_date", type: "DATE" },
+      { name: "vehicle_registration_expiry_date", type: "DATE" },
+      { name: "vehicle_license_front", type: "VARCHAR(500)", nullable: true },
+      { name: "vehicle_license_back", type: "VARCHAR(500)", nullable: true },
+      { name: "fuel_type", type: "ENUM('PETROL','DIESEL','HYBRID','ELECTRIC','CNG','LPG')" },
+      { name: "is_owner", type: "ENUM('OWNER','RENT')" },
+      { name: "owner_name", type: "VARCHAR(255)", nullable: true },
+      { name: "mobile_prefix", type: "VARCHAR(10)", nullable: true },
+      { name: "owner_contact_number", type: "VARCHAR(20)", nullable: true },
+      { name: "status", type: "ENUM('UNDER_REVIEW','REJECT','APPROVED')", default: "'UNDER_REVIEW'" },
       { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
       { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
       { name: "deleted_at", type: "TIMESTAMP", nullable: true },
-    ],
-  },
-  {
-    name: "rides",
-    label: "Rides",
-    color: "#7c3aed",
-    icon: Table,
-    columns: [
-      { name: "id", type: "BIGINT", pk: true },
-      { name: "driver_id", type: "BIGINT", fk: "drivers.id", index: true },
-      { name: "passenger_id", type: "BIGINT", fk: "passengers.id", index: true },
-      { name: "vehicle_id", type: "BIGINT", fk: "vehicles.id", index: true },
-      { name: "pickup_lat", type: "DECIMAL(10,7)" },
-      { name: "pickup_lng", type: "DECIMAL(10,7)" },
-      { name: "dropoff_lat", type: "DECIMAL(10,7)" },
-      { name: "dropoff_lng", type: "DECIMAL(10,7)" },
-      { name: "fare_amount", type: "DECIMAL(10,2)" },
-      { name: "distance_km", type: "DECIMAL(8,2)" },
-      { name: "status", type: "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')" },
-      { name: "started_at", type: "TIMESTAMP", nullable: true },
-      { name: "completed_at", type: "TIMESTAMP", nullable: true },
-      { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
-    ],
-  },
-  {
-    name: "passengers",
-    label: "Passengers",
-    color: "#d97706",
-    icon: Table,
-    columns: [
-      { name: "id", type: "BIGINT", pk: true },
-      { name: "full_name", type: "VARCHAR(255)" },
-      { name: "phone", type: "VARCHAR(20)", unique: true },
-      { name: "email", type: "VARCHAR(255)", nullable: true },
-      { name: "status", type: "ENUM('ACTIVE','INACTIVE')", default: "'ACTIVE'" },
-      { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
-      { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
-      { name: "deleted_at", type: "TIMESTAMP", nullable: true },
-    ],
-  },
-  {
-    name: "audit_logs",
-    label: "Audit Logs",
-    color: "#64748b",
-    icon: Table,
-    columns: [
-      { name: "id", type: "BIGINT", pk: true },
-      { name: "table_name", type: "VARCHAR(100)", index: true },
-      { name: "record_id", type: "BIGINT", index: true },
-      { name: "action", type: "ENUM('CREATE','UPDATE','DELETE')" },
-      { name: "old_values", type: "JSON", nullable: true },
-      { name: "new_values", type: "JSON", nullable: true },
-      { name: "performed_by", type: "BIGINT", nullable: true },
-      { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
     ],
   },
   {
@@ -260,7 +220,6 @@ const entities: TableEntity[] = [
     columns: [
       { name: "id", type: "BIGINT", pk: true },
       { name: "driver_id", type: "BIGINT", fk: "drivers.id", nullable: true, index: true },
-      { name: "customer_id", type: "BIGINT", fk: "passengers.id", nullable: true, index: true },
       { name: "contact_name", type: "VARCHAR(255)" },
       { name: "prefix", type: "VARCHAR(10)" },
       { name: "phone_number", type: "VARCHAR(20)" },
@@ -279,12 +238,8 @@ const relationships = [
   { from: "driver_profiles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "1:1" as const, label: "belongs to" },
   { from: "driver_license_profiles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "held by" },
   { from: "driver_license_profiles", fromCol: "driver_license_type_id", to: "driver_license_types", toCol: "id", type: "N:1" as const, label: "type of" },
-  { from: "vehicles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "owned by" },
-  { from: "rides", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "driven by" },
-  { from: "rides", fromCol: "passenger_id", to: "passengers", toCol: "id", type: "N:1" as const, label: "requested by" },
-  { from: "rides", fromCol: "vehicle_id", to: "vehicles", toCol: "id", type: "N:1" as const, label: "uses" },
+  { from: "vehicle_profiles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "owned by" },
   { from: "emergency_profiles", fromCol: "driver_id", to: "drivers", toCol: "id", type: "N:1" as const, label: "emergency contact for" },
-  { from: "emergency_profiles", fromCol: "customer_id", to: "passengers", toCol: "id", type: "N:1" as const, label: "emergency contact for" },
 ];
 
 // ─── DDL Code generators ───
@@ -309,9 +264,10 @@ function generateDDL(engine: DbEngine): string {
     lines.push(`CREATE TYPE gender AS ENUM ('MALE', 'FEMALE');`);
     lines.push(`CREATE TYPE driver_status AS ENUM ('ACTIVE', 'PENDING', 'INACTIVE', 'SUSPENDED');`);
     lines.push(`CREATE TYPE vehicle_type AS ENUM ('SEDAN', 'SUV', 'HATCHBACK', 'VAN', 'MOTORCYCLE', 'THREE_WHEEL');`);
-    lines.push(`CREATE TYPE vehicle_status AS ENUM ('ACTIVE', 'INACTIVE', 'MAINTENANCE');`);
-    lines.push(`CREATE TYPE ride_status AS ENUM ('REQUESTED', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');`);
-    lines.push(`CREATE TYPE audit_action AS ENUM ('CREATE', 'UPDATE', 'DELETE');`);
+    lines.push(`CREATE TYPE fuel_type AS ENUM ('PETROL', 'DIESEL', 'HYBRID', 'ELECTRIC', 'CNG', 'LPG');`);
+    lines.push(`CREATE TYPE ownership_type AS ENUM ('OWNER', 'RENT');`);
+    lines.push(`CREATE TYPE vehicle_profile_status AS ENUM ('UNDER_REVIEW', 'REJECT', 'APPROVED');`);
+
     lines.push(`CREATE TYPE driver_profile_status AS ENUM ('UNDER_REVIEW', 'REJECT', 'APPROVED');`);
     lines.push(`CREATE TYPE policy_type AS ENUM ('DRIVER_LICENSE', 'VEHICLE_LICENSE');`);
     lines.push(`CREATE TYPE relationship_type AS ENUM ('SPOUSE', 'PARENT', 'SIBLING', 'CHILD', 'FRIEND', 'OTHER');`);
@@ -335,14 +291,14 @@ function generateDDL(engine: DbEngine): string {
         if (engine === "postgresql") {
           // Use the custom enum type
           const enumMap: Record<string, string> = {
-            "ENUM('ACTIVE','INACTIVE')": col.name === "status" && entity.name === "driver_license_types" ? "license_status" : col.name === "status" && entity.name === "passengers" ? "license_status" : col.name === "status" && entity.name === "vehicles" ? "vehicle_status" : col.name === "status" && entity.name === "policies" ? "license_status" : "driver_status",
+            "ENUM('ACTIVE','INACTIVE')": col.name === "status" && entity.name === "driver_license_types" ? "license_status" : col.name === "status" && entity.name === "vehicle_profiles" ? "vehicle_profile_status" : col.name === "status" && entity.name === "policies" ? "license_status" : "driver_status",
             "ENUM('MALE','FEMALE')": "gender",
             "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')": "driver_status",
             "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
-            "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
-            "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
-            "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
-            "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "driver_profile_status",
+            "ENUM('PETROL','DIESEL','HYBRID','ELECTRIC','CNG','LPG')": "fuel_type",
+            "ENUM('OWNER','RENT')": "ownership_type",
+
+            "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "vehicle_profile_status",
             "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
             "ENUM('SPOUSE','PARENT','SIBLING','CHILD','FRIEND','OTHER')": "relationship_type",
             "ENUM('UNDER_REVIEW','REJECT','APPROVE')": "emergency_profile_status",
@@ -412,14 +368,12 @@ function generateDDL(engine: DbEngine): string {
     lines.push(`-- ─── Table Comments ───`);
     lines.push(`COMMENT ON TABLE driver_license_types IS 'Myanmar driver license type classifications (THA, KA, KHA, GA, GHA, NGA, ZA, HA, SA, INT, TMP)';`);
     lines.push(`COMMENT ON TABLE drivers IS 'Registered taxi drivers with license and status information';`);
-    lines.push(`COMMENT ON TABLE vehicles IS 'Vehicles registered to drivers for ride service';`);
-    lines.push(`COMMENT ON TABLE rides IS 'Ride transactions between drivers and passengers';`);
-    lines.push(`COMMENT ON TABLE passengers IS 'Registered passengers who use the taxi service';`);
-    lines.push(`COMMENT ON TABLE audit_logs IS 'Audit trail for all data mutations across tables';`);
+    lines.push(`COMMENT ON TABLE vehicle_profiles IS 'Vehicle profiles registered to drivers with ownership and approval status';`);
+
     lines.push(`COMMENT ON TABLE driver_profiles IS 'Driver profile information including address, profile image, and review status';`);
     lines.push(`COMMENT ON TABLE driver_license_profiles IS 'Driver license profile documents with issue date, expiry, and review status';`);
     lines.push(`COMMENT ON TABLE policies IS 'Policies governing driver and vehicle license issuance, renewal, and compliance';`);
-    lines.push(`COMMENT ON TABLE emergency_profiles IS 'Emergency contact profiles for drivers/customers with nullable driver_id and customer_id, contact name, phone prefix, relationship, and review status';`);
+    lines.push(`COMMENT ON TABLE emergency_profiles IS 'Emergency contact profiles for drivers with nullable driver_id, contact name, phone prefix, relationship, and review status';`);
   }
 
   return lines.join("\n");
@@ -627,58 +581,28 @@ const mermaidCode = `erDiagram
         timestamp deleted_at
     }
 
-    vehicles {
+    vehicle_profiles {
         bigint id PK
         bigint driver_id FK
-        varchar plate_number UK
-        varchar make
-        varchar model
-        int year
-        varchar color
         enum vehicle_type "SEDAN | SUV | HATCHBACK | VAN | MOTORCYCLE | THREE_WHEEL"
-        enum status "ACTIVE | INACTIVE | MAINTENANCE"
+        varchar vehicle_brand
+        varchar vehicle_model
+        int vehicle_year
+        varchar vehicle_color
+        varchar vehicle_front "nullable"
+        varchar vehicle_back "nullable"
+        varchar vehicle_left_side "nullable"
+        varchar vehicle_right_side "nullable"
+        varchar vehicle_plate_number UK
+        enum fuel_type "PETROL | DIESEL | HYBRID | ELECTRIC | CNG | LPG"
+        enum is_owner "OWNER | RENT"
+        varchar owner_name "nullable"
+        varchar mobile_prefix "nullable"
+        varchar owner_contact_number "nullable"
+        enum status "UNDER_REVIEW | REJECT | APPROVED"
         timestamp created_at
         timestamp updated_at
         timestamp deleted_at
-    }
-
-    rides {
-        bigint id PK
-        bigint driver_id FK
-        bigint passenger_id FK
-        bigint vehicle_id FK
-        decimal pickup_lat
-        decimal pickup_lng
-        decimal dropoff_lat
-        decimal dropoff_lng
-        decimal fare_amount
-        decimal distance_km
-        enum status "REQUESTED | ACCEPTED | IN_PROGRESS | COMPLETED | CANCELLED"
-        timestamp started_at
-        timestamp completed_at
-        timestamp created_at
-    }
-
-    passengers {
-        bigint id PK
-        varchar full_name
-        varchar phone UK
-        varchar email
-        enum status "ACTIVE | INACTIVE"
-        timestamp created_at
-        timestamp updated_at
-        timestamp deleted_at
-    }
-
-    audit_logs {
-        bigint id PK
-        varchar table_name
-        bigint record_id
-        enum action "CREATE | UPDATE | DELETE"
-        jsonb old_values
-        jsonb new_values
-        bigint performed_by
-        timestamp created_at
     }
 
     driver_profiles {
@@ -718,7 +642,6 @@ const mermaidCode = `erDiagram
     emergency_profiles {
         bigint id PK
         bigint driver_id FK "nullable"
-        bigint customer_id FK "nullable"
         varchar contact_name
         varchar prefix
         varchar phone_number
@@ -730,15 +653,11 @@ const mermaidCode = `erDiagram
     }
 
     policies ||--o{ driver_license_types : "governs"
-    drivers ||--o{ vehicles : "owns"
-    drivers ||--o{ rides : "drives"
+    drivers ||--o{ vehicle_profiles : "owns"
     drivers ||--|{ driver_profiles : "has profile"
     drivers ||--o{ driver_license_profiles : "has license"
     driver_license_types ||--o{ driver_license_profiles : "classifies"
-    passengers ||--o{ rides : "requests"
-    vehicles ||--o{ rides : "used in"
     drivers ||--o{ emergency_profiles : "has emergency contact"
-    passengers ||--o{ emergency_profiles : "has emergency contact"
 `;
 
 // ─── Column Type Icon ───
@@ -893,16 +812,13 @@ interface ErdLine {
 }
 
 const erdNodeDefs: Omit<ErdNode, "keyCols">[] = [
-  { name: "policies",    x: 40,  y: 20,  w: 210, h: 220, color: "#0891b2", label: "policies" },
-  { name: "driver_license_types", x: 370, y: 20,  w: 230, h: 280, color: "#e53935", label: "driver_license_types" },
-  { name: "drivers",       x: 410, y: 340, w: 210, h: 280, color: "#2563eb", label: "drivers" },
-  { name: "driver_profiles", x: 40, y: 280, w: 220, h: 280, color: "#8b5cf6", label: "driver_profiles" },
-  { name: "driver_license_profiles", x: 720, y: 280, w: 250, h: 390, color: "#ec4899", label: "driver_license_profiles" },
-  { name: "vehicles",      x: 40,  y: 600, w: 210, h: 280, color: "#16a34a", label: "vehicles" },
-  { name: "rides",         x: 370, y: 660, w: 210, h: 340, color: "#7c3aed", label: "rides" },
-  { name: "passengers",    x: 720, y: 660, w: 210, h: 220, color: "#d97706", label: "passengers" },
-  { name: "audit_logs",    x: 720, y: 20,  w: 210, h: 220, color: "#64748b", label: "audit_logs" },
-  { name: "emergency_profiles", x: 720, y: 940, w: 260, h: 310, color: "#dc2626", label: "emergency_profiles" },
+  { name: "policies",    x: 40,  y: 20,  w: 210, h: 205, color: "#0891b2", label: "policies" },
+  { name: "driver_license_types", x: 370, y: 20,  w: 240, h: 260, color: "#e53935", label: "driver_license_types" },
+  { name: "driver_profiles", x: 40,  y: 300, w: 230, h: 280, color: "#8b5cf6", label: "driver_profiles" },
+  { name: "drivers",       x: 370, y: 300, w: 220, h: 280, color: "#2563eb", label: "drivers" },
+  { name: "driver_license_profiles", x: 700, y: 300, w: 260, h: 350, color: "#ec4899", label: "driver_license_profiles" },
+  { name: "vehicle_profiles", x: 40,  y: 680, w: 240, h: 440, color: "#16a34a", label: "vehicle_profiles" },
+  { name: "emergency_profiles", x: 700, y: 680, w: 260, h: 245, color: "#dc2626", label: "emergency_profiles" },
 ];
 
 function buildErdNodes(): ErdNode[] {
@@ -925,12 +841,8 @@ const erdLines: ErdLine[] = [
   { from: "drivers",       to: "driver_profiles", fromSide: "left",   toSide: "right",  label: "has profile",  fromCard: "1", toCard: "1" },
   { from: "drivers",       to: "driver_license_profiles", fromSide: "right", toSide: "left", label: "has license", fromCard: "1", toCard: "N" },
   { from: "driver_license_types", to: "driver_license_profiles", fromSide: "right", toSide: "top", label: "classifies", fromCard: "1", toCard: "N" },
-  { from: "drivers",       to: "vehicles",   fromSide: "bottom", toSide: "top",    label: "owns",         fromCard: "1", toCard: "N" },
-  { from: "drivers",       to: "rides",      fromSide: "bottom", toSide: "top",    label: "drives",       fromCard: "1", toCard: "N" },
-  { from: "passengers",    to: "rides",      fromSide: "left",   toSide: "right",  label: "requests",     fromCard: "1", toCard: "N" },
-  { from: "vehicles",      to: "rides",      fromSide: "right",  toSide: "left",   label: "used in",      fromCard: "1", toCard: "N" },
+  { from: "drivers",       to: "vehicle_profiles", fromSide: "bottom", toSide: "top",    label: "owns",         fromCard: "1", toCard: "N" },
   { from: "drivers",       to: "emergency_profiles", fromSide: "right", toSide: "left", label: "contacts", fromCard: "1", toCard: "N" },
-  { from: "passengers",    to: "emergency_profiles", fromSide: "bottom", toSide: "top", label: "contacts", fromCard: "1", toCard: "N" },
 ];
 
 function getAnchorPoint(node: ErdNode, side: "top" | "bottom" | "left" | "right") {
@@ -1519,14 +1431,13 @@ function generateTableDDL(entity: TableEntity, engine: DbEngine): string {
     if (enumCols.length > 0) {
       lines.push(`-- Custom ENUM types`);
       const enumMap: Record<string, string> = {
-        "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" || entity.name === "policies" ? "license_status" : "vehicle_status",
+        "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "policies" ? "license_status" : "driver_status",
         "ENUM('MALE','FEMALE')": "gender",
         "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')": "driver_status",
         "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
-        "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
-        "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
-        "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
-        "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "driver_profile_status",
+        "ENUM('PETROL','DIESEL','HYBRID','ELECTRIC','CNG','LPG')": "fuel_type",
+        "ENUM('OWNER','RENT')": "ownership_type",
+        "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "vehicle_profile_status",
         "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
       };
       const seen = new Set<string>();
@@ -1554,14 +1465,13 @@ function generateTableDDL(entity: TableEntity, engine: DbEngine): string {
     } else if (col.type.startsWith("ENUM")) {
       if (engine === "postgresql") {
         const enumMap: Record<string, string> = {
-          "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "passengers" || entity.name === "policies" ? "license_status" : "vehicle_status",
+          "ENUM('ACTIVE','INACTIVE')": entity.name === "driver_license_types" || entity.name === "policies" ? "license_status" : "driver_status",
           "ENUM('MALE','FEMALE')": "gender",
           "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')": "driver_status",
           "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
-          "ENUM('ACTIVE','INACTIVE','MAINTENANCE')": "vehicle_status",
-          "ENUM('REQUESTED','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')": "ride_status",
-          "ENUM('CREATE','UPDATE','DELETE')": "audit_action",
-          "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "driver_profile_status",
+          "ENUM('PETROL','DIESEL','HYBRID','ELECTRIC','CNG','LPG')": "fuel_type",
+          "ENUM('OWNER','RENT')": "ownership_type",
+          "ENUM('UNDER_REVIEW','REJECT','APPROVED')": "vehicle_profile_status",
           "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
         };
         colType = enumMap[col.type] || "VARCHAR(50)";
@@ -1614,10 +1524,8 @@ function generateTableDDL(entity: TableEntity, engine: DbEngine): string {
     const commentMap: Record<string, string> = {
       driver_license_types: "Myanmar driver license type classifications (THA, KA, KHA, GA, GHA, NGA, ZA, HA, SA, INT, TMP)",
       drivers: "Registered taxi drivers with license and status information",
-      vehicles: "Vehicles registered to drivers for ride service",
-      rides: "Ride transactions between drivers and passengers",
-      passengers: "Registered passengers who use the taxi service",
-      audit_logs: "Audit trail for all data mutations across tables",
+      vehicle_profiles: "Vehicle profiles registered to drivers with ownership and approval status",
+
     };
     if (commentMap[entity.name]) {
       lines.push(`\nCOMMENT ON TABLE ${entity.name} IS '${commentMap[entity.name]}';`);
@@ -1644,7 +1552,7 @@ function generateSchemaCode(entity: TableEntity, lang: BackendLang, engine?: DbE
 function ErdVisual() {
   const nodes = buildErdNodes();
   const canvasW = 1010;
-  const canvasH = 1300;
+  const canvasH = 1150;
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [hoveredLine, setHoveredLine] = useState<number | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
@@ -1742,9 +1650,17 @@ function ErdVisual() {
               const dx = to.x - from.x;
 
               if (line.fromSide === "bottom" && line.toSide === "top") {
-                const midY = from.y + dy * 0.5;
-                c1x = from.x; c1y = midY;
-                c2x = to.x;   c2y = midY;
+                if (Math.abs(dy) < 40 && Math.abs(dx) > 100) {
+                  // Nearly same level — create a swooping arc that dips below both nodes
+                  const dip = 60;
+                  const midY = Math.max(from.y, to.y) + dip;
+                  c1x = from.x; c1y = midY;
+                  c2x = to.x;   c2y = midY;
+                } else {
+                  const midY = from.y + dy * 0.5;
+                  c1x = from.x; c1y = midY;
+                  c2x = to.x;   c2y = midY;
+                }
               } else if (line.fromSide === "left" && line.toSide === "right") {
                 const midX = from.x + dx * 0.5;
                 c1x = midX; c1y = from.y;
@@ -1753,6 +1669,35 @@ function ErdVisual() {
                 const midX = from.x + dx * 0.5;
                 c1x = midX; c1y = from.y;
                 c2x = midX; c2y = to.y;
+              } else if (line.fromSide === "right" && line.toSide === "top") {
+                // Curve goes right first, then bends down to arrive at top
+                c1x = from.x + dx * 0.7; c1y = from.y;
+                c2x = to.x;              c2y = from.y + dy * 0.3;
+              } else if (line.fromSide === "left" && line.toSide === "top") {
+                c1x = from.x + dx * 0.7; c1y = from.y;
+                c2x = to.x;              c2y = from.y + dy * 0.3;
+              } else if (line.fromSide === "bottom" && line.toSide === "left") {
+                c1x = from.x; c1y = from.y + dy * 0.7;
+                c2x = from.x + dx * 0.3; c2y = to.y;
+              } else if (line.fromSide === "bottom" && line.toSide === "right") {
+                c1x = from.x; c1y = from.y + dy * 0.7;
+                c2x = from.x + dx * 0.3; c2y = to.y;
+              } else if (line.fromSide === "top" && line.toSide === "bottom") {
+                const midY = from.y + dy * 0.5;
+                c1x = from.x; c1y = midY;
+                c2x = to.x;   c2y = midY;
+              } else if (line.fromSide === "top" && line.toSide === "left") {
+                c1x = from.x; c1y = from.y + dy * 0.3;
+                c2x = from.x + dx * 0.7; c2y = to.y;
+              } else if (line.fromSide === "top" && line.toSide === "right") {
+                c1x = from.x; c1y = from.y + dy * 0.3;
+                c2x = from.x + dx * 0.7; c2y = to.y;
+              } else if (line.fromSide === "right" && line.toSide === "bottom") {
+                c1x = from.x + dx * 0.7; c1y = from.y;
+                c2x = to.x;              c2y = from.y + dy * 0.7;
+              } else if (line.fromSide === "left" && line.toSide === "bottom") {
+                c1x = from.x + dx * 0.7; c1y = from.y;
+                c2x = to.x;              c2y = from.y + dy * 0.7;
               }
 
               const pathD = `M ${from.x} ${from.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${to.x} ${to.y}`;

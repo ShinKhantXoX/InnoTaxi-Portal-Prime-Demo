@@ -698,7 +698,7 @@ export function DriverList() {
           </div>
           <div>
             <h1 className="text-[20px] text-[#0f172a] font-semibold tracking-[-0.2px]">
-              Driver Management
+              Drivers
             </h1>
             <p className="text-[12px] text-[#94a3b8]">
               Manage all registered drivers
