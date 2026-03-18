@@ -978,7 +978,6 @@ export function DashboardLayout() {
                   <div className="h-[320px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
-                        id="dashboard-bar-chart"
                         data={[
                           { code: "THA", name: "သ (Learner)", active: 28, inactive: 5 },
                           { code: "KA", name: "က (Motorcycle)", active: 67, inactive: 12 },
@@ -1023,8 +1022,8 @@ export function DashboardLayout() {
                           }}
                           cursor={{ fill: "rgba(229, 57, 53, 0.04)" }}
                         />
-                        <Bar key="active" dataKey="active" name="Active" fill="#e53935" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                        <Bar key="inactive" dataKey="inactive" name="Inactive" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                        <Bar dataKey="active" name="Active" fill="#e53935" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                        <Bar dataKey="inactive" name="Inactive" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={32} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

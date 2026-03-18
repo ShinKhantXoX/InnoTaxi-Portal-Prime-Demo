@@ -230,6 +230,28 @@ const entities: TableEntity[] = [
       { name: "deleted_at", type: "TIMESTAMP", nullable: true },
     ],
   },
+  {
+    name: "fuel_stations",
+    label: "Fuel Stations",
+    color: "#f97316",
+    icon: Layers,
+    columns: [
+      { name: "id", type: "BIGINT", pk: true },
+      { name: "label", type: "VARCHAR(255)" },
+      { name: "brand", type: "VARCHAR(100)" },
+      { name: "available_fuel_type", type: "JSON" },
+      { name: "station_type", type: "ENUM('GAS','PETROL','EV','GAS_PETROL','GAS_EV','PETROL_EV','GAS_PETROL_EV')" },
+      { name: "city", type: "VARCHAR(100)" },
+      { name: "township", type: "VARCHAR(100)" },
+      { name: "latitude", type: "DECIMAL(10,7)" },
+      { name: "longitude", type: "DECIMAL(10,7)" },
+      { name: "description", type: "TEXT", nullable: true },
+      { name: "status", type: "ENUM('ACTIVE','INACTIVE')", default: "'ACTIVE'" },
+      { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
+      { name: "deleted_at", type: "TIMESTAMP", nullable: true },
+    ],
+  },
 ];
 
 // ─── Relationships ───
@@ -271,7 +293,9 @@ function generateDDL(engine: DbEngine): string {
     lines.push(`CREATE TYPE driver_profile_status AS ENUM ('UNDER_REVIEW', 'REJECT', 'APPROVED');`);
     lines.push(`CREATE TYPE policy_type AS ENUM ('DRIVER_LICENSE', 'VEHICLE_LICENSE');`);
     lines.push(`CREATE TYPE relationship_type AS ENUM ('SPOUSE', 'PARENT', 'SIBLING', 'CHILD', 'FRIEND', 'OTHER');`);
-    lines.push(`CREATE TYPE emergency_profile_status AS ENUM ('UNDER_REVIEW', 'REJECT', 'APPROVE');\n`);
+    lines.push(`CREATE TYPE emergency_profile_status AS ENUM ('UNDER_REVIEW', 'REJECT', 'APPROVE');`);
+    lines.push(`CREATE TYPE station_type AS ENUM ('GAS', 'PETROL', 'EV', 'GAS_PETROL', 'GAS_EV', 'PETROL_EV', 'GAS_PETROL_EV');`);
+    lines.push(`CREATE TYPE fuel_station_status AS ENUM ('ACTIVE', 'INACTIVE');\n`);
   }
 
   for (const entity of entities) {
@@ -291,7 +315,7 @@ function generateDDL(engine: DbEngine): string {
         if (engine === "postgresql") {
           // Use the custom enum type
           const enumMap: Record<string, string> = {
-            "ENUM('ACTIVE','INACTIVE')": col.name === "status" && entity.name === "driver_license_types" ? "license_status" : col.name === "status" && entity.name === "vehicle_profiles" ? "vehicle_profile_status" : col.name === "status" && entity.name === "policies" ? "license_status" : "driver_status",
+            "ENUM('ACTIVE','INACTIVE')": col.name === "status" && entity.name === "driver_license_types" ? "license_status" : col.name === "status" && entity.name === "vehicle_profiles" ? "vehicle_profile_status" : col.name === "status" && entity.name === "policies" ? "license_status" : col.name === "status" && entity.name === "fuel_stations" ? "fuel_station_status" : "driver_status",
             "ENUM('MALE','FEMALE')": "gender",
             "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')": "driver_status",
             "ENUM('SEDAN','SUV','HATCHBACK','VAN','MOTORCYCLE','THREE_WHEEL')": "vehicle_type",
@@ -302,6 +326,7 @@ function generateDDL(engine: DbEngine): string {
             "ENUM('DRIVER_LICENSE','VEHICLE_LICENSE')": "policy_type",
             "ENUM('SPOUSE','PARENT','SIBLING','CHILD','FRIEND','OTHER')": "relationship_type",
             "ENUM('UNDER_REVIEW','REJECT','APPROVE')": "emergency_profile_status",
+            "ENUM('GAS','PETROL','EV','GAS_PETROL','GAS_EV','PETROL_EV','GAS_PETROL_EV')": "station_type",
           };
           colType = enumMap[col.type] || "VARCHAR(50)";
         } else if (engine === "sqlserver" || engine === "sqlite") {
@@ -374,6 +399,7 @@ function generateDDL(engine: DbEngine): string {
     lines.push(`COMMENT ON TABLE driver_license_profiles IS 'Driver license profile documents with issue date, expiry, and review status';`);
     lines.push(`COMMENT ON TABLE policies IS 'Policies governing driver and vehicle license issuance, renewal, and compliance';`);
     lines.push(`COMMENT ON TABLE emergency_profiles IS 'Emergency contact profiles for drivers with nullable driver_id, contact name, phone prefix, relationship, and review status';`);
+    lines.push(`COMMENT ON TABLE fuel_stations IS 'Fuel stations with 7 station types (GAS, PETROL, EV, GAS_PETROL, GAS_EV, PETROL_EV, GAS_PETROL_EV), location coordinates, and available fuel types';`);
   }
 
   return lines.join("\n");
@@ -819,6 +845,7 @@ const erdNodeDefs: Omit<ErdNode, "keyCols">[] = [
   { name: "driver_license_profiles", x: 700, y: 300, w: 260, h: 350, color: "#ec4899", label: "driver_license_profiles" },
   { name: "vehicle_profiles", x: 40,  y: 680, w: 240, h: 440, color: "#16a34a", label: "vehicle_profiles" },
   { name: "emergency_profiles", x: 700, y: 680, w: 260, h: 245, color: "#dc2626", label: "emergency_profiles" },
+  { name: "fuel_stations", x: 370, y: 680, w: 250, h: 330, color: "#f97316", label: "fuel_stations" },
 ];
 
 function buildErdNodes(): ErdNode[] {
@@ -1552,7 +1579,7 @@ function generateSchemaCode(entity: TableEntity, lang: BackendLang, engine?: DbE
 function ErdVisual() {
   const nodes = buildErdNodes();
   const canvasW = 1010;
-  const canvasH = 1150;
+  const canvasH = 1250;
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [hoveredLine, setHoveredLine] = useState<number | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
