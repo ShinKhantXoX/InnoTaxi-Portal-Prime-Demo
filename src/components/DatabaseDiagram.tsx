@@ -112,6 +112,8 @@ const entities: TableEntity[] = [
       { name: "phone_number", type: "VARCHAR(20)" },
       { name: "email", type: "VARCHAR(255)", unique: true },
       { name: "password", type: "VARCHAR(255)" },
+      { name: "passcode", type: "VARCHAR(255)" },
+      { name: "biometric", type: "VARCHAR(500)", nullable: true },
       { name: "status", type: "ENUM('ACTIVE','PENDING','INACTIVE','SUSPENDED')", default: "'PENDING'" },
       { name: "created_at", type: "TIMESTAMP", default: "NOW()" },
       { name: "updated_at", type: "TIMESTAMP", default: "NOW()" },
@@ -392,7 +394,7 @@ function generateDDL(engine: DbEngine): string {
   if (engine === "postgresql") {
     lines.push(`-- ─── Table Comments ───`);
     lines.push(`COMMENT ON TABLE driver_license_types IS 'Myanmar driver license type classifications (THA, KA, KHA, GA, GHA, NGA, ZA, HA, SA, INT, TMP)';`);
-    lines.push(`COMMENT ON TABLE drivers IS 'Registered taxi drivers with license and status information';`);
+    lines.push(`COMMENT ON TABLE drivers IS 'Registered taxi drivers with license, status, PIN, and biometric information';`);
     lines.push(`COMMENT ON TABLE vehicle_profiles IS 'Vehicle profiles registered to drivers with ownership and approval status';`);
 
     lines.push(`COMMENT ON TABLE driver_profiles IS 'Driver profile information including address, profile image, and review status';`);
@@ -841,7 +843,7 @@ const erdNodeDefs: Omit<ErdNode, "keyCols">[] = [
   { name: "policies",    x: 40,  y: 20,  w: 210, h: 205, color: "#0891b2", label: "policies" },
   { name: "driver_license_types", x: 370, y: 20,  w: 240, h: 260, color: "#e53935", label: "driver_license_types" },
   { name: "driver_profiles", x: 40,  y: 300, w: 230, h: 280, color: "#8b5cf6", label: "driver_profiles" },
-  { name: "drivers",       x: 370, y: 300, w: 220, h: 280, color: "#2563eb", label: "drivers" },
+  { name: "drivers",       x: 370, y: 300, w: 220, h: 316, color: "#2563eb", label: "drivers" },
   { name: "driver_license_profiles", x: 700, y: 300, w: 260, h: 350, color: "#ec4899", label: "driver_license_profiles" },
   { name: "vehicle_profiles", x: 40,  y: 680, w: 240, h: 440, color: "#16a34a", label: "vehicle_profiles" },
   { name: "emergency_profiles", x: 700, y: 680, w: 260, h: 245, color: "#dc2626", label: "emergency_profiles" },

@@ -16,6 +16,7 @@ import { FuelTypeDetail } from "./components/FuelTypeDetail";
 import { FuelStationDetail } from "./components/FuelStationDetail";
 import { FuelStationEdit } from "./components/FuelStationEdit";
 import { FuelStationAdd } from "./components/FuelStationAdd";
+import { CasesDetail } from "./components/CasesDetail";
 
 export const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ export const router = createBrowserRouter([
       {
         path: "fuel-stations/:id/edit",
         Component: FuelStationEdit,
+      },
+      {
+        path: "cases/:id",
+        Component: CasesDetail,
       },
     ],
   },
