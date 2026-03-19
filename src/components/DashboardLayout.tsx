@@ -37,6 +37,7 @@ import {
   Smartphone,
   Zap,
   ArrowRight,
+  Briefcase,
 } from "lucide-react";
 import { LicenseTypeList } from "./LicenseTypeList";
 import { FrontendDev } from "./FrontendDev";
@@ -52,6 +53,7 @@ import { DriverLicenseProfile } from "./DriverLicenseProfile";
 import { VehicleProfile } from "./VehicleProfile";
 import { FuelTypeList } from "./FuelTypeList";
 import { FuelStationList } from "./FuelStationList";
+import { CasesList } from "./CasesList";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface UserProfile {
@@ -108,6 +110,7 @@ export function DashboardLayout() {
     { label: "Driver License Type List", section: "Frontend", icon: Code, target: "Frontend", pageId: "license-list", description: "Data table with charts for driver license type management", route: "/dashboard (Driver License Type)" },
     { label: "Policies List", section: "Frontend", icon: Code, target: "Frontend", pageId: "policy-list", description: "Data table with charts for policies management", route: "/dashboard (Policies)" },
     { label: "Blood Type List", section: "Frontend", icon: Code, target: "Frontend", pageId: "blood-type-list", description: "Data table with charts for blood type management", route: "/dashboard (Blood Type)" },
+    { label: "Cases List", section: "Frontend", icon: Code, target: "Frontend", pageId: "cases-list", description: "Data table for cases management with CRUD operations", route: "/dashboard (Cases)" },
     { label: "Driver List", section: "Frontend", icon: Code, target: "Frontend", pageId: "driver-list", description: "Data table for driver management with CRUD operations", route: "/dashboard (Drivers)" },
     { label: "Driver License Type Detail", section: "Frontend", icon: Code, target: "Frontend", pageId: "license-detail", description: "Detail view with update form and monthly statistics chart", route: "/dashboard/license-types/:id" },
     { label: "Policies Detail", section: "Frontend", icon: Code, target: "Frontend", pageId: "policy-list", description: "Detail view with update form for policies", route: "/dashboard/license-policies/:id" },
@@ -528,6 +531,38 @@ export function DashboardLayout() {
                 </button>
               );
             })()}
+
+            {/* Cases (simple item, no sub-menu) */}
+            {(() => {
+              const isActive = activeItem === "Cases";
+              return (
+                <button
+                  onClick={() => {
+                    setActiveItem("Cases");
+                    setMobileSidebarOpen(false);
+                    if (location.pathname !== "/dashboard") navigate("/dashboard");
+                  }}
+                  className={`
+                    flex items-center gap-3 rounded-[10px] transition-all cursor-pointer
+                    ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
+                    ${
+                      isActive
+                        ? "bg-[#eef2ff] text-[#6366f1]"
+                        : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    }
+                  `}
+                  title={!sidebarOpen ? "Cases" : undefined}
+                >
+                  <Briefcase className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#6366f1]" : ""}`} />
+                  {sidebarOpen && (
+                    <span className={`text-[13px] ${isActive ? "font-semibold" : "font-medium"}`}>Cases</span>
+                  )}
+                  {isActive && sidebarOpen && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
+                  )}
+                </button>
+              );
+            })()}
           </div>
 
           {/* Section Header: Development */}
@@ -898,6 +933,8 @@ export function DashboardLayout() {
               <FuelTypeList />
             ) : activeItem === "Fuel Station" ? (
               <FuelStationList />
+            ) : activeItem === "Cases" ? (
+              <CasesList />
             ) : activeItem === "Policies" ? (
               <LicensePolicyList />
             ) : activeItem === "Drivers" ? (
